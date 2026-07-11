@@ -1,0 +1,454 @@
+{
+  "cost_scenarios": [
+    {
+      "fee_bps": 4.0,
+      "latency_ms": 250,
+      "name": "baseline",
+      "slippage_bps": 2.0,
+      "spread_bps": 2.0
+    },
+    {
+      "fee_bps": 4.0,
+      "latency_ms": 500,
+      "name": "stress",
+      "slippage_bps": 4.0,
+      "spread_bps": 4.0
+    }
+  ],
+  "created_at": "2026-07-11T23:34:03.588140+00:00",
+  "dataset_manifests": [
+    {
+      "actual_end_ms": 1767225599999,
+      "actual_start_ms": 1735689600000,
+      "files": [
+        "BTCUSDT-1m-2025-01.zip",
+        "BTCUSDT-1m-2025-02.zip",
+        "BTCUSDT-1m-2025-03.zip",
+        "BTCUSDT-1m-2025-04.zip",
+        "BTCUSDT-1m-2025-05.zip",
+        "BTCUSDT-1m-2025-06.zip",
+        "BTCUSDT-1m-2025-07.zip",
+        "BTCUSDT-1m-2025-08.zip",
+        "BTCUSDT-1m-2025-09.zip",
+        "BTCUSDT-1m-2025-10.zip",
+        "BTCUSDT-1m-2025-11.zip",
+        "BTCUSDT-1m-2025-12.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-01-01",
+      "requested_start": "2025-01-01",
+      "rows": 525600,
+      "sha256": "ad231c2679302a92992741f26361a06388378e9e434716c86de970e5b58b9d53",
+      "symbol": "BTCUSDT"
+    },
+    {
+      "actual_end_ms": 1767225599999,
+      "actual_start_ms": 1735689600000,
+      "files": [
+        "ETHUSDT-1m-2025-01.zip",
+        "ETHUSDT-1m-2025-02.zip",
+        "ETHUSDT-1m-2025-03.zip",
+        "ETHUSDT-1m-2025-04.zip",
+        "ETHUSDT-1m-2025-05.zip",
+        "ETHUSDT-1m-2025-06.zip",
+        "ETHUSDT-1m-2025-07.zip",
+        "ETHUSDT-1m-2025-08.zip",
+        "ETHUSDT-1m-2025-09.zip",
+        "ETHUSDT-1m-2025-10.zip",
+        "ETHUSDT-1m-2025-11.zip",
+        "ETHUSDT-1m-2025-12.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-01-01",
+      "requested_start": "2025-01-01",
+      "rows": 525600,
+      "sha256": "4b3422f91c406c60743744f78aff3c8b6ab650c61034da19d8b42928da3d8dc1",
+      "symbol": "ETHUSDT"
+    },
+    {
+      "actual_end_ms": 1767225599999,
+      "actual_start_ms": 1735689600000,
+      "files": [
+        "SOLUSDT-1m-2025-01.zip",
+        "SOLUSDT-1m-2025-02.zip",
+        "SOLUSDT-1m-2025-03.zip",
+        "SOLUSDT-1m-2025-04.zip",
+        "SOLUSDT-1m-2025-05.zip",
+        "SOLUSDT-1m-2025-06.zip",
+        "SOLUSDT-1m-2025-07.zip",
+        "SOLUSDT-1m-2025-08.zip",
+        "SOLUSDT-1m-2025-09.zip",
+        "SOLUSDT-1m-2025-10.zip",
+        "SOLUSDT-1m-2025-11.zip",
+        "SOLUSDT-1m-2025-12.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-01-01",
+      "requested_start": "2025-01-01",
+      "rows": 525600,
+      "sha256": "55ae7d00b7f60dbe5792b477c8ddf9719a88668c0f647f441d1d4460c7edf1d3",
+      "symbol": "SOLUSDT"
+    },
+    {
+      "actual_end_ms": 1767225599999,
+      "actual_start_ms": 1735689600000,
+      "files": [
+        "BNBUSDT-1m-2025-01.zip",
+        "BNBUSDT-1m-2025-02.zip",
+        "BNBUSDT-1m-2025-03.zip",
+        "BNBUSDT-1m-2025-04.zip",
+        "BNBUSDT-1m-2025-05.zip",
+        "BNBUSDT-1m-2025-06.zip",
+        "BNBUSDT-1m-2025-07.zip",
+        "BNBUSDT-1m-2025-08.zip",
+        "BNBUSDT-1m-2025-09.zip",
+        "BNBUSDT-1m-2025-10.zip",
+        "BNBUSDT-1m-2025-11.zip",
+        "BNBUSDT-1m-2025-12.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-01-01",
+      "requested_start": "2025-01-01",
+      "rows": 525600,
+      "sha256": "125ba9c9827f158428d4d693f78ac34472776d76563a36225a27b55f0a2e15ad",
+      "symbol": "BNBUSDT"
+    },
+    {
+      "actual_end_ms": 1767225599999,
+      "actual_start_ms": 1735689600000,
+      "files": [
+        "XRPUSDT-1m-2025-01.zip",
+        "XRPUSDT-1m-2025-02.zip",
+        "XRPUSDT-1m-2025-03.zip",
+        "XRPUSDT-1m-2025-04.zip",
+        "XRPUSDT-1m-2025-05.zip",
+        "XRPUSDT-1m-2025-06.zip",
+        "XRPUSDT-1m-2025-07.zip",
+        "XRPUSDT-1m-2025-08.zip",
+        "XRPUSDT-1m-2025-09.zip",
+        "XRPUSDT-1m-2025-10.zip",
+        "XRPUSDT-1m-2025-11.zip",
+        "XRPUSDT-1m-2025-12.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-01-01",
+      "requested_start": "2025-01-01",
+      "rows": 525600,
+      "sha256": "44aa185565ca76dd0b81e56efa31992c054a5a1778975e35c3940b5cf9b52c4b",
+      "symbol": "XRPUSDT"
+    }
+  ],
+  "git_sha": "0bfbb1f20ff50c0332c7a6d8c7b12e1d8eff947d",
+  "horizon": "12m",
+  "methodology": {
+    "decision_path": "4h/1h regime; 30m/15m/5m setup; 3m/1m entry veto",
+    "execution": "next available one-minute open after signal and latency",
+    "initial_equity_per_symbol": 10000,
+    "look_ahead": "closed candles only"
+  },
+  "portfolio": [
+    {
+      "allocation_per_symbol": 0.2,
+      "final_equity": 29.58626850474655,
+      "initial_equity": 10000,
+      "return_pct": -99.70413731495253,
+      "scenario": "baseline",
+      "trades": 25303
+    },
+    {
+      "allocation_per_symbol": 0.2,
+      "final_equity": 2.8264640190489576,
+      "initial_equity": 10000,
+      "return_pct": -99.97173535980951,
+      "scenario": "stress",
+      "trades": 25214
+    }
+  ],
+  "requested_end": "2026-01-01",
+  "requested_start": "2025-01-01",
+  "results": [
+    {
+      "benchmark_return_pct": -6.350268522952729,
+      "classification": "failed",
+      "exposure_pct": 50.00498355427091,
+      "fees_usd": 5336.6449302263445,
+      "final_equity": 28.870445095570165,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.9971132521831115,
+        "sharpe": -235.12592216827065,
+        "total_return": -0.997112955490443,
+        "trades": 5017,
+        "win_rate": 0.13713374526609529
+      },
+      "return_pct": -99.7112955490443,
+      "scenario": "baseline",
+      "symbol": "BTCUSDT",
+      "trades": 5017,
+      "turnover_usd": 13341612.325565886,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": -6.350268522952729,
+      "classification": "failed",
+      "exposure_pct": 50.00498355427091,
+      "fees_usd": 3775.1035611383754,
+      "final_equity": 2.712954256084478,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.9997287324601639,
+        "sharpe": -330.1402521553752,
+        "total_return": -0.9997287045743916,
+        "trades": 5017,
+        "win_rate": 0.10484353199122982
+      },
+      "return_pct": -99.97287045743916,
+      "scenario": "stress",
+      "symbol": "BTCUSDT",
+      "trades": 5017,
+      "turnover_usd": 9437758.902846,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": -10.974710631844575,
+      "classification": "failed",
+      "exposure_pct": 50.0,
+      "fees_usd": 5797.9056560609115,
+      "final_equity": 37.26155445909735,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.9962790437731511,
+        "sharpe": -121.88500809850593,
+        "total_return": -0.9962738445540903,
+        "trades": 5162,
+        "win_rate": 0.17996900426191398
+      },
+      "return_pct": -99.62738445540903,
+      "scenario": "baseline",
+      "symbol": "ETHUSDT",
+      "trades": 5162,
+      "turnover_usd": 14494764.140152352,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": -10.974710631844575,
+      "classification": "failed",
+      "exposure_pct": 50.0,
+      "fees_usd": 4007.5332506450486,
+      "final_equity": 3.309200758432049,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.9996694491222599,
+        "sharpe": -175.05519982732613,
+        "total_return": -0.9996690799241568,
+        "trades": 5162,
+        "win_rate": 0.1522665633475397
+      },
+      "return_pct": -99.96690799241567,
+      "scenario": "stress",
+      "symbol": "ETHUSDT",
+      "trades": 5162,
+      "turnover_usd": 10018833.12661267,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": -34.15600887855407,
+      "classification": "failed",
+      "exposure_pct": 50.0,
+      "fees_usd": 4855.2020227310595,
+      "final_equity": 13.402315484460225,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.998663200216314,
+        "sharpe": -130.5150387790525,
+        "total_return": -0.998659768451554,
+        "trades": 5414,
+        "win_rate": 0.20668636867380866
+      },
+      "return_pct": -99.8659768451554,
+      "scenario": "baseline",
+      "symbol": "SOLUSDT",
+      "trades": 5414,
+      "turnover_usd": 12138005.056827651,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": -34.15600887855407,
+      "classification": "failed",
+      "exposure_pct": 49.17805688954562,
+      "fees_usd": 3487.2077396101527,
+      "final_equity": 1.2129025750450217,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.9998787097424955,
+        "sharpe": -178.4682397109478,
+        "total_return": -0.9998787097424955,
+        "trades": 5325,
+        "win_rate": 0.17708920187793428
+      },
+      "return_pct": -99.98787097424955,
+      "scenario": "stress",
+      "symbol": "SOLUSDT",
+      "trades": 5325,
+      "turnover_usd": 8718019.349025348,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": 23.155256149146176,
+      "classification": "failed",
+      "exposure_pct": 50.0,
+      "fees_usd": 5324.265944165436,
+      "final_equity": 46.210590944397325,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.9953807047892061,
+        "sharpe": -161.40585545720623,
+        "total_return": -0.9953789409055602,
+        "trades": 4794,
+        "win_rate": 0.16499791405924072
+      },
+      "return_pct": -99.53789409055602,
+      "scenario": "baseline",
+      "symbol": "BNBUSDT",
+      "trades": 4794,
+      "turnover_usd": 13310664.860413611,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": 23.155256149146176,
+      "classification": "failed",
+      "exposure_pct": 50.0,
+      "fees_usd": 3759.118884183483,
+      "final_equity": 4.710123088088057,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.9995290545406035,
+        "sharpe": -230.16844538413966,
+        "total_return": -0.9995289876911911,
+        "trades": 4794,
+        "win_rate": 0.13266583229036297
+      },
+      "return_pct": -99.95289876911912,
+      "scenario": "stress",
+      "symbol": "BNBUSDT",
+      "trades": 4794,
+      "turnover_usd": 9397797.210458765,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": -11.634269258459318,
+      "classification": "failed",
+      "exposure_pct": 50.0,
+      "fees_usd": 4490.536980690696,
+      "final_equity": 22.186436540210913,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.997815846742476,
+        "sharpe": -134.00394275554353,
+        "total_return": -0.9977813563459789,
+        "trades": 4916,
+        "win_rate": 0.19385679414157853
+      },
+      "return_pct": -99.77813563459789,
+      "scenario": "baseline",
+      "symbol": "XRPUSDT",
+      "trades": 4916,
+      "turnover_usd": 11226342.451726774,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    },
+    {
+      "benchmark_return_pct": -11.634269258459318,
+      "classification": "failed",
+      "exposure_pct": 50.0,
+      "fees_usd": 3275.1874336270976,
+      "final_equity": 2.187139417589105,
+      "horizon": "12m",
+      "metrics": {
+        "max_drawdown": 0.999783997856119,
+        "sharpe": -185.1516262887829,
+        "total_return": -0.9997812860582411,
+        "trades": 4916,
+        "win_rate": 0.1657851912123678
+      },
+      "return_pct": -99.97812860582411,
+      "scenario": "stress",
+      "symbol": "XRPUSDT",
+      "trades": 4916,
+      "turnover_usd": 8187968.584067765,
+      "unavailable_features": [
+        "historical_order_book",
+        "open_interest",
+        "liquidations",
+        "news",
+        "funding"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "BNBUSDT",
+    "XRPUSDT"
+  ]
+}

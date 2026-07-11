@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install shared packages and test tools
+        run: |
+          pip install "kairos-core @ git+https://github.com/Kairos-cryptoAI/kairos-core.git@main"
+          pip install "kairos-quant-scouts @ git+https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git@main"
+          pip install -e ".[dev]" bandit build
+      - run: ruff check . --select E,F,W,B
+      - run: pytest -q
+      - run: bandit -q -r kairos_backtest
+      - run: python -m build

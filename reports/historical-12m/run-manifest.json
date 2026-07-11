@@ -1,0 +1,147 @@
+{
+  "created_at": "2026-07-11T23:33:50.675314+00:00",
+  "datasets": [
+    {
+      "actual_end_ms": 1782863999999,
+      "actual_start_ms": 1751328000000,
+      "files": [
+        "BTCUSDT-1m-2025-07.zip",
+        "BTCUSDT-1m-2025-08.zip",
+        "BTCUSDT-1m-2025-09.zip",
+        "BTCUSDT-1m-2025-10.zip",
+        "BTCUSDT-1m-2025-11.zip",
+        "BTCUSDT-1m-2025-12.zip",
+        "BTCUSDT-1m-2026-01.zip",
+        "BTCUSDT-1m-2026-02.zip",
+        "BTCUSDT-1m-2026-03.zip",
+        "BTCUSDT-1m-2026-04.zip",
+        "BTCUSDT-1m-2026-05.zip",
+        "BTCUSDT-1m-2026-06.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-07-01",
+      "requested_start": "2025-07-01",
+      "rows": 525600,
+      "sha256": "e3e9adbe731d41b90fa48372a19c96c76dc99ffa5064c123a541ba6c50790539",
+      "symbol": "BTCUSDT"
+    },
+    {
+      "actual_end_ms": 1782863999999,
+      "actual_start_ms": 1751328000000,
+      "files": [
+        "ETHUSDT-1m-2025-07.zip",
+        "ETHUSDT-1m-2025-08.zip",
+        "ETHUSDT-1m-2025-09.zip",
+        "ETHUSDT-1m-2025-10.zip",
+        "ETHUSDT-1m-2025-11.zip",
+        "ETHUSDT-1m-2025-12.zip",
+        "ETHUSDT-1m-2026-01.zip",
+        "ETHUSDT-1m-2026-02.zip",
+        "ETHUSDT-1m-2026-03.zip",
+        "ETHUSDT-1m-2026-04.zip",
+        "ETHUSDT-1m-2026-05.zip",
+        "ETHUSDT-1m-2026-06.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-07-01",
+      "requested_start": "2025-07-01",
+      "rows": 525600,
+      "sha256": "ad0393d3d5c22cb8c9d82e2b51961f9a5e24dec50d83211db22533b444cb3d96",
+      "symbol": "ETHUSDT"
+    },
+    {
+      "actual_end_ms": 1782863999999,
+      "actual_start_ms": 1751328000000,
+      "files": [
+        "SOLUSDT-1m-2025-07.zip",
+        "SOLUSDT-1m-2025-08.zip",
+        "SOLUSDT-1m-2025-09.zip",
+        "SOLUSDT-1m-2025-10.zip",
+        "SOLUSDT-1m-2025-11.zip",
+        "SOLUSDT-1m-2025-12.zip",
+        "SOLUSDT-1m-2026-01.zip",
+        "SOLUSDT-1m-2026-02.zip",
+        "SOLUSDT-1m-2026-03.zip",
+        "SOLUSDT-1m-2026-04.zip",
+        "SOLUSDT-1m-2026-05.zip",
+        "SOLUSDT-1m-2026-06.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-07-01",
+      "requested_start": "2025-07-01",
+      "rows": 525600,
+      "sha256": "2605dd684a24be70ee1013af5aa0808f27e70106b847e8cae5ac0659eabd1f47",
+      "symbol": "SOLUSDT"
+    },
+    {
+      "actual_end_ms": 1782863999999,
+      "actual_start_ms": 1751328000000,
+      "files": [
+        "BNBUSDT-1m-2025-07.zip",
+        "BNBUSDT-1m-2025-08.zip",
+        "BNBUSDT-1m-2025-09.zip",
+        "BNBUSDT-1m-2025-10.zip",
+        "BNBUSDT-1m-2025-11.zip",
+        "BNBUSDT-1m-2025-12.zip",
+        "BNBUSDT-1m-2026-01.zip",
+        "BNBUSDT-1m-2026-02.zip",
+        "BNBUSDT-1m-2026-03.zip",
+        "BNBUSDT-1m-2026-04.zip",
+        "BNBUSDT-1m-2026-05.zip",
+        "BNBUSDT-1m-2026-06.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-07-01",
+      "requested_start": "2025-07-01",
+      "rows": 525600,
+      "sha256": "dfcf50385e178660296c52df1663d59047af0978b9dc708385a6ac2f48ff5b52",
+      "symbol": "BNBUSDT"
+    },
+    {
+      "actual_end_ms": 1782863999999,
+      "actual_start_ms": 1751328000000,
+      "files": [
+        "XRPUSDT-1m-2025-07.zip",
+        "XRPUSDT-1m-2025-08.zip",
+        "XRPUSDT-1m-2025-09.zip",
+        "XRPUSDT-1m-2025-10.zip",
+        "XRPUSDT-1m-2025-11.zip",
+        "XRPUSDT-1m-2025-12.zip",
+        "XRPUSDT-1m-2026-01.zip",
+        "XRPUSDT-1m-2026-02.zip",
+        "XRPUSDT-1m-2026-03.zip",
+        "XRPUSDT-1m-2026-04.zip",
+        "XRPUSDT-1m-2026-05.zip",
+        "XRPUSDT-1m-2026-06.zip"
+      ],
+      "gaps": 0,
+      "interval": "1m",
+      "requested_end": "2026-07-01",
+      "requested_start": "2025-07-01",
+      "rows": 525600,
+      "sha256": "ef2b46252f6fa3a2076d259a9f135e5eb4a07ee3e46dd2fe6506e5d1f67fcd83",
+      "symbol": "XRPUSDT"
+    }
+  ],
+  "horizons": [
+    "12m"
+  ],
+  "no_live_orders": true,
+  "reports": [
+    "reports/historical-12m/evaluation.json",
+    "reports/historical-12m/evaluation.csv"
+  ],
+  "schema_version": 1,
+  "seed": 42,
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "BNBUSDT",
+    "XRPUSDT"
+  ]
+}
