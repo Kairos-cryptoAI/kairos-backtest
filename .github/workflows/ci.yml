@@ -1,23 +1,55 @@
-name: CI
+name: ci
+
 on:
   push:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+env:
+  UV_VERSION: "0.12.3"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  quality:
+    name: Python ${{ matrix.python-version }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python-version: "3.11"
+          - os: ubuntu-latest
+            python-version: "3.14"
+          - os: windows-latest
+            python-version: "3.11"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
-          python-version: "3.11"
-      - name: Install shared packages and test tools
-        run: |
-          pip install "kairos-core @ git+https://github.com/Kairos-cryptoAI/kairos-core.git@main"
-          pip install "kairos-quant-scouts @ git+https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git@main"
-          pip install -e ".[dev]" bandit build
-      - run: ruff check . --select E,F,W,B
-      - run: pytest -q
-      - run: bandit -q -r kairos_backtest
-      - run: python -m build
+          version: ${{ env.UV_VERSION }}
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Sync locked environment
+        run: uv sync --python "${{ matrix.python-version }}" --locked
+      - name: Lint
+        run: uv run --python "${{ matrix.python-version }}" --locked ruff check kairos_backtest tests
+      - name: Check formatting
+        run: uv run --python "${{ matrix.python-version }}" --locked ruff format --check kairos_backtest tests
+      - name: Type check
+        run: uv run --python "${{ matrix.python-version }}" --locked mypy --python-version "${{ matrix.python-version }}" kairos_backtest
+      - name: Security scan
+        run: uv run --python "${{ matrix.python-version }}" --locked bandit -q -r kairos_backtest
+      - name: Test
+        run: uv run --python "${{ matrix.python-version }}" --locked pytest -q --tb=short
+      - name: Build wheel and source distribution
+        run: uv build --no-sources
