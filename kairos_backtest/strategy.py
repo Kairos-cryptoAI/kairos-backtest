@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from bisect import bisect_right
 from dataclasses import dataclass
 
@@ -18,6 +19,12 @@ class StrategySignal:
     confidence: float
     reasons: tuple[str, ...]
 
+    def __post_init__(self) -> None:
+        if self.timestamp_ms < 0:
+            raise ValueError("signal timestamp cannot be negative")
+        if not math.isfinite(self.confidence) or not 0 <= self.confidence <= 1:
+            raise ValueError("signal confidence must be finite and within [0, 1]")
+
 
 Signal = StrategySignal
 
@@ -32,7 +39,10 @@ def _rsi_series(values: np.ndarray, period: int = 14) -> np.ndarray:
     for index in range(period, delta.size):
         gain = (gain * (period - 1) + gains[index]) / period
         loss = (loss * (period - 1) + losses[index]) / period
-        output[index + 1] = 100.0 if loss == 0 else 100 - 100 / (1 + gain / loss)
+        if loss == 0:
+            output[index + 1] = 50.0 if gain == 0 else 100.0
+        else:
+            output[index + 1] = 100 - 100 / (1 + gain / loss)
     return output
 
 

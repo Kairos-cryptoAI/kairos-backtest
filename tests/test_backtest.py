@@ -1,7 +1,9 @@
+import pytest
 from kairos_core.enums import OrderSide
 from kairos_quant.candles import Candle
 
 from kairos_backtest import ExecutionConfig, FillSimulator, ReplayClock, run_backtest, split_walk_forward
+from kairos_backtest.execution import SimulatedFill, TradeLedger
 
 
 def candles(count: int = 80) -> list[Candle]:
@@ -46,6 +48,35 @@ def test_fill_is_partial_and_costs_are_adverse():
     assert fill.fee_usd > 0
 
 
+def test_fill_jitter_cannot_turn_costs_favorable_and_close_reference_is_supported():
+    candle = candles(1)[0]
+    simulator = FillSimulator(
+        ExecutionConfig(spread_bps=0, slippage_bps=0, slippage_jitter_bps=50),
+        seed=1,
+    )
+
+    buy = simulator.fill(candle, OrderSide.BUY, 1)
+    sell = simulator.fill(
+        candle,
+        OrderSide.SELL,
+        1,
+        timestamp_ms=candle.close_time_ms,
+        reference_price=candle.close,
+    )
+
+    assert buy.price >= candle.open
+    assert sell.price <= candle.close
+
+
+def test_trade_ledger_accounts_for_entry_exit_fees_and_realized_pnl():
+    ledger = TradeLedger()
+    ledger.apply(SimulatedFill(0, OrderSide.BUY, 1, 1, 100, 0.1))
+    ledger.apply(SimulatedFill(60_000, OrderSide.SELL, 1, 1, 110, 0.11))
+
+    assert ledger.position == 0
+    assert ledger.closed_trade_pnls == [pytest.approx(9.79)]
+
+
 def test_backtest_is_reproducible():
     data = candles()
     config = ExecutionConfig(slippage_jitter_bps=1)
@@ -54,6 +85,29 @@ def test_backtest_is_reproducible():
     assert first == second
     assert first.manifest.candles_sha256
     assert first.metrics.max_drawdown >= 0
+
+
+def test_backtest_canonicalizes_input_order_and_records_boundaries():
+    data = candles()
+    execution = ExecutionConfig(slippage_jitter_bps=1)
+
+    ordered = run_backtest(data, seed=42, execution=execution)
+    reversed_input = run_backtest(reversed(data), seed=42, execution=execution)
+
+    assert ordered == reversed_input
+    assert ordered.manifest.actual_start_ms == data[0].open_time_ms
+    assert ordered.manifest.actual_end_ms == data[-1].close_time_ms
+
+
+def test_backtest_seed_changes_stochastic_execution_only_when_requested():
+    data = candles()
+    execution = ExecutionConfig(slippage_jitter_bps=2)
+
+    first = run_backtest(data, seed=1, execution=execution)
+    second = run_backtest(data, seed=2, execution=execution)
+
+    assert first.fills != second.fills
+    assert all(fill.timestamp_ms % 60_000 == 0 for fill in first.fills[:-1])
 
 
 def test_walk_forward_has_no_train_test_overlap():

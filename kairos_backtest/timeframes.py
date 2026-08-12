@@ -4,6 +4,8 @@ from collections import defaultdict
 
 from kairos_quant.candles import Candle
 
+from .validation import canonical_candles
+
 TIMEFRAME_MS = {
     "1m": 60_000,
     "3m": 180_000,
@@ -17,9 +19,17 @@ TIMEFRAME_MS = {
 
 
 def aggregate(candles: list[Candle], timeframe: str) -> list[Candle]:
+    if timeframe not in TIMEFRAME_MS or timeframe == "1m":
+        raise ValueError(f"unsupported aggregate timeframe {timeframe!r}")
+    ordered = canonical_candles(candles, expected_timeframe="1m")
+    if any(
+        candle.open_time_ms % 60_000 != 0 or candle.close_time_ms != candle.open_time_ms + 59_999
+        for candle in ordered
+    ):
+        raise ValueError("source candles must be aligned, closed one-minute intervals")
     size = TIMEFRAME_MS[timeframe]
     buckets: dict[int, list[Candle]] = defaultdict(list)
-    for candle in candles:
+    for candle in ordered:
         buckets[candle.open_time_ms // size * size].append(candle)
     result = []
     expected = size // 60_000
@@ -47,7 +57,8 @@ def aggregate(candles: list[Candle], timeframe: str) -> list[Candle]:
 
 
 def build_timeframes(candles: list[Candle]) -> dict[str, list[Candle]]:
+    ordered = canonical_candles(candles, expected_timeframe="1m")
     return {
-        timeframe: candles if timeframe == "1m" else aggregate(candles, timeframe)
+        timeframe: ordered if timeframe == "1m" else aggregate(ordered, timeframe)
         for timeframe in TIMEFRAME_MS
     }
