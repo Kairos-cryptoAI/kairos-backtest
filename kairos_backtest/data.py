@@ -13,6 +13,8 @@ from urllib.request import urlopen
 
 from kairos_quant.candles import Candle
 
+from .validation import canonical_candles
+
 ARCHIVE_ROOT = "https://data.binance.vision/data/futures/um/monthly/klines"
 
 
@@ -31,6 +33,8 @@ class DatasetManifest:
 
 
 def month_starts(start: date, end: date) -> list[date]:
+    if start > end:
+        raise ValueError("start date must not be after end date")
     current = date(start.year, start.month, 1)
     result = []
     while current < end:
@@ -41,7 +45,10 @@ def month_starts(start: date, end: date) -> list[date]:
 
 def _parse_csv(payload: bytes, symbol: str, interval: str) -> list[Candle]:
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
-        name = next(name for name in archive.namelist() if name.endswith(".csv"))
+        csv_names = sorted(name for name in archive.namelist() if name.endswith(".csv"))
+        if len(csv_names) != 1:
+            raise ValueError("Binance archive must contain exactly one CSV file")
+        name = csv_names[0]
         lines = archive.read(name).decode().splitlines()
     candles = []
     for line in lines:
@@ -72,11 +79,13 @@ class BinanceArchiveLoader:
         self.retries = retries
 
     def _download(self, url: str, target: Path) -> bytes | None:
+        if not url.startswith(f"{ARCHIVE_ROOT}/"):
+            raise ValueError("archive URL must use the fixed Binance data host")
         if target.exists():
             return target.read_bytes()
         for attempt in range(self.retries):
             try:
-                with urlopen(url, timeout=60) as response:  # noqa: S310 - fixed Binance host
+                with urlopen(url, timeout=60) as response:  # nosec B310
                     payload = response.read()
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(payload)
@@ -95,6 +104,10 @@ class BinanceArchiveLoader:
     def load(
         self, symbol: str, start: date, end: date, interval: str = "1m"
     ) -> tuple[list[Candle], DatasetManifest]:
+        if start >= end:
+            raise ValueError("dataset start must be before its exclusive end")
+        if interval != "1m":
+            raise ValueError("historical evaluation currently accepts only 1m archives")
         symbol = symbol.upper()
         candles: list[Candle] = []
         files: list[str] = []
@@ -109,12 +122,22 @@ class BinanceArchiveLoader:
             candles.extend(_parse_csv(payload, symbol, interval))
         start_ms = int(datetime.combine(start, datetime.min.time(), UTC).timestamp() * 1000)
         end_ms = int(datetime.combine(end, datetime.min.time(), UTC).timestamp() * 1000)
-        candles = sorted(
-            {c.open_time_ms: c for c in candles if start_ms <= c.open_time_ms < end_ms}.values(),
-            key=lambda c: c.open_time_ms,
-        )
+        unique: dict[int, Candle] = {}
+        for candle in candles:
+            if not start_ms <= candle.open_time_ms < end_ms:
+                continue
+            existing = unique.get(candle.open_time_ms)
+            if existing is not None and existing != candle:
+                raise ValueError(f"conflicting archive rows at {candle.open_time_ms}")
+            unique[candle.open_time_ms] = candle
+        candles = canonical_candles(unique.values(), expected_timeframe="1m")
         if not candles:
             raise ValueError(f"no Binance archive data for {symbol} {start}..{end}")
+        if any(
+            candle.open_time_ms % 60_000 != 0 or candle.close_time_ms != candle.open_time_ms + 59_999
+            for candle in candles
+        ):
+            raise ValueError("archive contains a malformed one-minute boundary")
         gaps = sum(
             b.open_time_ms - a.open_time_ms != 60_000 for a, b in zip(candles, candles[1:], strict=False)
         )

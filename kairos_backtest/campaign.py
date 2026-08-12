@@ -2,21 +2,22 @@ from __future__ import annotations
 
 import argparse
 import json
-import subprocess
 from dataclasses import asdict
-from datetime import UTC, date, datetime
+from datetime import date
 from pathlib import Path
 
 from kairos_quant.candles import Candle
 
-from .config import BASELINE, STRESS, SYMBOLS
+from .config import BASELINE, STRESS, SYMBOLS, CostScenario
 from .data import BinanceArchiveLoader
 from .evaluation import evaluate
 from .execution import ExecutionConfig
+from .provenance import runtime_manifest, source_fingerprint
+from .seeding import derive_seed
 from .strategy import generate_signals
 
 
-def _execution(scenario) -> ExecutionConfig:
+def _execution(scenario: CostScenario) -> ExecutionConfig:
     return ExecutionConfig(
         latency_ms=scenario.latency_ms,
         spread_bps=scenario.spread_bps,
@@ -25,14 +26,21 @@ def _execution(scenario) -> ExecutionConfig:
     )
 
 
-def _git_sha() -> str:
-    try:
-        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    except (OSError, subprocess.CalledProcessError):
-        return "unavailable"
+def _number(value: object) -> float:
+    if not isinstance(value, (int, float)) or isinstance(value, bool):
+        raise TypeError(f"expected numeric report value, received {type(value).__name__}")
+    return float(value)
 
 
-def run_campaign(start: date, end: date, cache: Path, output: Path, label: str) -> dict[str, object]:
+def run_campaign(
+    start: date,
+    end: date,
+    cache: Path,
+    output: Path,
+    label: str,
+    *,
+    seed: int = 42,
+) -> dict[str, object]:
     loader = BinanceArchiveLoader(cache)
     output.mkdir(parents=True, exist_ok=True)
     reports: list[dict[str, object]] = []
@@ -58,12 +66,14 @@ def run_campaign(start: date, end: date, cache: Path, output: Path, label: str) 
         signals = generate_signals(candles)
         manifests.append(asdict(manifest))
         for scenario in (BASELINE, STRESS):
+            scenario_seed = derive_seed(seed, label, symbol, scenario.name, start, end)
             result = evaluate(
                 candles,
                 signals,
                 initial_equity=10_000,
                 execution=_execution(scenario),
                 allocation=1.0,
+                seed=scenario_seed,
             )
             row = result.to_dict()
             row.update(
@@ -71,6 +81,7 @@ def run_campaign(start: date, end: date, cache: Path, output: Path, label: str) 
                     "symbol": symbol,
                     "horizon": label,
                     "scenario": scenario.name,
+                    "seed": scenario_seed,
                     "classification": (
                         "promising"
                         if result.trades >= 30
@@ -98,16 +109,18 @@ def run_campaign(start: date, end: date, cache: Path, output: Path, label: str) 
                 "scenario": scenario.name,
                 "initial_equity": 10_000,
                 "allocation_per_symbol": 0.2,
-                "return_pct": sum(float(row["return_pct"]) for row in rows) / len(rows),
+                "return_pct": sum(_number(row["return_pct"]) for row in rows) / len(rows),
                 "final_equity": 10_000
-                * (1 + sum(float(row["return_pct"]) for row in rows) / len(rows) / 100),
-                "trades": sum(int(row["trades"]) for row in rows),
+                * (1 + sum(_number(row["return_pct"]) for row in rows) / len(rows) / 100),
+                "trades": sum(int(_number(row["trades"])) for row in rows),
             }
         )
     payload = {
         "schema_version": 1,
-        "created_at": datetime.now(UTC).isoformat(),
-        "git_sha": _git_sha(),
+        "data_cutoff": end.isoformat(),
+        "seed": seed,
+        "source_sha256": source_fingerprint(),
+        "runtime": runtime_manifest(),
         "horizon": label,
         "requested_start": start.isoformat(),
         "requested_end": end.isoformat(),
@@ -124,7 +137,10 @@ def run_campaign(start: date, end: date, cache: Path, output: Path, label: str) 
         },
     }
     target = output / f"evaluation-{label}.json"
-    target.write_text(json.dumps(payload, indent=2, sort_keys=True, allow_nan=False), encoding="utf-8")
+    target.write_text(
+        json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
+    )
     return payload
 
 
@@ -135,8 +151,9 @@ def main() -> None:
     parser.add_argument("--label", required=True)
     parser.add_argument("--cache", type=Path, default=Path(".cache/binance"))
     parser.add_argument("--output", type=Path, default=Path("reports"))
+    parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
-    run_campaign(args.start, args.end, args.cache, args.output, args.label)
+    run_campaign(args.start, args.end, args.cache, args.output, args.label, seed=args.seed)
 
 
 if __name__ == "__main__":

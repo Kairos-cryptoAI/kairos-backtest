@@ -8,8 +8,10 @@ from pathlib import Path
 
 from .data import BinanceArchiveLoader
 from .evaluation import EvaluationResult, aggregate_results, evaluate
+from .provenance import runtime_manifest, source_fingerprint
 from .reporting import write_reports
 from .scenarios import SCENARIOS, SYMBOLS, Horizon, default_horizons
+from .seeding import derive_seed
 from .strategy import generate_signals
 
 
@@ -20,6 +22,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--symbols", nargs="+", choices=SYMBOLS, default=list(SYMBOLS))
     result.add_argument("--horizons", nargs="+", choices=("5y", "12m"), default=["5y", "12m"])
     result.add_argument("--seed", type=int, default=42)
+    result.add_argument("--as-of", type=date.fromisoformat)
     return result
 
 
@@ -41,8 +44,10 @@ def main() -> int:
     loader = BinanceArchiveLoader(args.cache_dir)
     rows: list[dict[str, object]] = []
     manifests: list[dict[str, object]] = []
+    scenario_seeds: dict[str, list[int]] = {}
     initial_equity = 10_000.0
-    for horizon in default_horizons():
+    as_of = args.as_of or datetime.now(UTC).date()
+    for horizon in default_horizons(as_of):
         if horizon.name not in args.horizons:
             continue
         for symbol in args.symbols:
@@ -54,14 +59,25 @@ def main() -> int:
                 manifest_row["horizon"] = horizon.name
                 manifests.append(manifest_row)
                 for scenario, execution in SCENARIOS.items():
+                    scenario_seed = derive_seed(
+                        args.seed,
+                        horizon.name,
+                        symbol,
+                        scenario,
+                        segment_start,
+                        segment_end,
+                    )
                     scenario_segments[scenario].append(
                         evaluate(
                             candles,
                             signals,
                             initial_equity=initial_equity,
                             execution=execution,
+                            seed=scenario_seed,
                         )
                     )
+                    seed_key = f"{horizon.name}:{symbol}:{scenario}"
+                    scenario_seeds.setdefault(seed_key, []).append(scenario_seed)
                 del signals, candles
             for scenario, segments in scenario_segments.items():
                 result = aggregate_results(segments, initial_equity=initial_equity)
@@ -71,14 +87,17 @@ def main() -> int:
                         "horizon": horizon.name,
                         "scenario": scenario,
                         "segments": len(segments),
+                        "segment_seeds": scenario_seeds[f"{horizon.name}:{symbol}:{scenario}"],
                         **result.to_dict(),
                     }
                 )
     json_path, csv_path = write_reports(rows, args.report_dir)
     run_manifest = {
         "schema_version": 1,
-        "created_at": datetime.now(UTC).isoformat(),
+        "as_of": as_of.isoformat(),
         "seed": args.seed,
+        "source_sha256": source_fingerprint(),
+        "runtime": runtime_manifest(),
         "symbols": args.symbols,
         "horizons": args.horizons,
         "datasets": manifests,
@@ -87,7 +106,8 @@ def main() -> int:
         "no_live_orders": True,
     }
     (args.report_dir / "run-manifest.json").write_text(
-        json.dumps(run_manifest, indent=2, sort_keys=True) + "\n"
+        json.dumps(run_manifest, indent=2, sort_keys=True, allow_nan=False) + "\n",
+        encoding="utf-8",
     )
     return 0
 
