@@ -11,6 +11,11 @@ from kairos_quant.candles import Candle
 def synchronize_closed_candles(candles: Iterable[Candle]) -> list[tuple[int, dict[str, Candle]]]:
     """At each 1m close expose only candles closed at or before that timestamp."""
     ordered = sorted(candles, key=lambda candle: (candle.close_time_ms, candle.timeframe))
+    if ordered and len({candle.symbol for candle in ordered}) != 1:
+        raise ValueError("synchronization cannot mix symbols")
+    keys = [(candle.timeframe, candle.close_time_ms) for candle in ordered]
+    if len(keys) != len(set(keys)):
+        raise ValueError("duplicate timeframe close timestamp")
     by_timestamp: dict[int, list[Candle]] = defaultdict(list)
     for candle in ordered:
         by_timestamp[candle.close_time_ms].append(candle)

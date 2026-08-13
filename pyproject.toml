@@ -1,17 +1,34 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.28,<2"]
 build-backend = "hatchling.build"
 
 [project]
 name = "kairos-backtest"
 version = "0.1.0"
 description = "Deterministic event replay and execution simulation for Kairos."
+readme = "README.md"
 requires-python = ">=3.11"
 authors = [{ name = "TheLitis" }]
-dependencies = ["kairos-core>=0.1.0", "kairos-quant-scouts>=0.1.0"]
+dependencies = [
+    "kairos-core>=0.2,<0.3",
+    "kairos-quant-scouts>=0.1,<0.2",
+    "numpy>=1.26,<3",
+]
 
-[project.optional-dependencies]
-dev = ["pytest>=8.0", "ruff>=0.4"]
+[dependency-groups]
+dev = [
+    "bandit>=1.8,<2",
+    "mypy>=1.10,<3",
+    "pytest>=8.0",
+    "ruff>=0.16,<0.17",
+]
+
+[tool.uv]
+required-version = "==0.12.3"
+
+[tool.uv.sources]
+kairos-core = { git = "https://github.com/Kairos-cryptoAI/kairos-core.git", rev = "c2b9ba192521f9843b245e1eae8a501d408a6bfa" }
+kairos-quant-scouts = { git = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git", rev = "5e30222227dc1b723cdca2380672208e8bffb259" }
 
 [project.scripts]
 kairos-evaluate = "kairos_backtest.cli:main"
@@ -27,3 +44,10 @@ select = ["E", "F", "I", "UP", "B"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.11"
+
+[[tool.mypy.overrides]]
+module = ["kairos_quant.*"]
+ignore_missing_imports = true

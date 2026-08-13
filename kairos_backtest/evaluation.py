@@ -3,12 +3,13 @@ from __future__ import annotations
 from bisect import bisect_right
 from dataclasses import asdict, dataclass
 
-from kairos_core.enums import Side
+from kairos_core.enums import OrderSide, Side
 from kairos_quant.candles import Candle
 
-from .execution import ExecutionConfig
+from .execution import ExecutionConfig, FillSimulator, TradeLedger
 from .metrics import PerformanceMetrics, calculate_metrics
 from .strategy import StrategySignal
+from .validation import canonical_candles
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,54 +66,84 @@ def evaluate(
     initial_equity: float,
     execution: ExecutionConfig,
     allocation: float = 1.0,
+    seed: int = 0,
 ) -> EvaluationResult:
-    if not candles or initial_equity <= 0 or not 0 < allocation <= 1:
+    ordered = canonical_candles(candles)
+    if not ordered or initial_equity <= 0 or not 0 < allocation <= 1:
         raise ValueError("valid candles, equity and allocation are required")
-    times = [c.open_time_ms for c in candles]
-    cash, position, fees, turnover = initial_equity, 0.0, 0.0, 0.0
+    ordered_signals = sorted(signals, key=lambda signal: signal.timestamp_ms)
+    if any(
+        current.timestamp_ms == previous.timestamp_ms
+        for previous, current in zip(ordered_signals, ordered_signals[1:], strict=False)
+    ):
+        raise ValueError("signals cannot share a timestamp")
+    if ordered_signals and (
+        ordered_signals[0].timestamp_ms < ordered[0].close_time_ms
+        or ordered_signals[-1].timestamp_ms > ordered[-1].close_time_ms
+    ):
+        raise ValueError("signals must stay inside the closed-candle data boundary")
+
+    times = [c.open_time_ms for c in ordered]
+    simulator = FillSimulator(execution, seed=seed)
+    ledger = TradeLedger()
+    cash, fees, turnover = initial_equity, 0.0, 0.0
     equity_curve = [initial_equity]
-    trade_pnls: list[float] = []
-    exposed, entry_equity = 0, initial_equity
-    for signal in signals:
+    exposed = 0
+    for signal in ordered_signals:
         index = bisect_right(times, signal.timestamp_ms + execution.latency_ms)
-        if index >= len(candles):
+        if index >= len(ordered):
             break
-        candle = candles[index]
-        equity = cash + position * candle.open
+        candle = ordered[index]
+        equity = cash + ledger.position * candle.open
         target_notional = equity * allocation * signal.confidence
         target = (
             target_notional
             / candle.open
             * (1 if signal.side == Side.LONG else -1 if signal.side == Side.SHORT else 0)
         )
-        delta = target - position
+        delta = target - ledger.position
         if abs(delta * candle.open) > 1.0:
-            direction = 1 if delta > 0 else -1
-            costs_bps = execution.spread_bps / 2 + execution.slippage_bps
-            price = candle.open * (1 + direction * costs_bps / 10_000)
-            notional = abs(delta) * price
-            fee = notional * execution.fee_bps / 10_000
-            cash -= delta * price + fee
-            fees += fee
-            turnover += notional
-            if position and (target == 0 or position * target <= 0):
-                trade_pnls.append(equity - entry_equity)
-                entry_equity = equity
-            position = target
-        exposed += position != 0
-        equity_curve.append(cash + position * candle.close)
-    final = cash + position * candles[-1].close
+            side = OrderSide.BUY if delta > 0 else OrderSide.SELL
+            fill = simulator.fill(
+                candle,
+                side,
+                abs(delta),
+                timestamp_ms=candle.open_time_ms,
+            )
+            signed = fill.filled_quantity if side is OrderSide.BUY else -fill.filled_quantity
+            cash -= signed * fill.price + fill.fee_usd
+            fees += fill.fee_usd
+            turnover += fill.filled_quantity * fill.price
+            ledger.apply(fill)
+        exposed += ledger.position != 0
+        equity_curve.append(cash + ledger.position * candle.close)
+
+    if ledger.position:
+        candle = ordered[-1]
+        side = OrderSide.SELL if ledger.position > 0 else OrderSide.BUY
+        fill = simulator.fill(
+            candle,
+            side,
+            abs(ledger.position),
+            timestamp_ms=candle.close_time_ms,
+            reference_price=candle.close,
+        )
+        signed = fill.filled_quantity if side is OrderSide.BUY else -fill.filled_quantity
+        cash -= signed * fill.price + fill.fee_usd
+        fees += fill.fee_usd
+        turnover += fill.filled_quantity * fill.price
+        ledger.apply(fill)
+
+    final = cash + ledger.position * ordered[-1].close
     equity_curve.append(final)
-    if position:
-        trade_pnls.append(final - entry_equity)
-    benchmark = (candles[-1].close / candles[0].open - 1) * 100
+    benchmark = (ordered[-1].close / ordered[0].open - 1) * 100
     return EvaluationResult(
-        calculate_metrics(equity_curve, trade_pnls),
+        calculate_metrics(equity_curve, ledger.closed_trade_pnls),
         final,
         (final / initial_equity - 1) * 100,
-        len(trade_pnls),
+        len(ledger.closed_trade_pnls),
         fees,
         turnover,
-        exposed / max(1, len(signals)) * 100,
+        exposed / max(1, len(ordered_signals)) * 100,
         benchmark,
     )
