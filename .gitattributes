@@ -1,2 +1,3 @@
 reports/development-screen/*.json text eol=lf
 reports/orderflow-screen/*.json text eol=lf
+reports/regime-retest-screen/*.json text eol=lf
