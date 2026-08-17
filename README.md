@@ -4,6 +4,10 @@ Deterministic event replay, historical evaluation and execution-cost simulation
 for Kairos. The package is strictly offline during tests; downloading Binance
 archives is an explicit CLI/runtime operation.
 
+The current multi-sleeve research design, risk contract and no-peeking rules are
+documented in [`STRATEGY_V2.md`](STRATEGY_V2.md). No backtest or LLM response is
+treated as authorization for real orders.
+
 ## Reproducible local checks
 
 The lock requires `uv` 0.12.3 and Python 3.11. CI also blocks on Linux Python
@@ -25,6 +29,34 @@ exact `kairos-core` and `kairos-quant-scouts` commits recorded in
 `kairos-quant-scouts` distribution whose PEP 610 `direct_url.json` does not
 contain that exact Git URL and commit.
 
+## Strategy v2 development screen
+
+The first bounded screen evaluates exactly three preregistered pullback-depth
+variants on reused research data, across five symbols and fixed baseline and
+stress assumptions. It runs offline and writes its immutable plan before
+loading the cache:
+
+```sh
+uv run --locked kairos-development-screen \
+  --cache-dir data/historical \
+  --plan-output reports/development-screen/plan.json \
+  --result-output reports/development-screen/result.json
+```
+
+The 2023-01-01 through 2023-06-30 screen returned `REJECT_ALL`. The medium
+variant reached 105 baseline pullback trades but lost 0.7125%; shallow gained
+0.1249% baseline but lost 0.0568% under stress and had only 55/16 trades; deep
+gained 0.0406% baseline and 0.0267% under stress but had only 38/10 trades.
+None met the fixed requirement of at least 100 pullback trades with positive
+return, profit factor and expectancy in both scenarios.
+
+The committed [report](reports/development-screen/REPORT.md), compact
+[summary](reports/development-screen/summary.json), and immutable
+[plan](reports/development-screen/plan.json) are development diagnostics only.
+The full replay evidence is intentionally ignored because it is about 88.6 MB;
+the report records its byte length and SHA-256 so a local reproduction can be
+checked exactly. This result cannot authorize shadow or live trading.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps
@@ -34,7 +66,7 @@ contain that exact Git URL and commit.
   configured latency. Execution uses the first one-minute candle whose open is
   at or after that eligibility time; fill capacity comes from the preceding
   fully closed candle, never the execution candle's future total volume.
-- Production state changes require twelve consecutive five-minute confirmations,
+- The legacy strategy baseline requires twelve consecutive five-minute confirmations,
   a four-hour minimum hold, and confidence of at least 0.67. Lower-timeframe
   disagreement vetoes entry but does not repeatedly close a valid senior trend.
 - The evaluator and replay engine share one seeded fill model: adverse spread,
@@ -73,18 +105,21 @@ mismatch fails closed. Without a sidecar the manifest says
 
 `evaluate_sensitivity` replays identical causal signals under multiple cost
 assumptions. `evaluate_walk_forward` keeps training and test data disjoint with
-a purge gap. `evaluate_promotion` is the machine-readable final gate: real API
-promotion is denied for non-positive OOS return or expectancy, excessive
-drawdown, insufficient trades, missing historical funding, or unstable/negative
-sensitivity results. Missing dataset audits, checksum/inventory shortfalls,
-invalid rows, gaps, or incomplete coverage also fail closed. Synthetic fixtures
-validate methodology only and are not evidence of profitability.
+a purge gap. The legacy `evaluate_promotion` function remains available only to
+reproduce historical diagnostics and now always returns
+`real_api_allowed=false`. The v2 gate adds a sealed trial inventory,
+synchronized portfolio evidence, nested temporal selection, stress and
+diversification checks, a separately locked terminal holdout, and an external
+signed-attestation requirement. Offline evidence can authorize at most shadow
+operation. Missing dataset audits, checksum/inventory shortfalls, invalid rows,
+gaps, incomplete coverage or unverifiable provenance fail closed. Synthetic
+fixtures validate methodology only and are not evidence of profitability.
 
 The current saved historical strategy results are a research baseline, not a
 production claim. A report with failed gates must be labelled `needs_revision`
 and must not be promoted to a live venue.
 
-## Frozen offline validation (data through 2026-07-31)
+## Frozen legacy offline validation (data through 2026-07-31)
 
 The reproducible machine-readable result is
 [`reports/strategy-validation-2026-08-01/evaluation.json`](reports/strategy-validation-2026-08-01/evaluation.json).
@@ -109,7 +144,7 @@ It freezes `confirmation_bars=12`, `minimum_hold_bars=48`,
   evidence and not a synchronized portfolio return. XRP's terminal close is
   explicitly flagged as liquidity-incomplete in both fold scenarios; its
   residual is marked, not silently counted as a closed trade.
-- In the untouched July holdout, all five symbols are negative: the equal-weight
+- In the then-untouched July holdout, all five symbols are negative: the equal-weight
   mean is -1.0760% baseline and -1.5781% stress (69 trades). The corresponding
   equal-weight buy-and-hold benchmark is +6.8286%.
 
@@ -118,5 +153,6 @@ Blocking reasons include negative OOS return/expectancy, benchmark
 underperformance, negative cost sensitivity, insufficient July trade counts,
 unavailable historical EVEDEX funding, and the documented gaps/invalid row in
 the broader research cache. Assumed stress funding is deliberately not accepted
-as historical evidence. Only the untouched July window is used as OOS evidence
-by the promotion gate.
+as historical evidence. July was used once by that legacy campaign and is now
+reused robustness data; it cannot be presented as an untouched holdout for any
+new candidate.

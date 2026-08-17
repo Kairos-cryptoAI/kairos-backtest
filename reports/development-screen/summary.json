@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "classification": "development_diagnostics_only",
+  "evaluated_on": "2026-08-17",
+  "decision": "REJECT_ALL",
+  "permissions": {
+    "promotion_eligible": false,
+    "shadow_allowed": false,
+    "live_allowed": false
+  },
+  "data": {
+    "role": "research",
+    "reused_data": true,
+    "out_of_sample": false,
+    "generation_start": "2022-11-27",
+    "evaluation_start": "2023-01-01",
+    "evaluation_end_exclusive": "2023-07-01",
+    "warmup_days": 35,
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "no_downloads": true,
+    "no_imputation": true,
+    "month_aligned_audit": {
+      "start": "2022-11-01",
+      "end_exclusive": "2023-07-01",
+      "archives": 40,
+      "official_sha256_sidecars_verified": 40,
+      "expected_rows": 1742400,
+      "valid_rows": 1742400,
+      "gaps": 0,
+      "invalid_rows": 0,
+      "zip_bytes": 67359217,
+      "inventory_sha256": "149057fb589d00b1b04bd12238aaee598ad2db309bb6484f0434ef15a80ef6c2"
+    }
+  },
+  "experiment": {
+    "seed": 42,
+    "initial_equity_usd": 100000.0,
+    "scenarios": [
+      "baseline",
+      "stress"
+    ],
+    "variants": [
+      "shallow",
+      "medium",
+      "deep"
+    ],
+    "minimum_pullback_closed_trades_per_scenario": 100,
+    "required_each_scenario": {
+      "log_growth_above": 0.0,
+      "profit_factor_above": 1.0,
+      "expectancy_usd_per_trade_above": 0.0
+    },
+    "trade_count_is_ranking_objective": false
+  },
+  "artifacts": {
+    "plan_internal_sha256": "af497bc8565375b817d823c5b3aae37f9c6acc25a10eb16b0fc917e1616ced4c",
+    "plan_file_sha256": "453f9dceaf149240de8dc9c3758790e851bdd652f010ace1efe3d760a6e50df4",
+    "plan_file_bytes": 7608,
+    "full_result_file_sha256": "5bc63dcc50364b95873a655668760c7b302bf3b1a021a598929be10fe1e3878d",
+    "full_result_file_bytes": 88608989,
+    "full_result_committed": false
+  },
+  "environment": {
+    "environment_sha256": "65242c192a7a1f6a15bb0d224d3000279577133e9cebf84d52cd9aae85f1ec50",
+    "source_sha256": "99aac0ab81369f2877b177e8ab2e3617a57222c903ca342fca8fdef69b370cc3",
+    "pyproject_sha256": "9efc379558319992c1172f679c776745fd377eb7ac2ff39027172f4e9b23ce95",
+    "uv_lock_sha256": "eb4126646c81920605674ba38d63471ec79afb871e2f4f89573d8c0a1d7f1779",
+    "python": "3.11.15",
+    "implementation": "CPython",
+    "numpy": "2.4.6",
+    "kairos_backtest": "0.1.0",
+    "kairos_core": "0.2.0",
+    "kairos_quant_scouts": "0.1.0"
+  },
+  "trials": [
+    {
+      "trial_id": "SHALLOW",
+      "variant": "shallow",
+      "candidate_sha256": "0f4404424c26f28d2427604cf21055e03d6cf7769a7da5a56b99d9ce0f4fbbec",
+      "eligible": false,
+      "failures": [
+        "baseline_pullback_closed_trades_below_minimum",
+        "stress_pullback_log_growth_not_positive",
+        "stress_pullback_profit_factor_not_above_one",
+        "stress_pullback_expectancy_not_positive",
+        "stress_pullback_closed_trades_below_minimum"
+      ],
+      "baseline": {
+        "closed_trades": 55,
+        "net_return": 0.0012487440707331654,
+        "log_growth": 0.0012479650383300225,
+        "profit_factor": 1.1295500165389167,
+        "expectancy_usd_per_trade": 0.7568145883231587,
+        "maximum_drawdown": 0.0029259145656308472,
+        "fees_usd": 81.10196118325707,
+        "implementation_shortfall_usd": 54.067990033693576,
+        "funding_usd": 0.0
+      },
+      "stress": {
+        "closed_trades": 16,
+        "net_return": -0.0005675232244540807,
+        "log_growth": -0.0005676843267149613,
+        "profit_factor": 0.83963478387688,
+        "expectancy_usd_per_trade": -1.182340050946068,
+        "maximum_drawdown": 0.001953593276515564,
+        "fees_usd": 21.827250024600083,
+        "implementation_shortfall_usd": 29.103011802575903,
+        "funding_usd": 0.681001799942435
+      }
+    },
+    {
+      "trial_id": "MEDIUM",
+      "variant": "medium",
+      "candidate_sha256": "f1dcfbabf536bdbabeb6065b094491d9cd7b5a919da56442f0956e26f846a970",
+      "eligible": false,
+      "failures": [
+        "baseline_pullback_log_growth_not_positive",
+        "baseline_pullback_profit_factor_not_above_one",
+        "baseline_pullback_expectancy_not_positive",
+        "stress_pullback_log_growth_not_positive",
+        "stress_pullback_profit_factor_not_above_one",
+        "stress_pullback_expectancy_not_positive",
+        "stress_pullback_closed_trades_below_minimum"
+      ],
+      "baseline": {
+        "closed_trades": 105,
+        "net_return": -0.007125247649990674,
+        "log_growth": -0.007150753456031211,
+        "profit_factor": 0.683499756294735,
+        "expectancy_usd_per_trade": -2.261983380949319,
+        "maximum_drawdown": 0.009611210014404995,
+        "fees_usd": 153.06712632843025,
+        "implementation_shortfall_usd": 102.04475246993627,
+        "funding_usd": 0.0
+      },
+      "stress": {
+        "closed_trades": 41,
+        "net_return": -0.0010798871721579006,
+        "log_growth": -0.0010804706704228817,
+        "profit_factor": 0.887439356333789,
+        "expectancy_usd_per_trade": -0.8779570505347637,
+        "maximum_drawdown": 0.0033296528526086683,
+        "fees_usd": 56.18803835242263,
+        "implementation_shortfall_usd": 74.9174199998266,
+        "funding_usd": 3.5850362469741803
+      }
+    },
+    {
+      "trial_id": "DEEP",
+      "variant": "deep",
+      "candidate_sha256": "8db58a392dd1f8af40ce47f86968e13eadd279c951f0456a4884b6f221ebfa9d",
+      "eligible": false,
+      "failures": [
+        "baseline_pullback_closed_trades_below_minimum",
+        "stress_pullback_closed_trades_below_minimum"
+      ],
+      "baseline": {
+        "closed_trades": 38,
+        "net_return": 0.0004059329116874455,
+        "log_growth": 0.0004058505432130125,
+        "profit_factor": 1.0508277734724827,
+        "expectancy_usd_per_trade": 0.3560815014802547,
+        "maximum_drawdown": 0.0028709091706842172,
+        "fees_usd": 54.155018558321274,
+        "implementation_shortfall_usd": 36.103355046596356,
+        "funding_usd": 0.0
+      },
+      "stress": {
+        "closed_trades": 10,
+        "net_return": 0.0002673565067849992,
+        "log_growth": 0.000267320773403032,
+        "profit_factor": 1.103949252056402,
+        "expectancy_usd_per_trade": 0.8911883559500055,
+        "maximum_drawdown": 0.0018471760721697397,
+        "fees_usd": 12.142211617119342,
+        "implementation_shortfall_usd": 16.189629149331118,
+        "funding_usd": 0.7002719067875469
+      }
+    }
+  ]
+}

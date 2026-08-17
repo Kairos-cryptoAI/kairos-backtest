@@ -11,13 +11,14 @@ from pathlib import Path
 
 
 def source_fingerprint(package_dir: Path | None = None) -> str:
-    """Hash Python source paths and bytes in deterministic order."""
+    """Hash Python paths and platform-neutral source bytes deterministically."""
     root = package_dir or Path(__file__).parent
     digest = hashlib.sha256()
     for path in sorted(root.rglob("*.py")):
         digest.update(path.relative_to(root).as_posix().encode())
         digest.update(b"\0")
-        digest.update(path.read_bytes())
+        source = path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+        digest.update(source)
         digest.update(b"\0")
     return digest.hexdigest()
 

@@ -76,6 +76,17 @@ def test_source_fingerprint_is_path_order_independent(tmp_path):
     assert digest != source_fingerprint(tmp_path)
 
 
+def test_source_fingerprint_is_independent_of_platform_line_endings(tmp_path):
+    unix = tmp_path / "unix"
+    windows = tmp_path / "windows"
+    unix.mkdir()
+    windows.mkdir()
+    (unix / "module.py").write_bytes(b"first = 1\nsecond = 2\n")
+    (windows / "module.py").write_bytes(b"first = 1\r\nsecond = 2\r\n")
+
+    assert source_fingerprint(unix) == source_fingerprint(windows)
+
+
 def test_runtime_manifest_captures_numeric_environment():
     manifest = runtime_manifest()
 
