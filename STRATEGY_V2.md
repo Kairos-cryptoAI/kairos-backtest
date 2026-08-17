@@ -22,7 +22,7 @@ or venue API is tested.
 | `range_mean_reversion_v1` | Return inside a prior VWAP/ATR band in a flat hourly regime | Retired from tuning and retained as a reproducible negative control |
 | `trend_pullback_reclaim_v1` | Reclaim after a bounded pullback inside a confirmed hourly trend | First three-variant screen rejected; retained only as development evidence |
 | `orderflow_volatility_expansion_v1` | Immediate continuation after a volume/range/flow expansion | Second three-variant screen rejected; frequent variant had no net edge |
-| `regime_veto_retest_reclaim_v1` | Prior-boundary retest after expansion with separate long/short rules | Trials 7–9 frozen; one-shot reused-data screen pending |
+| `regime_veto_retest_reclaim_v1` | Prior-boundary retest after expansion with separate long/short rules | Third screen rejected; the stacked gates produced one baseline trade and zero stress trades |
 
 The pullback family has exactly three preregistered depth variants:
 `shallow`, `medium` and `deep`. Shared boundaries belong to only one variant,
@@ -57,12 +57,13 @@ methodology and artifact hashes are in
 
 The subsequent order-flow screen also returned `REJECT_ALL`: its most frequent
 variant produced 387 baseline and 301 stress trades but lost 2.9005% and
-3.2540%.  The third frozen hypothesis therefore does not enter on the expansion
-bar.  It waits for a bounded retest and reclaim of a prior structural level,
-then tests structural, flow-reacceleration and absorption explanations in a
-fixed order.  Its clean reused-data interval is February through June 2024,
-with December 2023 and January 2024 used only for warm-up.  The plan, one-shot
-attempt ledger, costs and eligibility gates are fixed before price parsing.
+3.2540%. The third frozen hypothesis then waited for a bounded retest and
+reclaim instead of entering on the expansion bar. It also returned
+`REJECT_ALL`: 41,741 breakout candidates became 184 armed setups, 12 structural
+reclaims, one baseline trade and zero stress trades. The sole trade lost
+0.015492%. Trials 7-9 are consumed, and the result must not be rerun or reframed
+as out-of-sample evidence. Full evidence is in
+[`reports/regime-retest-screen/REPORT.md`](reports/regime-retest-screen/REPORT.md).
 
 ## Decision path
 

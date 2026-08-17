@@ -91,31 +91,35 @@ permissions remain `false`.
 
 ## Regime/retest development screen
 
-The third experiment is frozen before any candidate-dependent access to its
-market values.  An expansion candle only arms a setup; the strategy waits up
-to three complete five-minute bars for a retest of the prior 12-bar boundary
-and a close back through that frozen level.  The three registered trials test
-the structural reclaim alone, same-direction taker-flow reacceleration, and
-opposing-flow absorption.  Long and short rules, stops and holding horizons
-are intentionally separate.
+The third frozen experiment also returned `REJECT_ALL`. An expansion candle
+only armed a setup; the strategy waited up to three complete five-minute bars
+for a retest of the prior 12-bar boundary and a close back through that frozen
+level. The three registered trials tested structural reclaim alone,
+same-direction taker-flow reacceleration, and opposing-flow absorption.
 
 The one-shot screen uses 62 days of warm-up from 2023-12-01 and evaluates the
 reused `RESEARCH/FIT` interval `[2024-02-01, 2024-07-01)`.  This clean interval
 starts after the known invalid XRP minute in November 2023; that source row is
-excluded by the fixed boundary, never repaired or imputed.  Trials are recorded
-as cumulative research attempts 7, 8 and 9.  A canonical `attempt.json` is
-created exclusively before the first parsed market value is read, and a crash
-or failed run consumes the attempt.
+excluded by the fixed boundary, never repaired or imputed. Trials are recorded
+as cumulative research attempts 7, 8 and 9, and the consumed attempt must not
+be rerun.
 
-```sh
-uv run --locked kairos-regime-retest-screen --cache-dir data/historical
-```
+The common funnel reduced 41,741 structural breakout candidates to 184 armed
+setups and 12 structural reclaims. Only one baseline trade was admitted and it
+lost 0.015492%; stress admitted none. The flow and absorption variants
+produced no trades. The hard conjunction of regime, expansion, retest, reclaim
+and admission gates is therefore too restrictive for the intended frequency.
 
 The screen requires positive baseline and stress economics, at least 165
 closed trades per scenario, 17 per symbol, 50 distinct exit days, and 50
 profitable-economics trades in each direction.  Trade count is a sufficiency
 gate, never the ranking target.  The result remains development-only even if a
 candidate passes; promotion, shadow and live permissions are always `false`.
+The committed [report](reports/regime-retest-screen/REPORT.md), [compact
+summary](reports/regime-retest-screen/summary.json), immutable
+[plan](reports/regime-retest-screen/plan.json), consumed
+[attempt](reports/regime-retest-screen/attempt.json), and [data-quality
+evidence](reports/regime-retest-screen/data-quality.json) preserve the result.
 
 ## Reproducibility contract
 
