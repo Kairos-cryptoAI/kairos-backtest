@@ -266,9 +266,17 @@ def evaluate_promotion(
     *,
     data_audits: tuple[ArchiveInventoryAudit, ...] = (),
 ) -> PromotionReadiness:
-    """Allow promotion only when every required OOS/sensitivity gate passes."""
-    settings = policy or PromotionPolicy()
-    reasons: list[str] = []
+    """Evaluate the legacy diagnostic gates without authorizing a real API.
+
+    This function predates the sealed trial registry, synchronized portfolio,
+    nested temporal evidence and one-time blind holdout required by
+    ``promotion_v2``.  Its metrics remain useful for reproducing historical
+    reports, but they are no longer an authorization boundary.
+    """
+    settings = PromotionPolicy() if policy is None else policy
+    if not isinstance(settings, PromotionPolicy):
+        raise TypeError("policy must be a PromotionPolicy")
+    reasons: list[str] = ["legacy_gate_cannot_authorize_real_api"]
     invalid_oos_evidence = any(not _result_evidence_is_valid(result) for result in oos_results)
     invalid_sensitivity_evidence = any(
         not _result_evidence_is_valid(result) for result in sensitivity_results
@@ -337,8 +345,8 @@ def evaluate_promotion(
     if settings.require_data_audit or data_audits:
         reasons.extend(promotion_data_quality_reasons(data_audits))
     return PromotionReadiness(
-        status="ready" if not reasons else "needs_revision",
-        real_api_allowed=not reasons,
+        status="needs_revision",
+        real_api_allowed=False,
         reasons=tuple(dict.fromkeys(reasons)),
     )
 

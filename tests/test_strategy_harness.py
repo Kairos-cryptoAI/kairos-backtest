@@ -18,7 +18,11 @@ from kairos_backtest.harness import (
     evaluate_window,
 )
 from kairos_backtest.metrics import calculate_metrics
-from kairos_backtest.readiness import evaluate_promotion, promotion_data_quality_reasons
+from kairos_backtest.readiness import (
+    PromotionPolicy,
+    evaluate_promotion,
+    promotion_data_quality_reasons,
+)
 from kairos_backtest.strategy import StrategySignal
 from kairos_backtest.walk_forward import split_walk_forward
 
@@ -347,6 +351,30 @@ def test_promotion_gate_blocks_negative_or_incomplete_evidence():
 
 def test_promotion_data_audit_is_required_by_default():
     assert promotion_data_quality_reasons(()) == ("dataset_audit_unavailable",)
+
+
+def test_legacy_promotion_gate_can_never_authorize_a_real_api():
+    source = synthetic_regime_candles(count=1_200, seed=59)
+    signals = causal_momentum_signals(source)
+    result = evaluate(
+        source,
+        signals,
+        initial_equity=10_000,
+        execution=ExecutionConfig(),
+    )
+
+    readiness = evaluate_promotion(
+        (result,),
+        (result, result),
+        policy=PromotionPolicy(require_historical_funding=False, require_data_audit=False),
+    )
+
+    assert readiness.status == "needs_revision"
+    assert readiness.real_api_allowed is False
+    assert "legacy_gate_cannot_authorize_real_api" in readiness.reasons
+
+    with pytest.raises(TypeError, match="PromotionPolicy"):
+        evaluate_promotion((result,), (result, result), policy=False)  # type: ignore[arg-type]
 
 
 def test_promotion_gate_rejects_every_nonfinite_metric_input():
