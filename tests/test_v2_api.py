@@ -11,5 +11,10 @@ def test_v2_facade_exports_only_explicit_managed_research_contracts() -> None:
     assert "run_development_screen" in v2.__all__
     assert "run_orderflow_campaign" in v2.__all__
     assert "run_orderflow_screen" in v2.__all__
+    assert "run_regime_retest_campaign" in v2.__all__
+    assert "run_regime_retest_screen" in v2.__all__
+    assert "RegimeRetestGenerationDiagnostics" in v2.__all__
+    assert "RegimeRetestGenerationSymbolDiagnostics" in v2.__all__
+    assert "RegimeRetestInstalledDependencyPin" in v2.__all__
     assert "finalize_rejection" not in v2.__all__
     assert not hasattr(v2, "evaluate_promotion")

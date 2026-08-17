@@ -34,6 +34,7 @@ kairos-quant-scouts = { git = "https://github.com/Kairos-cryptoAI/kairos-quant-s
 kairos-evaluate = "kairos_backtest.cli:main"
 kairos-development-screen = "kairos_backtest.development_screen:main"
 kairos-orderflow-screen = "kairos_backtest.orderflow_screen:main"
+kairos-regime-retest-screen = "kairos_backtest.regime_retest_screen:main"
 kairos-validate-strategy = "kairos_backtest.validation_campaign:main"
 
 [tool.hatch.build.targets.wheel]
