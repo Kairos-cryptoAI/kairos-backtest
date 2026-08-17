@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "audited_at": "2026-08-18",
+  "classification": "development_only_reused_research_data",
+  "overall_assessment": "ready_to_support_rejection_with_caveats",
+  "archive_inventory": {
+    "start_inclusive": "2023-12-01",
+    "end_exclusive": "2024-07-01",
+    "symbols": ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT"],
+    "archives": 35,
+    "official_checksum_sidecars": 35,
+    "verified_sha256": 35,
+    "verified_zip_crc": 35,
+    "single_member_archives": 35,
+    "csv_header_rows": 35,
+    "bytes": 61035068,
+    "rows": 1533600,
+    "inventory_sha256": "247db3fc9a0585d6b71b71966d6c57a24c5cc17a298372510e947a9f2a6e8e45",
+    "inventory_hash_definition": "SHA-256 over each ordered relative POSIX path, NUL, byte size, NUL, ZIP SHA-256, NUL"
+  },
+  "screen_slice": {
+    "generation_start": "2023-12-01",
+    "evaluation_start": "2024-02-01",
+    "evaluation_end_exclusive": "2024-07-01",
+    "rows_total": 1533600,
+    "rows_per_symbol": 306720,
+    "warmup_rows_per_symbol": 89280,
+    "evaluation_rows_per_symbol": 217440,
+    "coverage": 1.0,
+    "missing_minutes": 0,
+    "duplicate_minutes": 0,
+    "invalid_rows": 0,
+    "zero_volume_rows": 0,
+    "per_symbol_candle_sha256": {
+      "BTCUSDT": "3e9edb49007124df5dc136bb84cee2463408d7b193a31b4d4edc14c5ddea60f5",
+      "ETHUSDT": "a28dea970fd247372c247aaada87214e14e05db05e5bb9b6164e991ba80e2d25",
+      "SOLUSDT": "7ca2941f50e6b68d996d9498aa18238844803b47dd07cf20ef7c149329e43ce8",
+      "BNBUSDT": "817e1b85acf63d30fa9c192f4d24e4f58031a79c9b2c9ea921a001a4ae9bdffe",
+      "XRPUSDT": "94eae123434d478b194aa9d8603180821fa9709efe34579d7ac20becc7f7a23f"
+    }
+  },
+  "domain_checks": {
+    "non_finite_rows": 0,
+    "negative_price_or_volume_rows": 0,
+    "invalid_ohlc_geometry_rows": 0,
+    "quote_volume_outside_candle_notional_bounds_rows": 0,
+    "taker_buy_above_volume_rows": 0,
+    "taker_buy_quote_above_quote_volume_rows": 0,
+    "positive_volume_with_zero_trade_count_rows": 0
+  },
+  "known_anomalies": [
+    {
+      "type": "excluded_upstream_row",
+      "location": "XRPUSDT November 2023",
+      "treatment": "generation starts on 2023-12-01; the row was neither repaired nor imputed",
+      "impact_on_selected_slice": "none"
+    }
+  ],
+  "artifact_integrity": {
+    "source_commit": "deba2568f3fbfde8c7dda75f36e74ac31d36cd29",
+    "source_tree": "37494ec536c1ee084a9107a369de44d61de60473",
+    "plan_file_sha256": "2eaf31ce1d3e2f3432c52fb0a5141b746308e7285bb1ac489ae403a6b71e58a4",
+    "attempt_file_sha256": "b21238a3aca5abb6f72a6daade9d8527921340f15454421e55512f5a9927e397",
+    "summary_file_sha256": "4906b8fdd5c5e34f1919991b8a2af733336c026ee3947d867432b235c7c25787",
+    "full_result_file_sha256": "2d863d5bae54ec6e9fa5e6dae76711efd17f8a999d55c27787d12dff04cd5be1",
+    "full_result_bytes": 289890537,
+    "attempt_status": "consumed",
+    "lineage_trials": [7, 8, 9]
+  },
+  "limitations": [
+    "The complete slice is reused RESEARCH/FIT evidence and is neither selection nor blind out-of-sample evidence.",
+    "Binance USD-M candles and taker volume are proxies, not EVEDEX venue execution or order-flow evidence.",
+    "The archives contain no historical EVEDEX funding, open interest, liquidations, trades, or order-book depth.",
+    "No historical funding observations were available to the evaluator, so carry-cost validation is incomplete.",
+    "The result can support rejecting this frozen hypothesis but cannot support promotion, shadow trading, live trading, or a return claim."
+  ]
+}
