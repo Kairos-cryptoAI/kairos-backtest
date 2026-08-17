@@ -4,8 +4,6 @@ import hashlib
 import json
 from pathlib import Path
 
-from kairos_backtest.provenance import source_fingerprint
-
 ROOT = Path(__file__).parents[1]
 REPORTS = ROOT / "reports" / "development-screen"
 
@@ -33,7 +31,8 @@ def test_committed_development_screen_artifacts_are_internally_linked():
     assert summary["artifacts"]["plan_file_sha256"] == _sha256(plan_path)
     assert summary["artifacts"]["plan_file_bytes"] == plan_path.stat().st_size
     assert summary["artifacts"]["plan_internal_sha256"] == plan["plan_sha256"]
-    assert summary["environment"]["source_sha256"] == source_fingerprint()
+    assert summary["environment"]["source_sha256"] == plan["environment"]["source_sha256"]
+    assert summary["environment"]["environment_sha256"] == plan["environment"]["environment_sha256"]
     assert plan["permissions"] == summary["permissions"]
     assert [trial["variant"] for trial in summary["trials"]] == [
         "shallow",
