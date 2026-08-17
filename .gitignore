@@ -7,6 +7,7 @@ __pycache__/
 .venv/
 data/historical/
 reports/development-screen/result.json
+reports/orderflow-screen/result.json
 build/
 dist/
 *.egg-info/
