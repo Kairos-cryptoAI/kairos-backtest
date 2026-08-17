@@ -89,6 +89,34 @@ The 7.8 MB full replay remains ignored and is bound by byte length and SHA-256.
 No API/model call or real order was made, and all promotion, shadow and live
 permissions remain `false`.
 
+## Regime/retest development screen
+
+The third experiment is frozen before any candidate-dependent access to its
+market values.  An expansion candle only arms a setup; the strategy waits up
+to three complete five-minute bars for a retest of the prior 12-bar boundary
+and a close back through that frozen level.  The three registered trials test
+the structural reclaim alone, same-direction taker-flow reacceleration, and
+opposing-flow absorption.  Long and short rules, stops and holding horizons
+are intentionally separate.
+
+The one-shot screen uses 62 days of warm-up from 2023-12-01 and evaluates the
+reused `RESEARCH/FIT` interval `[2024-02-01, 2024-07-01)`.  This clean interval
+starts after the known invalid XRP minute in November 2023; that source row is
+excluded by the fixed boundary, never repaired or imputed.  Trials are recorded
+as cumulative research attempts 7, 8 and 9.  A canonical `attempt.json` is
+created exclusively before the first parsed market value is read, and a crash
+or failed run consumes the attempt.
+
+```sh
+uv run --locked kairos-regime-retest-screen --cache-dir data/historical
+```
+
+The screen requires positive baseline and stress economics, at least 165
+closed trades per scenario, 17 per symbol, 50 distinct exit days, and 50
+profitable-economics trades in each direction.  Trade count is a sufficiency
+gate, never the ranking target.  The result remains development-only even if a
+candidate passes; promotion, shadow and live permissions are always `false`.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps

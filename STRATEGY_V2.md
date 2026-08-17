@@ -21,6 +21,8 @@ or venue API is tested.
 | `trend_breakout_v1` | Five-minute Donchian continuation in an hourly trend | Retained as a benchmark; no tested variant has a confirmed net edge |
 | `range_mean_reversion_v1` | Return inside a prior VWAP/ATR band in a flat hourly regime | Retired from tuning and retained as a reproducible negative control |
 | `trend_pullback_reclaim_v1` | Reclaim after a bounded pullback inside a confirmed hourly trend | First three-variant screen rejected; retained only as development evidence |
+| `orderflow_volatility_expansion_v1` | Immediate continuation after a volume/range/flow expansion | Second three-variant screen rejected; frequent variant had no net edge |
+| `regime_veto_retest_reclaim_v1` | Prior-boundary retest after expansion with separate long/short rules | Trials 7–9 frozen; one-shot reused-data screen pending |
 
 The pullback family has exactly three preregistered depth variants:
 `shallow`, `medium` and `deep`. Shared boundaries belong to only one variant,
@@ -52,6 +54,15 @@ The next research iteration must be a structurally different hypothesis, not a
 fourth pullback-depth band selected after seeing these results. The full
 methodology and artifact hashes are in
 [`reports/development-screen/REPORT.md`](reports/development-screen/REPORT.md).
+
+The subsequent order-flow screen also returned `REJECT_ALL`: its most frequent
+variant produced 387 baseline and 301 stress trades but lost 2.9005% and
+3.2540%.  The third frozen hypothesis therefore does not enter on the expansion
+bar.  It waits for a bounded retest and reclaim of a prior structural level,
+then tests structural, flow-reacceleration and absorption explanations in a
+fixed order.  Its clean reused-data interval is February through June 2024,
+with December 2023 and January 2024 used only for warm-up.  The plan, one-shot
+attempt ledger, costs and eligibility gates are fixed before price parsing.
 
 ## Decision path
 
