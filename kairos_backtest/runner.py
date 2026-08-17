@@ -7,15 +7,31 @@ from pathlib import Path
 
 from .data import BinanceArchiveLoader
 from .evaluation import evaluate
-from .execution import ExecutionConfig
+from .execution import ExecutionConfig, FundingConfig
 from .provenance import runtime_manifest, source_fingerprint
 from .seeding import derive_seed
 from .strategy import generate_signals
 
 SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT")
 SCENARIOS = {
-    "baseline": ExecutionConfig(fee_bps=4.0, spread_bps=2.0, slippage_bps=2.0, latency_ms=250),
-    "stress": ExecutionConfig(fee_bps=4.0, spread_bps=4.0, slippage_bps=4.0, latency_ms=500),
+    "baseline": ExecutionConfig(
+        fee_bps=4.5,
+        spread_bps=2.0,
+        slippage_bps=2.0,
+        latency_ms=250,
+        funding=FundingConfig(),
+    ),
+    "stress": ExecutionConfig(
+        fee_bps=4.5,
+        spread_bps=4.0,
+        slippage_bps=4.0,
+        latency_ms=500,
+        funding=FundingConfig(
+            rate_8h_bps=5.0,
+            source="assumed_adverse_stress",
+            evidence="assumed",
+        ),
+    ),
 }
 
 

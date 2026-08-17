@@ -1,7 +1,11 @@
-import pytest
-from kairos_core.enums import OrderSide
-from kairos_quant.candles import Candle
+from dataclasses import replace
 
+import pytest
+from kairos_core.enums import OrderSide, Side
+from kairos_quant.candles import Candle
+from kairos_quant.replay import ReplayPoint, ReplayResult
+
+import kairos_backtest.engine as engine_module
 from kairos_backtest import ExecutionConfig, FillSimulator, ReplayClock, run_backtest, split_walk_forward
 from kairos_backtest.execution import SimulatedFill, TradeLedger
 
@@ -41,7 +45,7 @@ def test_clock_cannot_move_backwards():
 def test_fill_is_partial_and_costs_are_adverse():
     candle = candles(1)[0]
     fill = FillSimulator(ExecutionConfig(max_volume_participation=0.01), seed=7).fill(
-        candle, OrderSide.BUY, 10
+        candle, OrderSide.BUY, 10, available_volume=candle.volume
     )
     assert fill.filled_quantity == 1
     assert fill.price >= candle.open
@@ -55,11 +59,12 @@ def test_fill_jitter_cannot_turn_costs_favorable_and_close_reference_is_supporte
         seed=1,
     )
 
-    buy = simulator.fill(candle, OrderSide.BUY, 1)
+    buy = simulator.fill(candle, OrderSide.BUY, 1, available_volume=candle.volume)
     sell = simulator.fill(
         candle,
         OrderSide.SELL,
         1,
+        available_volume=candle.volume,
         timestamp_ms=candle.close_time_ms,
         reference_price=candle.close,
     )
@@ -108,6 +113,38 @@ def test_backtest_seed_changes_stochastic_execution_only_when_requested():
 
     assert first.fills != second.fills
     assert all(fill.timestamp_ms % 60_000 == 0 for fill in first.fills[:-1])
+
+
+def test_backtest_never_uses_last_candle_as_initial_liquidity(monkeypatch):
+    data = candles(2)
+    monkeypatch.setattr(
+        engine_module,
+        "replay_candles",
+        lambda _candles: ReplayResult((ReplayPoint(-1, Side.LONG),)),
+    )
+
+    report = engine_module.run_backtest(
+        data,
+        execution=ExecutionConfig(latency_ms=0, max_volume_participation=1),
+    )
+
+    assert report.fills[0].timestamp_ms == data[1].open_time_ms
+
+
+def test_backtest_rejects_an_incomplete_terminal_liquidation(monkeypatch):
+    data = candles(2)
+    data[-1] = replace(data[-1], volume=0.0)
+    monkeypatch.setattr(
+        engine_module,
+        "replay_candles",
+        lambda _candles: ReplayResult((ReplayPoint(-1, Side.LONG),)),
+    )
+
+    with pytest.raises(ValueError, match="terminal liquidation"):
+        engine_module.run_backtest(
+            data,
+            execution=ExecutionConfig(latency_ms=0, max_volume_participation=1),
+        )
 
 
 def test_walk_forward_has_no_train_test_overlap():

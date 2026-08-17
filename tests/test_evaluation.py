@@ -1,8 +1,10 @@
-from datetime import UTC, date, datetime
+from dataclasses import replace
+from datetime import UTC, date, datetime, timedelta
 
+import pytest
 from kairos_quant.candles import Candle
 
-from kairos_backtest.cli import yearly_segments
+from kairos_backtest.cli import SEGMENT_WARMUP_DAYS, segment_warmup_start, yearly_segments
 from kairos_backtest.data import month_starts
 from kairos_backtest.evaluation import aggregate_results, evaluate
 from kairos_backtest.execution import ExecutionConfig
@@ -76,6 +78,10 @@ def test_five_year_horizon_is_split_into_bounded_years():
     assert len(segments) == 5
     assert segments[0] == (date(2021, 7, 1), date(2022, 7, 1))
     assert segments[-1] == (date(2025, 7, 1), date(2026, 7, 1))
+    assert segment_warmup_start(horizon, segments[0][0]) == horizon.start
+    assert segment_warmup_start(horizon, segments[1][0]) == date(2022, 7, 1) - timedelta(
+        days=SEGMENT_WARMUP_DAYS
+    )
 
 
 def test_segment_results_are_compounded():
@@ -87,3 +93,13 @@ def test_segment_results_are_compounded():
     expected_growth = (1 + segment.return_pct / 100) ** 2
     assert combined.final_equity == 10_000 * expected_growth
     assert combined.trades == segment.trades * 2
+    assert combined.statistics is not None
+    assert combined.statistics.periods == segment.statistics.periods * 2
+    assert combined.metrics.annualized_volatility == segment.metrics.annualized_volatility
+
+    with pytest.raises(ValueError, match="initial equity"):
+        aggregate_results([segment], initial_equity=0)
+    with pytest.raises(ValueError, match="finite metrics"):
+        aggregate_results([replace(segment, return_pct=float("nan"))], initial_equity=10_000)
+    with pytest.raises(ValueError, match="growth and equity"):
+        aggregate_results([replace(segment, benchmark_return_pct=-100.0)], initial_equity=10_000)

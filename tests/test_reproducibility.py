@@ -1,21 +1,33 @@
 from __future__ import annotations
 
+import hashlib
 import io
+import json
 import zipfile
+from dataclasses import replace
 from datetime import UTC, date, datetime
+from pathlib import Path
 
 import numpy as np
 import pytest
 from kairos_core.enums import Side
 from kairos_quant.candles import Candle
 
-from kairos_backtest.data import BinanceArchiveLoader
+from kairos_backtest.data import BinanceArchiveLoader, audit_cached_archives
 from kairos_backtest.evaluation import evaluate
 from kairos_backtest.execution import ExecutionConfig
 from kairos_backtest.provenance import runtime_manifest, source_fingerprint
+from kairos_backtest.readiness import promotion_data_quality_reasons
 from kairos_backtest.seeding import derive_seed
-from kairos_backtest.strategy import StrategySignal, _rsi_series, generate_signals
+from kairos_backtest.strategy import StrategyConfig, StrategySignal, _rsi_series, generate_signals
 from kairos_backtest.validation import canonical_candles
+from kairos_backtest.validation_campaign import (
+    FROZEN_QUANT_SHA,
+    FROZEN_QUANT_URL,
+    _assert_frozen_dependency,
+    _cache_snapshot,
+    _validate_installed_quant_direct_url,
+)
 
 
 def candles(count: int, *, start_ms: int = 0) -> list[Candle]:
@@ -79,6 +91,62 @@ def test_runtime_manifest_captures_numeric_environment():
     }
 
 
+def test_frozen_dependency_matches_the_installed_distribution_and_lock():
+    project_root = Path(__file__).resolve().parent.parent
+
+    provenance = _assert_frozen_dependency(project_root)
+
+    installed = provenance["installed_direct_url"]
+    assert isinstance(installed, dict)
+    assert installed["url"] == FROZEN_QUANT_URL
+    assert installed["commit_id"] == FROZEN_QUANT_SHA
+    assert installed["requested_revision"] == FROZEN_QUANT_SHA
+
+
+def test_frozen_dependency_rejects_missing_direct_url_metadata():
+    with pytest.raises(RuntimeError, match="missing direct_url"):
+        _validate_installed_quant_direct_url(None)
+
+
+def test_frozen_dependency_rejects_a_stale_installed_commit():
+    stale = json.dumps(
+        {
+            "url": FROZEN_QUANT_URL,
+            "vcs_info": {
+                "vcs": "git",
+                "commit_id": "0" * 40,
+                "requested_revision": FROZEN_QUANT_SHA,
+            },
+        }
+    )
+
+    with pytest.raises(RuntimeError, match="does not match"):
+        _validate_installed_quant_direct_url(stale)
+
+
+def test_cache_snapshot_detects_archive_or_checksum_changes(tmp_path):
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"archive")
+    checksum = target.with_name(f"{target.name}.CHECKSUM")
+    checksum.write_text("checksum-v1", encoding="ascii")
+
+    first = _cache_snapshot(
+        tmp_path,
+        date(2025, 1, 1),
+        date(2025, 2, 1),
+        ("BTCUSDT",),
+    )
+    checksum.write_text("checksum-v2", encoding="ascii")
+
+    assert first != _cache_snapshot(
+        tmp_path,
+        date(2025, 1, 1),
+        date(2025, 2, 1),
+        ("BTCUSDT",),
+    )
+
+
 def test_evaluation_uses_seed_for_jitter_and_canonical_signal_order():
     source = candles(300)
     signals = [
@@ -105,6 +173,17 @@ def test_strategy_prefix_is_unchanged_by_future_candles():
     ]
 
     assert actual == expected
+
+
+def test_strategy_state_changes_respect_confirmation_and_minimum_hold():
+    config = StrategyConfig()
+    signals = generate_signals(candles(60_000), config)
+
+    assert signals
+    assert all(
+        current.timestamp_ms - previous.timestamp_ms >= config.minimum_hold_bars * 5 * 60_000
+        for previous, current in zip(signals, signals[1:], strict=False)
+    )
 
 
 def test_candle_boundaries_reject_duplicates_overlap_and_mixed_symbols():
@@ -144,7 +223,14 @@ def test_candle_boundaries_reject_duplicates_overlap_and_mixed_symbols():
 def _archive(rows: list[tuple[int, int]]) -> bytes:
     lines = []
     for opened, closed in rows:
-        lines.append(f"{opened},100,101,99,100.5,10,{closed},1000,1,5")
+        lines.append(f"{opened},100,101,99,100.5,10,{closed},1000,1,5,500,0")
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr("BTCUSDT-1m-2025-01.csv", "\n".join(lines))
+    return buffer.getvalue()
+
+
+def _raw_archive(lines: list[str]) -> bytes:
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w") as archive:
         archive.writestr("BTCUSDT-1m-2025-01.csv", "\n".join(lines))
@@ -174,3 +260,244 @@ def test_cached_archive_respects_inclusive_start_and_exclusive_end(tmp_path):
     assert manifest.actual_end_ms == end_ms - 1
     assert manifest.rows == 2
     assert manifest.sha256
+    assert manifest.transport_verification == "zip_crc_and_parsed_rows_sha256"
+    assert manifest.checksum_status == "unavailable"
+    assert manifest.checksum_files_verified == 0
+    assert manifest.expected_files == 1
+    assert manifest.csv_schema == "binance_futures_kline_v1_12_columns"
+
+
+def test_official_checksum_sidecar_is_verified(tmp_path):
+    start_ms = int(datetime(2025, 1, 1, tzinfo=UTC).timestamp() * 1000)
+    payload = _archive([(start_ms, start_ms + 59_999)])
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(payload)
+    target.with_name(f"{target.name}.CHECKSUM").write_text(
+        f"{hashlib.sha256(payload).hexdigest()}  {target.name}\n",
+        encoding="ascii",
+    )
+
+    _, manifest = BinanceArchiveLoader(tmp_path).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+    assert manifest.checksum_status == "official_sha256_verified"
+    assert manifest.checksum_files_verified == 1
+
+
+def test_checksum_mismatch_fails_closed(tmp_path):
+    start_ms = int(datetime(2025, 1, 1, tzinfo=UTC).timestamp() * 1000)
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(_archive([(start_ms, start_ms + 59_999)]))
+    target.with_name(f"{target.name}.CHECKSUM").write_text(
+        f"{'0' * 64}  {target.name}\n",
+        encoding="ascii",
+    )
+
+    with pytest.raises(ValueError, match="SHA-256 mismatch"):
+        BinanceArchiveLoader(tmp_path).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+
+def test_corrupt_cached_archive_fails_closed(tmp_path):
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"not a zip")
+
+    with pytest.raises(ValueError, match="corrupt"):
+        BinanceArchiveLoader(tmp_path).load(
+            "BTCUSDT",
+            date(2025, 1, 1),
+            date(2025, 2, 1),
+        )
+
+
+@pytest.mark.parametrize(
+    "lines",
+    [
+        ["garbage"],
+        ["open_time,open,high,low,close,volume,close_time,quote,trades,taker", "garbage"],
+        ["1735689600000,100,101"],
+        ["1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,0,extra"],
+        ["1735689600000,100,101,99,100,1,1735689659999,100,not-an-int,0.5,50,0"],
+        ["1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,1"],
+    ],
+)
+def test_malformed_csv_row_fails_closed(tmp_path, lines):
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(_raw_archive(lines))
+
+    with pytest.raises(ValueError, match="line"):
+        BinanceArchiveLoader(tmp_path).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+
+def test_exact_official_header_is_accepted_and_schema_drift_is_rejected(tmp_path):
+    header = (
+        "open_time,open,high,low,close,volume,close_time,quote_volume,count,"
+        "taker_buy_volume,taker_buy_quote_volume,ignore"
+    )
+    row = "1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,0"
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(_raw_archive([header, row]))
+
+    loaded, _ = BinanceArchiveLoader(tmp_path).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+    assert len(loaded) == 1
+    target.write_bytes(_raw_archive([header.replace("count", "trades"), row]))
+    with pytest.raises(ValueError, match="header"):
+        BinanceArchiveLoader(tmp_path).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+
+def test_duplicate_archive_rows_fail_closed(tmp_path):
+    row = "1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,0"
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(_raw_archive([row, row]))
+
+    with pytest.raises(ValueError, match="duplicate"):
+        BinanceArchiveLoader(tmp_path).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+
+def test_checksum_sidecar_must_reference_the_archive(tmp_path):
+    payload = _raw_archive(["1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,0"])
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(payload)
+    target.with_name(f"{target.name}.CHECKSUM").write_text(
+        f"{hashlib.sha256(payload).hexdigest()}  wrong.zip\n",
+        encoding="ascii",
+    )
+
+    with pytest.raises(ValueError, match="wrong file"):
+        BinanceArchiveLoader(tmp_path).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+
+def test_offline_archive_inventory_audit_is_strict_and_fingerprinted(tmp_path):
+    payload = _raw_archive(["1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,0"])
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(payload)
+    target.with_name(f"{target.name}.CHECKSUM").write_text(
+        f"{hashlib.sha256(payload).hexdigest()}  {target.name}\n",
+        encoding="ascii",
+    )
+
+    audit = audit_cached_archives(
+        tmp_path,
+        ("BTCUSDT",),
+        date(2025, 1, 1),
+        date(2025, 2, 1),
+    )
+
+    assert audit.expected_files == audit.present_files == audit.checksum_files_verified == 1
+    assert audit.rows == 1
+    assert audit.gaps == 0
+    assert audit.invalid_rows == 0
+    assert len(audit.inventory_sha256) == 64
+
+    impossible = replace(
+        audit,
+        expected_files=-1,
+        present_files=-1,
+        checksum_files_verified=-1,
+        rows=-1,
+        zip_bytes=-1,
+        coverage_pct=100.0,
+    )
+    assert "dataset_audit_invalid" in promotion_data_quality_reasons((impossible,))
+
+    claimed_complete_symbol = replace(
+        audit.symbols[0],
+        last_close_time_ms=int(datetime(2025, 2, 1, tzinfo=UTC).timestamp() * 1000) - 1,
+        missing_minutes=0,
+        coverage_pct=100.0,
+    )
+    claimed_complete = replace(
+        audit,
+        missing_minutes=0,
+        coverage_pct=100.0,
+        symbols=(claimed_complete_symbol,),
+    )
+    assert "dataset_audit_invalid" in promotion_data_quality_reasons((claimed_complete,))
+
+
+def test_inventory_records_but_loader_rejects_source_domain_anomalies(tmp_path):
+    valid = "1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,0"
+    invalid = "1735689660000,100,101,99,100,1,1735689719999,200,1,2,200,0"
+    payload = _raw_archive([valid, invalid])
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(payload)
+    target.with_name(f"{target.name}.CHECKSUM").write_text(
+        f"{hashlib.sha256(payload).hexdigest()}  {target.name}\n",
+        encoding="ascii",
+    )
+
+    with pytest.raises(ValueError, match="taker-buy volume"):
+        BinanceArchiveLoader(tmp_path, allow_download=False).load(
+            "BTCUSDT", date(2025, 1, 1), date(2025, 2, 1)
+        )
+    audit = audit_cached_archives(
+        tmp_path,
+        ("BTCUSDT",),
+        date(2025, 1, 1),
+        date(2025, 2, 1),
+    )
+
+    assert audit.rows == 1
+    assert audit.invalid_rows == 1
+    assert "taker-buy volume" in audit.invalid_row_samples[0]
+    assert set(promotion_data_quality_reasons((audit,))) == {
+        "dataset_audit_invalid",
+        "dataset_invalid_rows",
+        "dataset_gaps",
+        "dataset_incomplete_coverage",
+    }
+
+
+def test_archive_audit_rejects_cross_archive_duplicate_timestamps(tmp_path):
+    opened = int(datetime(2025, 1, 31, 23, 59, tzinfo=UTC).timestamp() * 1000)
+    row = f"{opened},100,101,99,100,1,{opened + 59_999},100,1,0.5,50,0"
+    for month in ("2025-01", "2025-02"):
+        payload = _raw_archive([row])
+        target = tmp_path / "BTCUSDT" / "1m" / f"BTCUSDT-1m-{month}.zip"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(payload)
+        target.with_name(f"{target.name}.CHECKSUM").write_text(
+            f"{hashlib.sha256(payload).hexdigest()}  {target.name}\n",
+            encoding="ascii",
+        )
+
+    with pytest.raises(ValueError, match="cross-archive duplicate"):
+        audit_cached_archives(
+            tmp_path,
+            ("BTCUSDT",),
+            date(2025, 1, 1),
+            date(2025, 3, 1),
+        )
+
+
+def test_archive_audit_rejects_cross_archive_reversed_timestamps(tmp_path):
+    opened = int(datetime(2025, 1, 31, 23, 59, tzinfo=UTC).timestamp() * 1000)
+    rows = {
+        "2025-01": f"{opened},100,101,99,100,1,{opened + 59_999},100,1,0.5,50,0",
+        "2025-02": (f"{opened - 60_000},100,101,99,100,1,{opened - 1},100,1,0.5,50,0"),
+    }
+    for month, row in rows.items():
+        payload = _raw_archive([row])
+        target = tmp_path / "BTCUSDT" / "1m" / f"BTCUSDT-1m-{month}.zip"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(payload)
+        target.with_name(f"{target.name}.CHECKSUM").write_text(
+            f"{hashlib.sha256(payload).hexdigest()}  {target.name}\n",
+            encoding="ascii",
+        )
+
+    with pytest.raises(ValueError, match="duplicate or reversed"):
+        audit_cached_archives(
+            tmp_path,
+            ("BTCUSDT",),
+            date(2025, 1, 1),
+            date(2025, 3, 1),
+        )

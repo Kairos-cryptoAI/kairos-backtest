@@ -11,7 +11,7 @@ from kairos_quant.candles import Candle
 from .config import BASELINE, STRESS, SYMBOLS, CostScenario
 from .data import BinanceArchiveLoader
 from .evaluation import evaluate
-from .execution import ExecutionConfig
+from .execution import ExecutionConfig, FundingConfig
 from .provenance import runtime_manifest, source_fingerprint
 from .seeding import derive_seed
 from .strategy import generate_signals
@@ -23,6 +23,11 @@ def _execution(scenario: CostScenario) -> ExecutionConfig:
         spread_bps=scenario.spread_bps,
         slippage_bps=scenario.slippage_bps,
         fee_bps=scenario.fee_bps,
+        funding=FundingConfig(
+            rate_8h_bps=scenario.funding_rate_8h_bps,
+            source=scenario.funding_source,
+            evidence=scenario.funding_evidence,
+        ),
     )
 
 
@@ -87,8 +92,12 @@ def run_campaign(
                         if result.trades >= 30
                         and result.return_pct > 0
                         and result.metrics.max_drawdown < 0.25
-                        else "failed"
+                        and result.funding_evidence == "historical"
+                        and result.funding_coverage_pct == 100
+                        else "needs_revision"
                         if result.return_pct < 0
+                        else "inconclusive_missing_historical_funding"
+                        if result.funding_evidence != "historical"
                         else "inconclusive"
                     ),
                     "unavailable_features": [
@@ -96,7 +105,7 @@ def run_campaign(
                         "open_interest",
                         "liquidations",
                         "news",
-                        "funding",
+                        "historical_funding",
                     ],
                 }
             )

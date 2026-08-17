@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 
-from .execution import ExecutionConfig
+from .execution import ExecutionConfig, FundingConfig
 
 SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT")
 
@@ -24,6 +24,22 @@ def default_horizons(today: date | None = None) -> tuple[Horizon, Horizon]:
     )
 
 
-BASELINE = ExecutionConfig(latency_ms=250, spread_bps=2, slippage_bps=2, fee_bps=4)
-STRESS = ExecutionConfig(latency_ms=500, spread_bps=4, slippage_bps=4, fee_bps=4)
+BASELINE = ExecutionConfig(
+    latency_ms=250,
+    spread_bps=2,
+    slippage_bps=2,
+    fee_bps=4.5,
+    funding=FundingConfig(),
+)
+STRESS = ExecutionConfig(
+    latency_ms=500,
+    spread_bps=4,
+    slippage_bps=4,
+    fee_bps=4.5,
+    funding=FundingConfig(
+        rate_8h_bps=5.0,
+        source="assumed_adverse_stress",
+        evidence="assumed",
+    ),
+)
 SCENARIOS = {"baseline": BASELINE, "stress": STRESS}

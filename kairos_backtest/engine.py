@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-from bisect import bisect_right
+import math
+from bisect import bisect_left
 from collections.abc import Iterable
 from dataclasses import dataclass
 
@@ -70,7 +71,12 @@ def run_backtest(
     ordered = canonical_candles(candles)
     if not ordered:
         raise ValueError("at least one candle is required")
-    if initial_equity <= 0 or quantity <= 0:
+    if (
+        not math.isfinite(initial_equity)
+        or not math.isfinite(quantity)
+        or initial_equity <= 0
+        or quantity <= 0
+    ):
         raise ValueError("initial_equity and quantity must be positive")
     replay = replay_candles(ordered)
     open_times = [candle.open_time_ms for candle in ordered]
@@ -81,23 +87,55 @@ def run_backtest(
     ledger = TradeLedger()
     fills: list[SimulatedFill] = []
     equity_curve = [cash]
+    funding_interval = config.funding.settlement_interval_ms
+    next_funding = (ordered[0].open_time_ms // funding_interval + 1) * funding_interval
 
     for point in replay.points:
-        execution_index = bisect_right(open_times, point.timestamp_ms + config.latency_ms)
+        execution_index = bisect_left(open_times, point.timestamp_ms + config.latency_ms)
+        if execution_index == 0:
+            execution_index = 1
         if execution_index >= len(ordered):
             break
         candle = ordered[execution_index]
         clock.advance_to(candle.open_time_ms)
+        while next_funding <= candle.open_time_ms:
+            funding_cost, _ = config.funding.settlement_cost(
+                ledger.position * candle.open,
+                next_funding,
+            )
+            cash -= funding_cost
+            ledger.apply_carry_cost(funding_cost)
+            next_funding += funding_interval
+        marked_open_equity = cash + ledger.position * candle.open
+        if not math.isfinite(marked_open_equity) or marked_open_equity <= 0:
+            raise ValueError("strategy equity became insolvent before target sizing")
         target = quantity if point.bias == Side.LONG else -quantity if point.bias == Side.SHORT else 0.0
         delta = target - ledger.position
         if delta:
             side = OrderSide.BUY if delta > 0 else OrderSide.SELL
-            fill = simulator.fill(candle, side, abs(delta), timestamp_ms=candle.open_time_ms)
+            fill = simulator.fill(
+                candle,
+                side,
+                abs(delta),
+                available_volume=ordered[execution_index - 1].volume,
+                timestamp_ms=candle.open_time_ms,
+            )
             fills.append(fill)
             signed = fill.filled_quantity if side == OrderSide.BUY else -fill.filled_quantity
             cash -= signed * fill.price + fill.fee_usd
             ledger.apply(fill)
-        equity_curve.append(cash + ledger.position * candle.close)
+        while next_funding <= candle.close_time_ms:
+            funding_cost, _ = config.funding.settlement_cost(
+                ledger.position * candle.close,
+                next_funding,
+            )
+            cash -= funding_cost
+            ledger.apply_carry_cost(funding_cost)
+            next_funding += funding_interval
+        marked_close_equity = cash + ledger.position * candle.close
+        if not math.isfinite(marked_close_equity) or marked_close_equity <= 0:
+            raise ValueError("strategy equity became insolvent during backtest")
+        equity_curve.append(marked_close_equity)
 
     if ledger.position and ordered:
         candle = ordered[-1]
@@ -106,6 +144,7 @@ def run_backtest(
             candle,
             side,
             abs(ledger.position),
+            available_volume=candle.volume,
             timestamp_ms=candle.close_time_ms,
             reference_price=candle.close,
         )
@@ -113,7 +152,12 @@ def run_backtest(
         signed = fill.filled_quantity if side == OrderSide.BUY else -fill.filled_quantity
         cash -= signed * fill.price + fill.fee_usd
         ledger.apply(fill)
-        equity_curve.append(cash + ledger.position * candle.close)
+        if abs(ledger.position) > max(1e-12, fill.requested_quantity * 1e-12):
+            raise ValueError("terminal liquidation exceeded causal candle liquidity; backtest is incomplete")
+        final_equity = cash + ledger.position * candle.close
+        if not math.isfinite(final_equity) or final_equity <= 0:
+            raise ValueError("strategy equity became insolvent after terminal liquidation")
+        equity_curve[-1] = final_equity
 
     manifest = RunManifest(
         seed=seed,
