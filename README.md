@@ -57,6 +57,38 @@ The full replay evidence is intentionally ignored because it is about 88.6 MB;
 the report records its byte length and SHA-256 so a local reproduction can be
 checked exactly. This result cannot authorize shadow or live trading.
 
+## Order-flow volatility development screen
+
+The next structurally distinct screen evaluates exactly three mutually
+exclusive taker-flow hypotheses—impulse, three-bar persistence and flip
+release—on reused 2022 research data. It uses complete closed five-minute
+candles, prior-only rolling features, bounded ATR exits and the same managed
+execution, cost and risk contracts:
+
+```sh
+uv run --locked kairos-orderflow-screen \
+  --cache-dir data/historical \
+  --plan-output reports/orderflow-screen/plan.json \
+  --result-output reports/orderflow-screen/result.json \
+  --summary-output reports/orderflow-screen/summary.json \
+  --overwrite
+```
+
+The 2022-07-01 through 2022-12-31 screen also returned `REJECT_ALL`.
+Persistence supplied 387 baseline and 301 stress trades, but returned -2.9005%
+and -3.2540%; impulse returned -1.4559%/-1.2052% on 124/92 trades, and flip
+release returned -0.6687%/-0.5590% on 80/60 trades. Every scenario had negative
+expectancy and profit factor below 1.0. Frequency is therefore no longer the
+main blocker: the standalone flow-continuation signal lacks net edge.
+
+The committed [report](reports/orderflow-screen/REPORT.md), [compact
+summary](reports/orderflow-screen/summary.json), immutable
+[plan](reports/orderflow-screen/plan.json), and [data-quality
+evidence](reports/orderflow-screen/data-quality.json) are development-only.
+The 7.8 MB full replay remains ignored and is bound by byte length and SHA-256.
+No API/model call or real order was made, and all promotion, shadow and live
+permissions remain `false`.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps

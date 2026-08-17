@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "audited_at": "2026-08-17",
+  "classification": "development_only_reused_research_data",
+  "archive_inventory": {
+    "start_inclusive": "2022-05-01",
+    "end_exclusive": "2023-01-01",
+    "symbols": ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT"],
+    "archives": 40,
+    "official_checksum_sidecars": 40,
+    "verified_sha256": 40,
+    "verified_zip_crc": 40,
+    "bytes": 68276399,
+    "rows": 1764000,
+    "inventory_sha256": "bce0618d2f0190c99f98d6ba8544611c4e25956faa740539961a41d16b42381c"
+  },
+  "screen_slice": {
+    "generation_start": "2022-05-27",
+    "evaluation_start": "2022-07-01",
+    "evaluation_end_exclusive": "2023-01-01",
+    "rows_total": 1576800,
+    "rows_per_symbol": 315360,
+    "warmup_rows_per_symbol": 50400,
+    "evaluation_rows_per_symbol": 264960,
+    "coverage": 1.0,
+    "missing_minutes": 0,
+    "duplicate_minutes": 0,
+    "invalid_rows": 0,
+    "canonical_raw_slice_sha256": "61c543bbdcc3aceceefcfa820b9513c3feb2fc61af1ca7a94241a6d58e16fadf"
+  },
+  "taker_flow_checks": {
+    "negative_taker_buy_rows": 0,
+    "taker_buy_above_volume_rows": 0,
+    "negative_derived_taker_sell_rows": 0,
+    "taker_buy_quote_above_quote_volume_rows": 0,
+    "non_finite_rows": 0,
+    "positive_volume_with_zero_trade_count_rows": 0,
+    "taker_buy_share_mean": 0.498420,
+    "taker_buy_share_p01": 0.109724,
+    "taker_buy_share_p50": 0.498466,
+    "taker_buy_share_p99": 0.889189
+  },
+  "known_anomalies": [
+    {
+      "type": "synchronized_zero_volume_interval",
+      "start_utc": "2022-05-28T16:40:00Z",
+      "end_utc_inclusive": "2022-05-28T17:14:00Z",
+      "minutes_per_symbol": 35,
+      "rows_total": 175,
+      "location": "warmup_only",
+      "treatment": "no signal, no fill capacity, and a full 72-bar feature-state reset"
+    }
+  ],
+  "limitations": [
+    "The complete local dataset has already been consumed by development research and is not an untouched holdout.",
+    "Binance taker-buy volume is a proxy for aggressive flow and is not EVEDEX venue order flow.",
+    "The archives contain no historical EVEDEX funding, open interest, liquidations, or order-book depth."
+  ]
+}
