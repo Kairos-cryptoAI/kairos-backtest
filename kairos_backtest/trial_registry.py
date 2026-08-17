@@ -21,7 +21,7 @@ from dataclasses import dataclass
 from datetime import date
 from enum import StrEnum
 from pathlib import Path
-from typing import cast
+from typing import Protocol, cast
 
 from .robustness import DailyReturnSeries
 
@@ -44,6 +44,16 @@ _TRIAL_PAYLOAD_KEYS = {
     "daily_returns",
     "failure_class",
 }
+
+
+class _MsvcrtModule(Protocol):
+    LK_LOCK: int
+    LK_UNLCK: int
+
+    @staticmethod
+    def locking(descriptor: int, mode: int, byte_count: int) -> None: ...
+
+
 _SELECTION_PAYLOAD_KEYS = {
     "selected_trial_id",
     "selected_trial_record_hash",
@@ -458,8 +468,7 @@ def _fsync_directory(path: Path) -> None:
 
 def _acquire_descriptor_lock(descriptor: int) -> None:
     if os.name == "nt":
-        import msvcrt
-
+        msvcrt = cast(_MsvcrtModule, importlib.import_module("msvcrt"))
         os.lseek(descriptor, 0, os.SEEK_SET)
         msvcrt.locking(descriptor, msvcrt.LK_LOCK, 1)
         return
@@ -469,8 +478,7 @@ def _acquire_descriptor_lock(descriptor: int) -> None:
 
 def _release_descriptor_lock(descriptor: int) -> None:
     if os.name == "nt":
-        import msvcrt
-
+        msvcrt = cast(_MsvcrtModule, importlib.import_module("msvcrt"))
         os.lseek(descriptor, 0, os.SEEK_SET)
         msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
         return

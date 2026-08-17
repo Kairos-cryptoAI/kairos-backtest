@@ -87,14 +87,14 @@ explicitly supplied. The immutable plan is written before cache evaluation.
 
 | Artifact | Bytes | SHA-256 | Git policy |
 | --- | ---: | --- | --- |
-| `plan.json` | 7,608 | `453f9dceaf149240de8dc9c3758790e851bdd652f010ace1efe3d760a6e50df4` | Committed |
+| `plan.json` | 7,608 | `96fae3da0d25893772018faad242b8c51cefcbd778d12e97bc0fe58578afffd6` | Committed |
 | `summary.json` | compact | Verified by tests and review | Committed |
-| `result.json` | 88,608,989 | `5bc63dcc50364b95873a655668760c7b302bf3b1a021a598929be10fe1e3878d` | Local and ignored |
+| `result.json` | 88,608,989 | `54c2c0204799a1b46262efd9e9a6de73439e1c97487f1f4a1a2e5ae76aab45a9` | Local and ignored |
 
 The plan's internal SHA-256 is
-`af497bc8565375b817d823c5b3aae37f9c6acc25a10eb16b0fc917e1616ced4c`.
+`2d9c749e5b513576ba47a2e8668bb46962500e7247c29a7fb275e535cc028f86`.
 Its source-tree SHA-256 is
-`99aac0ab81369f2877b177e8ab2e3617a57222c903ca342fca8fdef69b370cc3`,
+`bec363e0110e0760d5c2c48e87689724145dcf48cf1e1e6d781cd6182577a7b3`,
 which matches the final evaluated Python source. Runtime evidence records
 CPython 3.11.15, NumPy 2.4.6 and the pinned project dependency versions.
 
