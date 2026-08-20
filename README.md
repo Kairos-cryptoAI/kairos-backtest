@@ -8,6 +8,11 @@ The current multi-sleeve research design, risk contract and no-peeking rules are
 documented in [`STRATEGY_V2.md`](STRATEGY_V2.md). No backtest or LLM response is
 treated as authorization for real orders.
 
+The plain-language comparison of the three completed strategy screens is in
+[`reports/strategy-runs-report.md`](reports/strategy-runs-report.md), with a
+visual overview in
+[`reports/strategy-runs-report-overview.png`](reports/strategy-runs-report-overview.png).
+
 ## Reproducible local checks
 
 The lock requires `uv` 0.12.3 and Python 3.11. CI also blocks on Linux Python
