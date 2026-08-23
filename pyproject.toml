@@ -30,7 +30,7 @@ required-version = "==0.12.3"
 [tool.uv.sources]
 kairos-core = { git = "https://github.com/Kairos-cryptoAI/kairos-core.git", rev = "a4f427cdd44184fac62a842320133ac5a3e11fbe" }
 kairos-quant-scouts = { git = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git", rev = "8474a25bd0afa58f4182ea69aaa0af71c7a01643" }
-kairos-strategy-engine = { git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git", rev = "50ec83ff00b0a0812840ba3cf652400c0c1912b6" }
+kairos-strategy-engine = { git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git", rev = "501339313e4e62266c6c714b8cd47ad2488edb08" }
 
 [project.scripts]
 kairos-evaluate = "kairos_backtest.cli:main"
