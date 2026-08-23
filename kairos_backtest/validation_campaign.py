@@ -41,6 +41,7 @@ FROZEN_STRATEGY = StrategyConfig(
     minimum_confidence=0.67,
 )
 FROZEN_QUANT_SHA = "c74b9853bd97597b2104b2d9c4bcd5b7c6cefb24"
+RUNTIME_QUANT_SHA = "57c37af2f1e5f94ff303396cddca68860307bc64"
 FROZEN_QUANT_URL = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git"
 INITIAL_EQUITY = 10_000.0
 ALLOCATION = 0.25
@@ -81,7 +82,11 @@ def _readiness_dict(readiness: PromotionReadiness) -> dict[str, object]:
     }
 
 
-def _validate_installed_quant_direct_url(raw: str | None) -> dict[str, str]:
+def _validate_installed_quant_direct_url(
+    raw: str | None,
+    *,
+    expected_sha: str = FROZEN_QUANT_SHA,
+) -> dict[str, str]:
     if raw is None:
         raise RuntimeError("installed kairos-quant-scouts is missing direct_url.json")
     try:
@@ -102,23 +107,23 @@ def _validate_installed_quant_direct_url(raw: str | None) -> dict[str, str]:
     expected = {
         "url": FROZEN_QUANT_URL,
         "vcs": "git",
-        "commit_id": FROZEN_QUANT_SHA,
-        "requested_revision": FROZEN_QUANT_SHA,
+        "commit_id": expected_sha,
+        "requested_revision": expected_sha,
     }
     if provenance != expected:
         raise RuntimeError("installed kairos-quant-scouts does not match the frozen URL and commit")
     return cast(dict[str, str], provenance)
 
 
-def _assert_frozen_dependency(project_root: Path) -> dict[str, object]:
+def _assert_quant_dependency(project_root: Path, *, expected_sha: str) -> dict[str, object]:
     project = tomllib.loads((project_root / "pyproject.toml").read_text(encoding="utf-8"))
     quant_source = cast(dict[str, object], project["tool"]["uv"]["sources"])["kairos-quant-scouts"]
     if (
         not isinstance(quant_source, dict)
         or quant_source.get("git") != FROZEN_QUANT_URL
-        or quant_source.get("rev") != FROZEN_QUANT_SHA
+        or quant_source.get("rev") != expected_sha
     ):
-        raise RuntimeError("kairos-quant-scouts is not pinned to the frozen validation commit")
+        raise RuntimeError("kairos-quant-scouts is not pinned to the expected commit")
 
     lock = tomllib.loads((project_root / "uv.lock").read_text(encoding="utf-8"))
     packages = lock.get("package")
@@ -129,7 +134,7 @@ def _assert_frozen_dependency(project_root: Path) -> dict[str, object]:
         for package in packages
         if isinstance(package, dict) and package.get("name") == "kairos-quant-scouts"
     ]
-    expected_lock_source = f"{FROZEN_QUANT_URL}?rev={FROZEN_QUANT_SHA}#{FROZEN_QUANT_SHA}"
+    expected_lock_source = f"{FROZEN_QUANT_URL}?rev={expected_sha}#{expected_sha}"
     if len(quant_packages) != 1:
         raise RuntimeError("uv.lock must contain exactly one kairos-quant-scouts distribution")
     lock_source = quant_packages[0].get("source")
@@ -140,15 +145,30 @@ def _assert_frozen_dependency(project_root: Path) -> dict[str, object]:
         installed = distribution("kairos-quant-scouts")
     except PackageNotFoundError as exc:
         raise RuntimeError("kairos-quant-scouts is not installed") from exc
-    installed_provenance = _validate_installed_quant_direct_url(installed.read_text("direct_url.json"))
+    installed_provenance = _validate_installed_quant_direct_url(
+        installed.read_text("direct_url.json"),
+        expected_sha=expected_sha,
+    )
     return {
         "distribution": "kairos-quant-scouts",
         "version": installed.version,
         "declared_url": FROZEN_QUANT_URL,
-        "declared_revision": FROZEN_QUANT_SHA,
+        "declared_revision": expected_sha,
         "locked_source": expected_lock_source,
         "installed_direct_url": installed_provenance,
     }
+
+
+def _assert_frozen_dependency(project_root: Path) -> dict[str, object]:
+    """Require the immutable dependency used by the archived legacy campaign."""
+
+    return _assert_quant_dependency(project_root, expected_sha=FROZEN_QUANT_SHA)
+
+
+def _assert_runtime_dependency(project_root: Path) -> dict[str, object]:
+    """Require the dependency used by the current strategy-parity runtime."""
+
+    return _assert_quant_dependency(project_root, expected_sha=RUNTIME_QUANT_SHA)
 
 
 def _cache_snapshot(

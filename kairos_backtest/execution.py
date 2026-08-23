@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from kairos_core.enums import OrderSide
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 FundingEvidence = Literal["unavailable", "assumed", "historical"]
 

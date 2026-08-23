@@ -27,7 +27,7 @@ from types import MappingProxyType
 from typing import cast
 
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .data import BinanceArchiveLoader, DatasetManifest, month_starts
 from .managed_evaluation import IntentDispositionReason

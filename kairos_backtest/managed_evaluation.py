@@ -13,7 +13,7 @@ from datetime import UTC, datetime
 from enum import Enum, StrEnum
 
 from kairos_core.enums import OrderSide, Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .barrier_engine import BarrierExitDecision, ManagedPosition
 from .cost_risk import AdmissionReason, AllInCostModel, RiskLimits, size_and_admit

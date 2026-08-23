@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 import kairos_backtest.regime_retest_campaign as campaign
 import kairos_backtest.sleeves.regime_retest_reclaim as regime_sleeve

@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from typing import cast
 
 import pytest
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 import kairos_backtest.development_screen as screen
 from kairos_backtest.data import DatasetManifest

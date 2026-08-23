@@ -13,7 +13,7 @@ from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .validation import canonical_candles
 
@@ -164,6 +164,7 @@ def _parse_csv(
                         volume=numeric[4],
                         quote_volume=numeric[5],
                         taker_buy_volume=numeric[6],
+                        taker_buy_quote_volume=numeric[7],
                     )
                 )
             except ValueError as exc:

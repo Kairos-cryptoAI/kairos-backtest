@@ -2,7 +2,7 @@ from dataclasses import replace
 from datetime import UTC, date, datetime, timedelta
 
 import pytest
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from kairos_backtest.cli import SEGMENT_WARMUP_DAYS, segment_warmup_start, yearly_segments
 from kairos_backtest.data import month_starts

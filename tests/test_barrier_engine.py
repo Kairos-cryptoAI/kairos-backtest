@@ -4,7 +4,7 @@ from dataclasses import FrozenInstanceError, replace
 
 import pytest
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from kairos_backtest.barrier_engine import ManagedPosition
 from kairos_backtest.strategy_models import ExitPlan, ExitReason, SleeveIntent

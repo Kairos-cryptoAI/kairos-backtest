@@ -11,7 +11,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from kairos_backtest.data import BinanceArchiveLoader, audit_cached_archives
 from kairos_backtest.evaluation import evaluate
@@ -24,7 +24,9 @@ from kairos_backtest.validation import canonical_candles
 from kairos_backtest.validation_campaign import (
     FROZEN_QUANT_SHA,
     FROZEN_QUANT_URL,
+    RUNTIME_QUANT_SHA,
     _assert_frozen_dependency,
+    _assert_runtime_dependency,
     _cache_snapshot,
     _validate_installed_quant_direct_url,
 )
@@ -98,20 +100,29 @@ def test_runtime_manifest_captures_numeric_environment():
         "kairos-backtest",
         "kairos-core",
         "kairos-quant-scouts",
+        "kairos-strategy-engine",
         "numpy",
     }
 
 
-def test_frozen_dependency_matches_the_installed_distribution_and_lock():
+def test_runtime_dependency_matches_the_installed_distribution_and_lock():
     project_root = Path(__file__).resolve().parent.parent
 
-    provenance = _assert_frozen_dependency(project_root)
+    provenance = _assert_runtime_dependency(project_root)
 
     installed = provenance["installed_direct_url"]
     assert isinstance(installed, dict)
     assert installed["url"] == FROZEN_QUANT_URL
-    assert installed["commit_id"] == FROZEN_QUANT_SHA
-    assert installed["requested_revision"] == FROZEN_QUANT_SHA
+    assert installed["commit_id"] == RUNTIME_QUANT_SHA
+    assert installed["requested_revision"] == RUNTIME_QUANT_SHA
+
+
+def test_archived_legacy_dependency_is_not_silently_rebased_to_runtime():
+    project_root = Path(__file__).resolve().parent.parent
+
+    assert FROZEN_QUANT_SHA != RUNTIME_QUANT_SHA
+    with pytest.raises(RuntimeError, match="expected commit"):
+        _assert_frozen_dependency(project_root)
 
 
 def test_frozen_dependency_rejects_missing_direct_url_metadata():

@@ -8,7 +8,7 @@ from typing import Any
 
 import pytest
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 import kairos_backtest.orderflow_campaign as campaign
 from kairos_backtest.research_protocol import ResearchProtocol

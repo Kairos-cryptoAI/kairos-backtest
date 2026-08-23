@@ -2,8 +2,8 @@ from dataclasses import replace
 
 import pytest
 from kairos_core.enums import OrderSide, Side
-from kairos_quant.candles import Candle
 from kairos_quant.replay import ReplayPoint, ReplayResult
+from kairos_strategy.candles import Candle
 
 import kairos_backtest.engine as engine_module
 from kairos_backtest import ExecutionConfig, FillSimulator, ReplayClock, run_backtest, split_walk_forward

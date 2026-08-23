@@ -1,4 +1,4 @@
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from kairos_backtest.synchronization import assert_no_lookahead, synchronize_closed_candles
 

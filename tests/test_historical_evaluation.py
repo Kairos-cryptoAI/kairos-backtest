@@ -1,7 +1,7 @@
 from datetime import date
 
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from kairos_backtest.data import month_starts
 from kairos_backtest.evaluation import evaluate

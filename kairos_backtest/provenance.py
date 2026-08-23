@@ -40,7 +40,13 @@ def runtime_provenance() -> RuntimeProvenance:
     """Record interpreter and resolved packages that can affect numeric output."""
     packages = tuple(
         (name, importlib.metadata.version(name))
-        for name in ("kairos-backtest", "kairos-core", "kairos-quant-scouts", "numpy")
+        for name in (
+            "kairos-backtest",
+            "kairos-core",
+            "kairos-quant-scouts",
+            "kairos-strategy-engine",
+            "numpy",
+        )
     )
     return RuntimeProvenance(
         python=platform.python_version(),

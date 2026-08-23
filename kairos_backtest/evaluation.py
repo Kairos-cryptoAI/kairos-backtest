@@ -5,7 +5,7 @@ from bisect import bisect_left
 from dataclasses import asdict, dataclass
 
 from kairos_core.enums import OrderSide, Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .execution import ExecutionConfig, FillSimulator, TradeLedger
 from .metrics import (

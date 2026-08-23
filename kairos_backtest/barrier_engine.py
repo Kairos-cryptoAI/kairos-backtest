@@ -8,7 +8,7 @@ import math
 from dataclasses import dataclass, field, replace
 
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .strategy_models import ExitReason, SleeveIntent, TradeRecord
 

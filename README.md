@@ -1,5 +1,11 @@
 # kairos-backtest
 
+> Strategy generators are owned by
+> [`kairos-strategy-engine`](https://github.com/Kairos-cryptoAI/kairos-strategy-engine).
+> This repository imports those exact modules and exposes only research,
+> execution-simulation, and promotion adapters. No rejected sleeve is enabled
+> for PAPER trading.
+
 Deterministic event replay, historical evaluation and execution-cost simulation
 for Kairos. The package is strictly offline during tests; downloading Binance
 archives is an explicit CLI/runtime operation.

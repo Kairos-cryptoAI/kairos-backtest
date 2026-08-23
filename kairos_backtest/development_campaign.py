@@ -17,7 +17,7 @@ from datetime import UTC, date, datetime, timedelta
 from enum import Enum
 from typing import cast
 
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .cost_risk import AllInCostModel, RiskLimits
 from .execution import ExecutionConfig

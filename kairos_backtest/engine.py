@@ -8,8 +8,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 
 from kairos_core.enums import OrderSide, Side
-from kairos_quant.candles import Candle
 from kairos_quant.replay import replay_candles
+from kairos_strategy.candles import Candle
 
 from .clock import ReplayClock
 from .execution import ExecutionConfig, FillSimulator, SimulatedFill, TradeLedger

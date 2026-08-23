@@ -6,7 +6,7 @@ from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .config import BASELINE, STRESS, SYMBOLS, CostScenario
 from .data import BinanceArchiveLoader
@@ -65,6 +65,7 @@ def run_campaign(
                 volume=row.volume,
                 quote_volume=row.quote_volume,
                 taker_buy_volume=row.taker_buy_volume,
+                taker_buy_quote_volume=row.taker_buy_quote_volume,
             )
             for row in source
         ]

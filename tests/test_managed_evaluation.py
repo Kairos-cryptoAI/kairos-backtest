@@ -5,7 +5,7 @@ from dataclasses import replace
 
 import pytest
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from kairos_backtest.cost_risk import AllInCostModel, RiskLimits, size_and_admit
 from kairos_backtest.execution import (

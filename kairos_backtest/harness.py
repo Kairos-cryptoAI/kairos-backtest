@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .evaluation import EvaluationResult, evaluate
 from .execution import ExecutionConfig

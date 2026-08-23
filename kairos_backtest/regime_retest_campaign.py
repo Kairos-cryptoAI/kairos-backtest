@@ -18,7 +18,7 @@ from enum import Enum
 from typing import ClassVar, cast
 
 from kairos_core.enums import Side
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 from .cost_risk import AllInCostModel, RiskLimits
 from .execution import ExecutionConfig

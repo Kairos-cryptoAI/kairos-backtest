@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 from collections.abc import Iterable
 
-from kairos_quant.candles import Candle
+from kairos_strategy.candles import Candle
 
 
 def synchronize_closed_candles(candles: Iterable[Candle]) -> list[tuple[int, dict[str, Candle]]]:
