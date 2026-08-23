@@ -41,7 +41,7 @@ FROZEN_STRATEGY = StrategyConfig(
     minimum_confidence=0.67,
 )
 FROZEN_QUANT_SHA = "c74b9853bd97597b2104b2d9c4bcd5b7c6cefb24"
-RUNTIME_QUANT_SHA = "57c37af2f1e5f94ff303396cddca68860307bc64"
+RUNTIME_QUANT_SHA = "8474a25bd0afa58f4182ea69aaa0af71c7a01643"
 FROZEN_QUANT_URL = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git"
 INITIAL_EQUITY = 10_000.0
 ALLOCATION = 0.25

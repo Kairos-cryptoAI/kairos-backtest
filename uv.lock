@@ -455,9 +455,9 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "kairos-core", git = "https://github.com/Kairos-cryptoAI/kairos-core.git?rev=c358e03b1218d5ec953dae3d10a96b32dd35aa4d" },
-    { name = "kairos-quant-scouts", git = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git?rev=57c37af2f1e5f94ff303396cddca68860307bc64" },
-    { name = "kairos-strategy-engine", git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git?rev=faf9c23ebd11d76d52ac1dc08157022e75dbf49f" },
+    { name = "kairos-core", git = "https://github.com/Kairos-cryptoAI/kairos-core.git?rev=a4f427cdd44184fac62a842320133ac5a3e11fbe" },
+    { name = "kairos-quant-scouts", git = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git?rev=8474a25bd0afa58f4182ea69aaa0af71c7a01643" },
+    { name = "kairos-strategy-engine", git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git?rev=b8db14829c56cc6f2061b4eee4e7c3d3e9e02b3e" },
     { name = "numpy", specifier = ">=1.26,<3" },
 ]
 
@@ -472,7 +472,7 @@ dev = [
 [[package]]
 name = "kairos-core"
 version = "0.3.0"
-source = { git = "https://github.com/Kairos-cryptoAI/kairos-core.git?rev=c358e03b1218d5ec953dae3d10a96b32dd35aa4d#c358e03b1218d5ec953dae3d10a96b32dd35aa4d" }
+source = { git = "https://github.com/Kairos-cryptoAI/kairos-core.git?rev=a4f427cdd44184fac62a842320133ac5a3e11fbe#a4f427cdd44184fac62a842320133ac5a3e11fbe" }
 dependencies = [
     { name = "aiohttp" },
     { name = "orjson" },
@@ -486,7 +486,7 @@ dependencies = [
 [[package]]
 name = "kairos-persistence"
 version = "0.1.0"
-source = { git = "https://github.com/Kairos-cryptoAI/kairos-persistence.git?rev=43db15a3099253e4aafbfef3756cf94fb3248eeb#43db15a3099253e4aafbfef3756cf94fb3248eeb" }
+source = { git = "https://github.com/Kairos-cryptoAI/kairos-persistence.git?rev=a6fee2115e7dc1aff8389b0a6fe9c7e1fadcdff6#a6fee2115e7dc1aff8389b0a6fe9c7e1fadcdff6" }
 dependencies = [
     { name = "asyncpg" },
     { name = "kairos-core" },
@@ -497,7 +497,7 @@ dependencies = [
 [[package]]
 name = "kairos-quant-scouts"
 version = "0.1.0"
-source = { git = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git?rev=57c37af2f1e5f94ff303396cddca68860307bc64#57c37af2f1e5f94ff303396cddca68860307bc64" }
+source = { git = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git?rev=8474a25bd0afa58f4182ea69aaa0af71c7a01643#8474a25bd0afa58f4182ea69aaa0af71c7a01643" }
 dependencies = [
     { name = "aiohttp" },
     { name = "kairos-core" },
@@ -508,8 +508,8 @@ dependencies = [
 
 [[package]]
 name = "kairos-strategy-engine"
-version = "0.1.0"
-source = { git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git?rev=faf9c23ebd11d76d52ac1dc08157022e75dbf49f#faf9c23ebd11d76d52ac1dc08157022e75dbf49f" }
+version = "0.2.0"
+source = { git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git?rev=b8db14829c56cc6f2061b4eee4e7c3d3e9e02b3e#b8db14829c56cc6f2061b4eee4e7c3d3e9e02b3e" }
 dependencies = [
     { name = "kairos-core" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
