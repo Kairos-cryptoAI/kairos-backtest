@@ -220,7 +220,7 @@ def _fetch(url: str, *, retries: int) -> bytes:
                 raise FileNotFoundError(f"missing official Binance archive: {url}") from exc
             if attempt + 1 == retries:
                 raise
-        except URLError:
+        except (ConnectionError, TimeoutError, URLError):
             if attempt + 1 == retries:
                 raise
         time.sleep(2**attempt)

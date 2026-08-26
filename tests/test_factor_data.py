@@ -131,3 +131,36 @@ def test_download_is_atomic_and_revalidates_cached_bytes(tmp_path, monkeypatch):
     (tmp_path / target.relative_path).write_bytes(b"tampered")
     with pytest.raises(ValueError, match="mismatch"):
         download_target(tmp_path, target, retries=2)
+
+
+def test_fetch_retries_remote_disconnect(monkeypatch):
+    from http.client import RemoteDisconnected
+
+    import kairos_backtest.factor_data as module
+
+    attempts = 0
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return None
+
+        def read(self):
+            return b"recovered"
+
+    def flaky_urlopen(url: str, timeout: int):
+        nonlocal attempts
+        assert url.startswith(ARCHIVE_HOST)
+        assert timeout == 60
+        attempts += 1
+        if attempts == 1:
+            raise RemoteDisconnected("transient close")
+        return Response()
+
+    monkeypatch.setattr(module, "urlopen", flaky_urlopen)
+    monkeypatch.setattr(module.time, "sleep", lambda _seconds: None)
+
+    assert module._fetch(f"{ARCHIVE_HOST}/data/futures/um/sample.zip", retries=2) == b"recovered"
+    assert attempts == 2
