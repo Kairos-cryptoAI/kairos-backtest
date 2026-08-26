@@ -63,6 +63,12 @@ taker-flow alignment were weaker. See the committed
 [`result`](reports/market-anatomy/result.json). The next research dimension is
 historical basis/funding and leverage state, not another price-threshold trial.
 
+That follow-up is now fixed as `derivatives_state_v1`. It evaluates official
+Binance funding, premium-index and leverage archives without paid APIs. Its
+fixed downloader, causal alignment, diagnostic families and fail-closed
+permissions are documented in [MARKET_RESEARCH.md](MARKET_RESEARCH.md) and
+committed before the factor cache is opened.
+
 `make check` runs the same sequence. Internal dependencies resolve from the
 exact `kairos-core` and `kairos-quant-scouts` commits recorded in
 `pyproject.toml` and `uv.lock`. Frozen validation also rejects an installed

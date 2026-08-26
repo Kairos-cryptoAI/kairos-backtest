@@ -1,0 +1,91 @@
+{
+  "causal_alignment": {
+    "decision_time": "hour_close",
+    "forward_return_start": "same_hour_close",
+    "funding": "last_observation_not_after_hour_close_with_maximum_age_8h",
+    "leverage": "last_5m_observation_not_after_hour_close",
+    "premium": "same_complete_hour_close"
+  },
+  "classification": "descriptive_reused_data_only",
+  "data": {
+    "end_exclusive": "2026-08-01",
+    "funding_source": "official_binance_usdm_monthly_fundingRate",
+    "gap_policy": "require_aligned_factor_hours_and_never_bridge_a_gap",
+    "integrity": "official_sha256_plus_zip_crc",
+    "leverage_source": "official_binance_usdm_daily_metrics_5m_last_observation_per_hour",
+    "premium_source": "official_binance_usdm_monthly_premiumIndexKlines_1h",
+    "price_source": "official_binance_usdm_monthly_1m_klines_aggregated_to_complete_1h",
+    "start_inclusive": "2024-07-01",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "windows": [
+      {
+        "end": "2025-07-01",
+        "name": "selection",
+        "start": "2024-07-01"
+      },
+      {
+        "end": "2026-08-01",
+        "name": "robustness",
+        "start": "2025-07-01"
+      }
+    ]
+  },
+  "diagnostic_families": [
+    "funding_contrarian",
+    "premium_contrarian",
+    "deleveraging_trend",
+    "crowding_veto_trend"
+  ],
+  "fixed_features": {
+    "crowded_trend": "trend_aligned_premium_at_threshold_or_trend_aligned_funding_at_threshold; and_open_interest_change_at_least_5pct",
+    "forward_horizons_hours": [
+      1,
+      4,
+      24
+    ],
+    "funding_contrarian_threshold": 0.0001,
+    "open_interest_change_lookback_hours": 24,
+    "open_interest_material_change": 0.05,
+    "premium_contrarian_threshold": 0.0005,
+    "trend_lookback_hours": 24,
+    "trend_score_threshold": 1.0
+  },
+  "known_limitations": [
+    "Binance derivatives state is not historical EVEDEX venue evidence.",
+    "A funding contrarian direction is not a hedged cash-and-carry implementation.",
+    "All evaluated windows are reused and cannot promote alpha.",
+    "Liquidation events and order-book depth are absent from these archives."
+  ],
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "prototype_gates": {
+    "crowding_veto": {
+      "maximum_crowded_24h_mean_bps": 0.0,
+      "minimum_improvement_over_base_bps": 5.0,
+      "minimum_kept_24h_mean_bps": 15.0,
+      "minimum_kept_observations": 1000,
+      "minimum_retained_fraction": 0.3
+    },
+    "meaning": "permission_to_preregister_one_new_prototype_or_overlay_not_alpha",
+    "minimum_24h_hit_rate": 0.51,
+    "minimum_24h_mean_bps": 15.0,
+    "minimum_observations": 500,
+    "required_windows": [
+      "selection",
+      "robustness"
+    ]
+  },
+  "purpose": "Test whether official funding, premium and leverage state add stable information beyond the rejected price-volume anatomy before preregistering another strategy.",
+  "schema_version": 1,
+  "study_id": "derivatives_state_v1"
+}

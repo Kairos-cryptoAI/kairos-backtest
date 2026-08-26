@@ -141,3 +141,35 @@ Historical EVEDEX basis, funding, depth, open interest and liquidations are not
 present in the kline archive. Carry and liquidation hypotheses remain blocked
 on a separately versioned data-acquisition study rather than being represented
 as zero-valued features.
+
+## `derivatives_state_v1`
+
+The next descriptive study is fixed in the committed
+[`derivatives_state_v1` plan](reports/derivatives-state/plan.json). It adds only
+official Binance USD-M archives: eight-hour funding observations, one-hour
+premium-index bars and five-minute open-interest/positioning metrics. Every ZIP
+is bound to Binance's adjacent SHA-256 sidecar and checked with ZIP CRC.
+
+The causal join uses the same complete hourly price close, the premium close
+for that completed hour, the latest five-minute metrics observation no later
+than the close and the latest funding observation no more than eight hours old.
+It never bridges a missing hour. The study measures fixed funding and premium
+contrarian diagnostics, trend after material deleveraging, and whether vetoing
+crowded trend states improves the already rejected trend baseline.
+
+This is reused-data hypothesis triage, not a backtest and not alpha evidence.
+Passing a fixed descriptive gate can authorize only one separately
+preregistered prototype or overlay. It can never authorize PAPER or LIVE.
+
+Acquire and audit the fixed public-data inventory without using a paid API:
+
+```sh
+uv run --locked kairos-factor-data --download --workers 12
+uv run --locked kairos-factor-data --audit
+```
+
+After the preregistration commit is clean, execute the one immutable study:
+
+```sh
+uv run --locked kairos-derivatives-state
+```

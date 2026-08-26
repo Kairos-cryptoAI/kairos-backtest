@@ -6,6 +6,7 @@ __pycache__/
 .coverage
 .venv/
 data/historical/
+data/historical-factors/
 reports/development-screen/result.json
 reports/orderflow-screen/result.json
 reports/regime-retest-screen/result.json

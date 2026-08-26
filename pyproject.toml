@@ -39,6 +39,8 @@ kairos-orderflow-screen = "kairos_backtest.orderflow_screen:main"
 kairos-quarter-hour-screen = "kairos_backtest.quarter_hour_screen:main"
 kairos-regime-retest-screen = "kairos_backtest.regime_retest_screen:main"
 kairos-market-anatomy = "kairos_backtest.market_anatomy:main"
+kairos-factor-data = "kairos_backtest.factor_data:main"
+kairos-derivatives-state = "kairos_backtest.factor_study:main"
 kairos-validate-strategy = "kairos_backtest.validation_campaign:main"
 
 [tool.hatch.build.targets.wheel]
