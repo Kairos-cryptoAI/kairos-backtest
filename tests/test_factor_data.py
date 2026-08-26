@@ -96,6 +96,19 @@ def test_factor_parsers_accept_signed_premium_and_reject_schema_drift():
     assert parsed_leverage[0].open_interest_value == 200
     assert parsed_leverage[0].taker_long_short_volume_ratio == 0.9
 
+    incomplete = _zip(
+        "incomplete.csv",
+        (
+            "create_time,symbol,sum_open_interest,sum_open_interest_value,"
+            "count_toptrader_long_short_ratio,sum_toptrader_long_short_ratio,"
+            "count_long_short_ratio,sum_taker_long_short_vol_ratio\n"
+            "2024-07-01 00:00:00,BTCUSDT,100,200,,1.3,,0.9\n"
+        ),
+    )
+    parsed_incomplete = parse_leverage(incomplete, "BTCUSDT", "incomplete.zip")
+    assert parsed_incomplete[0].top_accounts_long_short_ratio is None
+    assert parsed_incomplete[0].global_accounts_long_short_ratio is None
+
     bad = _zip("bad.csv", "changed,schema\n1,2\n")
     with pytest.raises(ValueError, match="schema"):
         parse_funding(bad, "BTCUSDT", "bad.zip")

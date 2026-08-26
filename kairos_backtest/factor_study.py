@@ -40,10 +40,6 @@ class JoinedFactorHour:
     funding_rate: float
     funding_age_hours: float
     open_interest_value: float
-    top_accounts_long_short_ratio: float
-    top_positions_long_short_ratio: float
-    global_accounts_long_short_ratio: float
-    taker_long_short_volume_ratio: float
 
     def __post_init__(self) -> None:
         values = (
@@ -52,10 +48,6 @@ class JoinedFactorHour:
             self.funding_rate,
             self.funding_age_hours,
             self.open_interest_value,
-            self.top_accounts_long_short_ratio,
-            self.top_positions_long_short_ratio,
-            self.global_accounts_long_short_ratio,
-            self.taker_long_short_volume_ratio,
         )
         if (
             self.symbol not in SYMBOLS
@@ -63,9 +55,8 @@ class JoinedFactorHour:
             or self.close_time_ms != self.open_time_ms + HOUR_MS - 1
             or not all(math.isfinite(value) for value in values)
             or self.close <= 0
-            or self.open_interest_value < 0
+            or self.open_interest_value <= 0
             or not 0 <= self.funding_age_hours <= 8
-            or min(values[5:]) < 0
         ):
             raise ValueError("invalid joined factor hour")
 
@@ -195,6 +186,8 @@ def _latest_leverage_by_hour(
 ) -> dict[int, LeverageObservation]:
     result: dict[int, LeverageObservation] = {}
     for observation in observations:
+        if observation.open_interest <= 0 or observation.open_interest_value <= 0:
+            continue
         hour = observation.timestamp_ms // HOUR_MS * HOUR_MS
         current = result.get(hour)
         if current is None or observation.timestamp_ms > current.timestamp_ms:
@@ -234,10 +227,6 @@ def join_symbol(
                 last_funding.rate,
                 funding_age,
                 leverage_point.open_interest_value,
-                leverage_point.top_accounts_long_short_ratio,
-                leverage_point.top_positions_long_short_ratio,
-                leverage_point.global_accounts_long_short_ratio,
-                leverage_point.taker_long_short_volume_ratio,
             )
         )
     return tuple(joined)

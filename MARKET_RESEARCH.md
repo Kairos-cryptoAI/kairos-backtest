@@ -153,9 +153,12 @@ is bound to Binance's adjacent SHA-256 sidecar and checked with ZIP CRC.
 The causal join uses the same complete hourly price close, the premium close
 for that completed hour, the latest five-minute metrics observation no later
 than the close and the latest funding observation no more than eight hours old.
-It never bridges a missing hour. The study measures fixed funding and premium
-contrarian diagnostics, trend after material deleveraging, and whether vetoing
-crowded trend states improves the already rejected trend baseline.
+It never bridges a missing hour. Zero open-interest observations are treated as
+unusable venue-data outages, not deleveraging, and missing optional positioning
+ratios are counted without zero imputation. The study measures fixed funding
+and premium contrarian diagnostics, trend after material deleveraging, and
+whether vetoing crowded trend states improves the already rejected trend
+baseline.
 
 This is reused-data hypothesis triage, not a backtest and not alpha evidence.
 Passing a fixed descriptive gate can authorize only one separately

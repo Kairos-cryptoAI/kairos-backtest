@@ -113,10 +113,10 @@ class LeverageObservation:
     timestamp_ms: int
     open_interest: float
     open_interest_value: float
-    top_accounts_long_short_ratio: float
-    top_positions_long_short_ratio: float
-    global_accounts_long_short_ratio: float
-    taker_long_short_volume_ratio: float
+    top_accounts_long_short_ratio: float | None
+    top_positions_long_short_ratio: float | None
+    global_accounts_long_short_ratio: float | None
+    taker_long_short_volume_ratio: float | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -128,6 +128,8 @@ class FactorSymbolAudit:
     premium_rows: int
     leverage_archives: int
     leverage_rows: int
+    leverage_zero_open_interest_rows: int
+    leverage_incomplete_positioning_rows: int
     checksum_files_verified: int
     first_timestamp_ms: int
     last_timestamp_ms: int
@@ -304,6 +306,19 @@ def _finite(row: Sequence[str], indices: Sequence[int], filename: str) -> tuple[
     return values
 
 
+def _optional_finite(row: Sequence[str], index: int, filename: str) -> float | None:
+    try:
+        raw = row[index]
+    except IndexError as exc:
+        raise ValueError(f"missing optional factor column in {filename}") from exc
+    if raw == "":
+        return None
+    value = _finite(row, (index,), filename)[0]
+    if value < 0:
+        raise ValueError(f"negative optional factor value in {filename}")
+    return value
+
+
 def parse_funding(payload: bytes, symbol: str, filename: str) -> tuple[FundingObservation, ...]:
     rows = _csv_payload(payload, filename)
     if not rows or tuple(rows[0]) != FUNDING_HEADER:
@@ -359,16 +374,19 @@ def parse_leverage(payload: bytes, symbol: str, filename: str) -> tuple[Leverage
     for row in rows[1:]:
         if len(row) != len(LEVERAGE_HEADER) or row[1] != symbol:
             raise ValueError(f"unexpected leverage row in {filename}")
-        values = _finite(row, tuple(range(2, 8)), filename)
+        open_interest, open_interest_value = _finite(row, (2, 3), filename)
+        ratios = tuple(_optional_finite(row, index, filename) for index in range(4, 8))
         try:
             timestamp = int(
                 datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S").replace(tzinfo=UTC).timestamp() * 1_000
             )
         except ValueError as exc:
             raise ValueError(f"invalid leverage timestamp in {filename}") from exc
-        if timestamp % 300_000 or min(values) < 0:
+        if timestamp % 300_000 or min(open_interest, open_interest_value) < 0:
             raise ValueError(f"invalid leverage domain in {filename}")
-        observations.append(LeverageObservation(symbol, timestamp, *values))
+        observations.append(
+            LeverageObservation(symbol, timestamp, open_interest, open_interest_value, *ratios)
+        )
     return _ordered_unique(observations, lambda item: item.timestamp_ms, filename)
 
 
@@ -433,6 +451,19 @@ def load_factor_cache(cache_dir: Path) -> FactorDataset:
                 len(premium),
                 counts[(symbol, FactorKind.LEVERAGE)],
                 len(leverage),
+                sum(item.open_interest <= 0 or item.open_interest_value <= 0 for item in leverage),
+                sum(
+                    any(
+                        value is None
+                        for value in (
+                            item.top_accounts_long_short_ratio,
+                            item.top_positions_long_short_ratio,
+                            item.global_accounts_long_short_ratio,
+                            item.taker_long_short_volume_ratio,
+                        )
+                    )
+                    for item in leverage
+                ),
                 verified[symbol],
                 min(timestamps),
                 max(timestamps),

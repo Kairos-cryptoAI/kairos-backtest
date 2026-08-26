@@ -68,10 +68,6 @@ def _joined(
             funding_rate=funding,
             funding_age_hours=1.0,
             open_interest_value=1_000_000.0 * math.exp(oi_growth * index),
-            top_accounts_long_short_ratio=1.1,
-            top_positions_long_short_ratio=1.2,
-            global_accounts_long_short_ratio=1.0,
-            taker_long_short_volume_ratio=0.9,
         )
         for index in range(count)
     )
@@ -129,6 +125,7 @@ def test_factor_join_is_causal_and_uses_last_observation_within_hour():
         (
             LeverageObservation("BTCUSDT", start_ms + 50 * 60_000, 100, 200, 1.1, 1.2, 1.0, 0.9),
             LeverageObservation("BTCUSDT", start_ms + 55 * 60_000, 110, 220, 1.2, 1.3, 1.1, 1.0),
+            LeverageObservation("BTCUSDT", start_ms + 59 * 60_000, 0, 0, None, None, None, 1.0),
             LeverageObservation("BTCUSDT", start_ms + HOUR_MS, 999, 999, 9.0, 9.0, 9.0, 9.0),
         ),
     )
@@ -160,10 +157,6 @@ def test_diagnostics_preserve_direction_and_never_bridge_gap():
             row.funding_rate,
             row.funding_age_hours,
             row.open_interest_value,
-            row.top_accounts_long_short_ratio,
-            row.top_positions_long_short_ratio,
-            row.global_accounts_long_short_ratio,
-            row.taker_long_short_volume_ratio,
         )
         for row in complete[60:]
     )
