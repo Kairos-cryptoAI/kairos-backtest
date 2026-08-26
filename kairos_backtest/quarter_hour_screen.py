@@ -29,7 +29,13 @@ from kairos_strategy.registry import StrategyStatus, get_strategy
 from kairos_strategy.sleeves import QuarterHourFlowConfig, generate_quarter_hour_flow_intents
 
 from .cost_risk import AllInCostModel, RiskLimits
-from .data import BinanceArchiveLoader, DatasetManifest, month_starts
+from .data import (
+    ArchiveInventoryAudit,
+    BinanceArchiveLoader,
+    DatasetManifest,
+    audit_cached_archives,
+    month_starts,
+)
 from .execution import ExecutionConfig, FundingConfig
 from .managed_evaluation import ManagedCellResult, ManagedEvaluationPolicy, evaluate_sleeve_cell
 from .portfolio import CellEquityCurve, synchronize_cells
@@ -281,16 +287,37 @@ def _utc_ms(day: date) -> int:
     return int(datetime.combine(day, datetime.min.time(), UTC).timestamp() * 1_000)
 
 
-def _validate_manifest(symbol: str, candles: Sequence[Candle], manifest: DatasetManifest) -> None:
-    expected_rows = (DATA_END - DATA_START).days * 24 * 60
-    expected_files = len(month_starts(DATA_START, DATA_END))
+def _validate_archive_audit(audit: ArchiveInventoryAudit) -> None:
+    expected_files = len(month_starts(DATA_START, DATA_END)) * len(SYMBOLS)
+    if (
+        audit.requested_start != DATA_START.isoformat()
+        or audit.requested_end != DATA_END.isoformat()
+        or audit.expected_files != expected_files
+        or audit.present_files != expected_files
+        or audit.checksum_files_verified != expected_files
+        or audit.csv_schema != "binance_futures_kline_v1_12_columns"
+        or tuple(item.symbol for item in audit.symbols) != SYMBOLS
+    ):
+        raise ValueError("archive inventory is incomplete or lacks official integrity evidence")
+
+
+def _validate_window_manifest(
+    symbol: str,
+    candles: Sequence[Candle],
+    manifest: DatasetManifest,
+    *,
+    start: date,
+    end: date,
+) -> None:
+    expected_rows = (end - start).days * 24 * 60
+    expected_files = len(month_starts(start, end))
     expected = (
         manifest.symbol == symbol,
         manifest.interval == "1m",
-        manifest.requested_start == DATA_START.isoformat(),
-        manifest.requested_end == DATA_END.isoformat(),
-        manifest.actual_start_ms == _utc_ms(DATA_START),
-        manifest.actual_end_ms == _utc_ms(DATA_END) - 1,
+        manifest.requested_start == start.isoformat(),
+        manifest.requested_end == end.isoformat(),
+        manifest.actual_start_ms == _utc_ms(start),
+        manifest.actual_end_ms == _utc_ms(end) - 1,
         manifest.rows == expected_rows == len(candles),
         manifest.gaps == 0,
         manifest.expected_files == expected_files,
@@ -300,7 +327,7 @@ def _validate_manifest(symbol: str, candles: Sequence[Candle], manifest: Dataset
         manifest.csv_schema == "binance_futures_kline_v1_12_columns",
     )
     if not all(expected):
-        raise ValueError(f"{symbol} archive is incomplete or lacks official integrity evidence")
+        raise ValueError(f"{symbol} {start}..{end} is not a complete verified evaluation slice")
 
 
 def _window_slice(candles: list[Candle], window: DataWindow) -> list[Candle]:
@@ -438,15 +465,47 @@ def run_quarter_hour_screen(
     results_by_window: dict[str, dict[str, list[ManagedCellResult]]] = {
         window.name: {name: [] for name in scenarios} for window in WINDOWS
     }
+    audit = audit_cached_archives(cache_dir, SYMBOLS, DATA_START, DATA_END)
+    _validate_archive_audit(audit)
+    issue_by_symbol = {
+        item.symbol: item
+        for item in audit.symbols
+        if item.gaps > 0 or item.invalid_rows > 0 or item.missing_minutes > 0
+    }
     datasets: list[dict[str, object]] = []
+    skipped_cells: list[dict[str, object]] = []
 
     for symbol in SYMBOLS:
-        candles, manifest = loader.load(symbol, DATA_START, DATA_END, "1m")
-        _validate_manifest(symbol, candles, manifest)
-        datasets.append(asdict(manifest))
-        generated = generate_quarter_hour_flow_intents(candles, config)
         for window in WINDOWS:
+            # The old research role contains known checksum-valid venue gaps
+            # for SOL/XRP plus one invalid XRP row.  No minute is invented or
+            # deleted silently: those two research cells are unavailable.
+            # Selection and robustness are loaded and checked independently.
+            if window.role is DataRole.RESEARCH and symbol in issue_by_symbol:
+                issue = issue_by_symbol[symbol]
+                skipped_cells.append(
+                    {
+                        "gaps": issue.gaps,
+                        "invalid_rows": issue.invalid_rows,
+                        "missing_minutes": issue.missing_minutes,
+                        "reason": "historical_archive_not_contiguous",
+                        "symbol": symbol,
+                        "window": window.name,
+                    }
+                )
+                continue
+            load_start = window.start - timedelta(days=WARMUP_DAYS)
+            candles, manifest = loader.load(symbol, load_start, window.end, "1m")
+            _validate_window_manifest(
+                symbol,
+                candles,
+                manifest,
+                start=load_start,
+                end=window.end,
+            )
+            datasets.append({"window": window.name, **asdict(manifest)})
             rows = _window_slice(candles, window)
+            generated = generate_quarter_hour_flow_intents(rows, config)
             intents = _window_intents(generated, window)
             for scenario_name, execution in scenarios.items():
                 cell_result = evaluate_sleeve_cell(
@@ -485,7 +544,11 @@ def run_quarter_hour_screen(
     failures = _gate_failures(summaries)
     summary: dict[str, object] = {
         "classification": ("FORWARD_FREEZE_CANDIDATE" if not failures else "REJECT_REUSED_DATA_SCREEN"),
-        "datasets": datasets,
+        "data_quality": {
+            "archive_audit": asdict(audit),
+            "evaluated_slices": datasets,
+            "skipped_cells": skipped_cells,
+        },
         "environment": environment,
         "gate_failures": failures,
         "permissions": {

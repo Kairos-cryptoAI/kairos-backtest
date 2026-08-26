@@ -1,0 +1,9 @@
+{
+  "classification": "PRE_EVALUATION_DATA_VALIDATION_ABORT",
+  "metrics_observed": false,
+  "parameters_changed": false,
+  "plan_sha256": "80cb424675a57a34cf195858a4742dfa891d819b177a1b83f3edd9114515a916",
+  "reason": "The first executable rejected the known checksum-valid SOLUSDT historical gaps before any strategy metric was calculated. The correction records and skips only affected research cells; selection and robustness remain strict complete-minute gates.",
+  "result_created": false,
+  "source_commit": "f912552e80f852a02df73e169b4262db196b590b"
+}
