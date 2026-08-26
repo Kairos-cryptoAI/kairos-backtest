@@ -1,0 +1,148 @@
+{
+  "classification": "reused_data_development_only",
+  "data": {
+    "archive_end_exclusive": "2026-08-01",
+    "archive_start": "2021-07-01",
+    "official_checksums_required": true,
+    "proxy_limitation": "closed_first_1m_not_first_10s_trades",
+    "reused_data": true,
+    "universe": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "warmup_days": 2,
+    "windows": [
+      {
+        "end_exclusive": "2024-07-01",
+        "name": "research",
+        "role": "research",
+        "start": "2021-08-01"
+      },
+      {
+        "end_exclusive": "2025-07-01",
+        "name": "selection",
+        "role": "selection",
+        "start": "2024-07-01"
+      },
+      {
+        "end_exclusive": "2026-08-01",
+        "name": "robustness",
+        "role": "robustness",
+        "start": "2025-07-01"
+      }
+    ]
+  },
+  "decision_rule": {
+    "forward_candidate_only_if_all_gates_pass": true,
+    "gated_windows": [
+      "selection",
+      "robustness"
+    ],
+    "maximum_drawdown": 0.1,
+    "minimum_active_symbols": 3,
+    "minimum_hac_sharpe": 0.0,
+    "minimum_profit_factor": 1.0,
+    "minimum_total_return": 0.0,
+    "minimum_trades_per_symbol": 10,
+    "minimum_trades_per_window_scenario": 100
+  },
+  "forward_gate": {
+    "blind_start_not_before": "2026-09-01",
+    "minimum_months": 8,
+    "minimum_trades": 500
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "protocol": {
+    "fingerprint": "2e46e45477303da67de2b669dfe17c3c05c8fb5aa8e6a6f0ea2ef11af1847b14",
+    "max_trials": 1,
+    "seed": 42
+  },
+  "scenarios": {
+    "baseline": {
+      "costs": {
+        "adverse_funding_bps": 0.0,
+        "fee_bps_per_side": 4.5,
+        "latency_bps": 0.0,
+        "slippage_bps_per_side": 2.0,
+        "spread_bps": 2.0,
+        "uncertainty_buffer_bps": 2.0
+      },
+      "execution": {
+        "fee_bps": 4.5,
+        "funding": {
+          "evidence": "unavailable",
+          "historical_rates": [],
+          "rate_8h_bps": null,
+          "settlement_interval_ms": 3600000,
+          "source": "unavailable"
+        },
+        "latency_ms": 250,
+        "max_volume_participation": 0.05,
+        "slippage_bps": 2,
+        "slippage_jitter_bps": 0.0,
+        "spread_bps": 2
+      },
+      "policy": {
+        "application_exit_latency_ms": 250,
+        "terminal_liquidation_grace_ms": 3600000
+      }
+    },
+    "stress": {
+      "costs": {
+        "adverse_funding_bps": 5.625,
+        "fee_bps_per_side": 4.5,
+        "latency_bps": 0.0,
+        "slippage_bps_per_side": 4.0,
+        "spread_bps": 4.0,
+        "uncertainty_buffer_bps": 2.0
+      },
+      "execution": {
+        "fee_bps": 4.5,
+        "funding": {
+          "evidence": "assumed",
+          "historical_rates": [],
+          "rate_8h_bps": 5.0,
+          "settlement_interval_ms": 3600000,
+          "source": "assumed_adverse_stress"
+        },
+        "latency_ms": 500,
+        "max_volume_participation": 0.05,
+        "slippage_bps": 4,
+        "slippage_jitter_bps": 0.0,
+        "spread_bps": 4
+      },
+      "policy": {
+        "application_exit_latency_ms": 500,
+        "terminal_liquidation_grace_ms": 3600000
+      }
+    }
+  },
+  "schema_version": "kairos.quarter-hour-reused-screen.v1",
+  "strategy": {
+    "config": {
+      "atr_period": 96,
+      "intent_valid_minutes": 1,
+      "max_hold_quarters": 32,
+      "minimum_agreeing_lags": 8,
+      "minimum_boundary_volume_ratio": 1.0,
+      "minimum_current_imbalance": 0.08,
+      "minimum_predictable_imbalance": 0.025,
+      "phase_lags": 12,
+      "stop_atr_multiple": 2.0,
+      "target_reward_to_risk": 1.5
+    },
+    "config_sha256": "65a7af7e722b8c7639f5f2fd1aadf1d94e6f1630a1c99e022703554b0bba7691",
+    "id": "quarter_hour_flow_v1",
+    "revision": "1",
+    "source_commit": "505012c70aed28608ee9edf10cb8338c2c02279d",
+    "status": "research"
+  }
+}

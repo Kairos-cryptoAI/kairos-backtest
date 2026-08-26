@@ -132,6 +132,38 @@ summary](reports/regime-retest-screen/summary.json), immutable
 [attempt](reports/regime-retest-screen/attempt.json), and [data-quality
 evidence](reports/regime-retest-screen/data-quality.json) preserve the result.
 
+## Quarter-hour flow reused-data screen
+
+The next single-candidate experiment is preregistered in the committed
+[plan](reports/quarter-hour-screen/plan.json). It evaluates the exact
+`quarter_hour_flow_v1` generator imported from `kairos-strategy-engine`; there
+is no research/runtime copy. The strategy is a deliberately disclosed 1-minute
+proxy for a first-10-second market-microstructure result, not a replication of
+the source paper.
+
+Verify the plan without opening the historical cache:
+
+```sh
+uv run --locked kairos-quarter-hour-screen --verify-plan
+```
+
+After the preregistration commit is clean, run the one permitted reused-data
+screen:
+
+```sh
+uv run --locked kairos-quarter-hour-screen \
+  --cache-dir data/historical \
+  --plan reports/quarter-hour-screen/plan.json \
+  --result reports/quarter-hour-screen/summary.json
+```
+
+The screen requires official Binance checksums, evaluates baseline and stress
+execution over fixed research, selection and robustness roles, and refuses to
+overwrite its result. It can only return `REJECT_REUSED_DATA_SCREEN` or
+`FORWARD_FREEZE_CANDIDATE`; both keep alpha, PAPER promotion and LIVE
+permissions false. Any later alpha claim still requires a candidate frozen
+before new blind data and at least eight months plus 500 forward trades.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps
