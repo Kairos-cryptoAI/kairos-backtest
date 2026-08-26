@@ -69,6 +69,12 @@ fixed downloader, causal alignment, diagnostic families and fail-closed
 permissions are documented in [MARKET_RESEARCH.md](MARKET_RESEARCH.md) and
 committed before the factor cache is opened.
 
+That study completed with `NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES`: none of the
+fixed funding, premium, deleveraging or crowding-veto hypotheses was stable in
+both reused windows. See its [report](reports/derivatives-state/REPORT.md),
+[summary](reports/derivatives-state/summary.json) and immutable
+[result](reports/derivatives-state/result.json).
+
 `make check` runs the same sequence. Internal dependencies resolve from the
 exact `kairos-core` and `kairos-quant-scouts` commits recorded in
 `pyproject.toml` and `uv.lock`. Frozen validation also rejects an installed

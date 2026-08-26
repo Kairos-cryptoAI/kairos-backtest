@@ -1,0 +1,58 @@
+{
+  "classification": "descriptive_reused_data_only",
+  "data_quality": {
+    "factor_archives_verified": 4415,
+    "factor_inventory_sha256": "b9e4c038adfd2ec70fadcdbce46e6ed040cb8e2e855b0335c7bb6552140ad2cc",
+    "incomplete_optional_positioning_rows": 325,
+    "zero_open_interest_rows_quarantined": 585
+  },
+  "decision": "NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES",
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "4072f504942ffeb993fccaea7e26fad2d5e2459b33611b36c7f22ac5d00bb309",
+  "result_sha256": "c0e5769d26670cdfe1fd224bb39b39850c4a2ca3b68e7750156fe3c55205ed76",
+  "schema_version": 1,
+  "study_id": "derivatives_state_v1",
+  "windows": {
+    "robustness": {
+      "crowding_veto_improvement_24h_bps": -1.707225226724,
+      "deleveraging_trend_24h": {
+        "mean_bps": -8.838189302426,
+        "observations": 2893,
+        "positive_rate": 0.508468717594
+      },
+      "funding_contrarian_24h": {
+        "mean_bps": 1.624483487565,
+        "observations": 8088,
+        "positive_rate": 0.502349159248
+      },
+      "premium_contrarian_24h": {
+        "mean_bps": -8.550380717062,
+        "observations": 18895,
+        "positive_rate": 0.493252183117
+      }
+    },
+    "selection": {
+      "crowding_veto_improvement_24h_bps": -12.29595336932,
+      "deleveraging_trend_24h": {
+        "mean_bps": -28.008479065899,
+        "observations": 2842,
+        "positive_rate": 0.453905700211
+      },
+      "funding_contrarian_24h": {
+        "mean_bps": -26.341412706338,
+        "observations": 14480,
+        "positive_rate": 0.493301104972
+      },
+      "premium_contrarian_24h": {
+        "mean_bps": -6.596925712583,
+        "observations": 16002,
+        "positive_rate": 0.520309961255
+      }
+    }
+  }
+}

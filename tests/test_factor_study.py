@@ -113,6 +113,23 @@ def test_committed_plan_matches_executable_definition():
     assert not any(plan["permissions"].values())  # type: ignore[union-attr]
 
 
+def test_committed_result_and_summary_preserve_rejected_decision():
+    root = Path(__file__).resolve().parents[1]
+    report_root = root / "reports" / "derivatives-state"
+    result = json.loads((report_root / "result.json").read_text(encoding="utf-8"))
+    summary = json.loads((report_root / "summary.json").read_text(encoding="utf-8"))
+
+    expected_result_hash = _sha256({key: value for key, value in result.items() if key != "result_sha256"})
+    assert result["result_sha256"] == expected_result_hash
+    assert summary["result_sha256"] == expected_result_hash
+    assert summary["plan_sha256"] == result["plan_sha256"]
+    assert summary["decision"] == result["decision"] == "NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES"
+    assert not any(result["permissions"].values())
+    assert all(
+        item["decision"] == "INSUFFICIENT_DESCRIPTIVE_EDGE" for item in result["prototype_decisions"].values()
+    )
+
+
 def test_factor_join_is_causal_and_uses_last_observation_within_hour():
     start_ms = _hour_ms()
     prices = (_price_hour(0, start_ms=start_ms),)

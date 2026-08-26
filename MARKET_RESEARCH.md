@@ -176,3 +176,10 @@ After the preregistration commit is clean, execute the one immutable study:
 ```sh
 uv run --locked kairos-derivatives-state
 ```
+
+The completed study returned `NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES`.
+Funding and premium contrarian diagnostics and trend after material OI
+deleveraging failed the fixed mean/hit gates across both reused windows. The
+crowding veto reduced, rather than improved, trend continuation. Full data
+quality, metrics and interpretation are preserved in the
+[`derivatives_state_v1` report](reports/derivatives-state/REPORT.md).

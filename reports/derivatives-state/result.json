@@ -1,0 +1,2216 @@
+{
+  "classification": "descriptive_reused_data_only",
+  "data": {
+    "factor_audits": [
+      {
+        "checksum_files_verified": 883,
+        "first_timestamp_ms": 1625097600000,
+        "funding_archives": 61,
+        "funding_rows": 5571,
+        "last_timestamp_ms": 1785542100000,
+        "leverage_archives": 761,
+        "leverage_incomplete_positioning_rows": 65,
+        "leverage_rows": 219163,
+        "leverage_zero_open_interest_rows": 330,
+        "premium_archives": 61,
+        "premium_rows": 44376,
+        "symbol": "BTCUSDT"
+      },
+      {
+        "checksum_files_verified": 883,
+        "first_timestamp_ms": 1625097600000,
+        "funding_archives": 61,
+        "funding_rows": 5571,
+        "last_timestamp_ms": 1785542100000,
+        "leverage_archives": 761,
+        "leverage_incomplete_positioning_rows": 66,
+        "leverage_rows": 219163,
+        "leverage_zero_open_interest_rows": 75,
+        "premium_archives": 61,
+        "premium_rows": 44376,
+        "symbol": "ETHUSDT"
+      },
+      {
+        "checksum_files_verified": 883,
+        "first_timestamp_ms": 1625097600000,
+        "funding_archives": 61,
+        "funding_rows": 5646,
+        "last_timestamp_ms": 1785542100000,
+        "leverage_archives": 761,
+        "leverage_incomplete_positioning_rows": 65,
+        "leverage_rows": 219163,
+        "leverage_zero_open_interest_rows": 62,
+        "premium_archives": 61,
+        "premium_rows": 44400,
+        "symbol": "SOLUSDT"
+      },
+      {
+        "checksum_files_verified": 883,
+        "first_timestamp_ms": 1625097600000,
+        "funding_archives": 61,
+        "funding_rows": 5571,
+        "last_timestamp_ms": 1785542100000,
+        "leverage_archives": 761,
+        "leverage_incomplete_positioning_rows": 64,
+        "leverage_rows": 219163,
+        "leverage_zero_open_interest_rows": 55,
+        "premium_archives": 61,
+        "premium_rows": 44376,
+        "symbol": "BNBUSDT"
+      },
+      {
+        "checksum_files_verified": 883,
+        "first_timestamp_ms": 1625097600000,
+        "funding_archives": 61,
+        "funding_rows": 5571,
+        "last_timestamp_ms": 1785542100000,
+        "leverage_archives": 761,
+        "leverage_incomplete_positioning_rows": 65,
+        "leverage_rows": 219163,
+        "leverage_zero_open_interest_rows": 63,
+        "premium_archives": 61,
+        "premium_rows": 44400,
+        "symbol": "XRPUSDT"
+      }
+    ],
+    "factor_inventory_sha256": "b9e4c038adfd2ec70fadcdbce46e6ed040cb8e2e855b0335c7bb6552140ad2cc"
+  },
+  "decision": "NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES",
+  "environment": {
+    "git_head_sha": "a47f3daaa0f7f166b8ad38b4930020d6247b250a",
+    "git_tree_sha": "494716214667febe512f2430ca43048891b5c6ab",
+    "pyproject_sha256": "fb7363f9f8fd507cd0db583452638459e67a69500a0e865869e94a307a4734e6",
+    "runtime": {
+      "implementation": "CPython",
+      "packages": {
+        "kairos-backtest": "0.1.0",
+        "kairos-core": "0.3.0",
+        "kairos-quant-scouts": "0.1.0",
+        "kairos-strategy-engine": "0.2.0",
+        "numpy": "2.4.6"
+      },
+      "platform": "win32",
+      "python": "3.11.15"
+    },
+    "source_sha256": "a0a029055a81a047a5cc8d1520462834354dbbdb947f2c0ae2a9636cdbb35e72",
+    "uv_lock_sha256": "8c31be3319cf0f687c2d54fc56b4254776c6ecdb31d0c98404f3e7e9fffdd80a"
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "4072f504942ffeb993fccaea7e26fad2d5e2459b33611b36c7f22ac5d00bb309",
+  "price_inventory_sha256": "1b83503434c9471eecdd84265a5d4d4d29a8ee66dd54fdaedba85f797e6e89fe",
+  "prototype_decisions": {
+    "crowding_veto_trend": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.kept_mean_gate_failed",
+        "selection.improvement_gate_failed",
+        "selection.crowded_mean_gate_failed",
+        "robustness.kept_mean_gate_failed",
+        "robustness.improvement_gate_failed",
+        "robustness.crowded_mean_gate_failed"
+      ]
+    },
+    "deleveraging_trend": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.mean_bps_below_15",
+        "selection.hit_rate_below_0.51",
+        "robustness.mean_bps_below_15",
+        "robustness.hit_rate_below_0.51"
+      ]
+    },
+    "funding_contrarian": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.mean_bps_below_15",
+        "selection.hit_rate_below_0.51",
+        "robustness.mean_bps_below_15",
+        "robustness.hit_rate_below_0.51"
+      ]
+    },
+    "premium_contrarian": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.mean_bps_below_15",
+        "robustness.mean_bps_below_15",
+        "robustness.hit_rate_below_0.51"
+      ]
+    }
+  },
+  "result_sha256": "c0e5769d26670cdfe1fd224bb39b39850c4a2ca3b68e7750156fe3c55205ed76",
+  "schema_version": 1,
+  "study_id": "derivatives_state_v1",
+  "windows": {
+    "robustness": {
+      "aggregate": {
+        "crowding_veto_trend": {
+          "base": {
+            "1h": {
+              "mean_bps": -0.053135501078,
+              "observations": 15047,
+              "positive_rate": 0.471256728916
+            },
+            "24h": {
+              "mean_bps": 12.155013678014,
+              "observations": 15047,
+              "positive_rate": 0.491526550143
+            },
+            "4h": {
+              "mean_bps": 1.481620756319,
+              "observations": 15047,
+              "positive_rate": 0.476905695487
+            }
+          },
+          "crowded": {
+            "1h": {
+              "mean_bps": 2.52513583818,
+              "observations": 1580,
+              "positive_rate": 0.491772151899
+            },
+            "24h": {
+              "mean_bps": 26.706407430095,
+              "observations": 1580,
+              "positive_rate": 0.491772151899
+            },
+            "4h": {
+              "mean_bps": 11.396156741326,
+              "observations": 1580,
+              "positive_rate": 0.503164556962
+            }
+          },
+          "crowded_signals": 1580,
+          "improvement_24h_bps": -1.707225226724,
+          "kept": {
+            "1h": {
+              "mean_bps": -0.355628165816,
+              "observations": 13467,
+              "positive_rate": 0.468849780946
+            },
+            "24h": {
+              "mean_bps": 10.447788451291,
+              "observations": 13467,
+              "positive_rate": 0.491497735205
+            },
+            "4h": {
+              "mean_bps": 0.318409435586,
+              "observations": 13467,
+              "positive_rate": 0.473824905324
+            }
+          },
+          "kept_signals": 13467,
+          "retained_fraction": 0.894995680202
+        },
+        "deleveraging_trend": {
+          "1h": {
+            "mean_bps": -2.440866333731,
+            "observations": 2893,
+            "positive_rate": 0.470445903906
+          },
+          "24h": {
+            "mean_bps": -8.838189302426,
+            "observations": 2893,
+            "positive_rate": 0.508468717594
+          },
+          "4h": {
+            "mean_bps": -2.166772058072,
+            "observations": 2893,
+            "positive_rate": 0.472174213619
+          }
+        },
+        "funding_contrarian": {
+          "1h": {
+            "mean_bps": -0.00711705705,
+            "observations": 8088,
+            "positive_rate": 0.493199802176
+          },
+          "24h": {
+            "mean_bps": 1.624483487565,
+            "observations": 8088,
+            "positive_rate": 0.502349159248
+          },
+          "4h": {
+            "mean_bps": -1.847524995983,
+            "observations": 8088,
+            "positive_rate": 0.490108803165
+          }
+        },
+        "premium_contrarian": {
+          "1h": {
+            "mean_bps": 0.492758320912,
+            "observations": 18895,
+            "positive_rate": 0.505107171209
+          },
+          "24h": {
+            "mean_bps": -8.550380717062,
+            "observations": 18895,
+            "positive_rate": 0.493252183117
+          },
+          "4h": {
+            "mean_bps": -0.121269466964,
+            "observations": 18895,
+            "positive_rate": 0.500449854459
+          }
+        }
+      },
+      "end_exclusive": "2026-08-01",
+      "joined_hours": {
+        "BNBUSDT": 9480,
+        "BTCUSDT": 9480,
+        "ETHUSDT": 9480,
+        "SOLUSDT": 9480,
+        "XRPUSDT": 9480
+      },
+      "per_symbol": {
+        "BNBUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": 0.310621477109,
+                "median_bps": -2.363451595696,
+                "observations": 2931,
+                "p10_bps": -58.053260386247,
+                "p90_bps": 62.777072350288,
+                "positive_rate": 0.476629136813
+              },
+              "24h": {
+                "mean_bps": 13.629346173125,
+                "median_bps": -12.197007553677,
+                "observations": 2931,
+                "p10_bps": -264.315222155153,
+                "p90_bps": 314.273362278326,
+                "positive_rate": 0.476970317298
+              },
+              "4h": {
+                "mean_bps": 1.649273642696,
+                "median_bps": -6.044999156431,
+                "observations": 2931,
+                "p10_bps": -118.50597808795,
+                "p90_bps": 126.577428765266,
+                "positive_rate": 0.467417263733
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": -0.200810422701,
+                "median_bps": -2.893204339666,
+                "observations": 428,
+                "p10_bps": -57.454681133997,
+                "p90_bps": 56.355169161805,
+                "positive_rate": 0.481308411215
+              },
+              "24h": {
+                "mean_bps": 26.442400789154,
+                "median_bps": -38.311694185025,
+                "observations": 428,
+                "p10_bps": -280.113399817595,
+                "p90_bps": 454.019411382056,
+                "positive_rate": 0.432242990654
+              },
+              "4h": {
+                "mean_bps": 0.757517140894,
+                "median_bps": -14.822619395801,
+                "observations": 428,
+                "p10_bps": -118.536020067809,
+                "p90_bps": 140.704018295659,
+                "positive_rate": 0.429906542056
+              }
+            },
+            "crowded_signals": 428,
+            "improvement_24h_bps": -2.190965791314,
+            "kept": {
+              "1h": {
+                "mean_bps": 0.398073675718,
+                "median_bps": -2.351926630731,
+                "observations": 2503,
+                "p10_bps": -58.039197929975,
+                "p90_bps": 63.536132085683,
+                "positive_rate": 0.475829005194
+              },
+              "24h": {
+                "mean_bps": 11.438380381811,
+                "median_bps": -7.438141737354,
+                "observations": 2503,
+                "p10_bps": -262.857976034912,
+                "p90_bps": 300.393832192411,
+                "positive_rate": 0.484618457851
+              },
+              "4h": {
+                "mean_bps": 1.801759372928,
+                "median_bps": -4.79049574823,
+                "observations": 2503,
+                "p10_bps": -118.096111848343,
+                "p90_bps": 125.226141149969,
+                "positive_rate": 0.473831402317
+              }
+            },
+            "kept_signals": 2503,
+            "retained_fraction": 0.853974752644
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -3.016348190702,
+              "median_bps": -6.288380319984,
+              "observations": 432,
+              "p10_bps": -92.241693406664,
+              "p90_bps": 87.854238263424,
+              "positive_rate": 0.465277777778
+            },
+            "24h": {
+              "mean_bps": 31.48692588204,
+              "median_bps": -11.0160332406,
+              "observations": 432,
+              "p10_bps": -354.569383979248,
+              "p90_bps": 528.391841270939,
+              "positive_rate": 0.488425925926
+            },
+            "4h": {
+              "mean_bps": -2.568013234946,
+              "median_bps": -13.763642816618,
+              "observations": 432,
+              "p10_bps": -159.331771438954,
+              "p90_bps": 156.375160789595,
+              "positive_rate": 0.451388888889
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 0.0,
+              "p01": -0.00016779,
+              "p99": 0.00015544
+            },
+            "hours": 9480,
+            "open_interest_24h_change": {
+              "median": -0.002616675208,
+              "p01": -0.117957093249,
+              "p99": 0.184483500075
+            },
+            "premium_close_bps": {
+              "median": 4.09685,
+              "p01": -7.98092,
+              "p99": 8.452457
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": -2.600490908826,
+              "median_bps": -0.330551504137,
+              "observations": 800,
+              "p10_bps": -59.973096300669,
+              "p90_bps": 51.897869425641,
+              "positive_rate": 0.49875
+            },
+            "24h": {
+              "mean_bps": -28.41873305834,
+              "median_bps": -10.302604757562,
+              "observations": 800,
+              "p10_bps": -275.237945601183,
+              "p90_bps": 232.526331851236,
+              "positive_rate": 0.47875
+            },
+            "4h": {
+              "mean_bps": -11.455764296122,
+              "median_bps": -0.178565582702,
+              "observations": 800,
+              "p10_bps": -118.922561417744,
+              "p90_bps": 94.490773380228,
+              "positive_rate": 0.49875
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": 0.999787001126,
+              "median_bps": 0.976583227488,
+              "observations": 3660,
+              "p10_bps": -50.518249314047,
+              "p90_bps": 55.168617425186,
+              "positive_rate": 0.511475409836
+            },
+            "24h": {
+              "mean_bps": -0.937963752163,
+              "median_bps": -4.611190290195,
+              "observations": 3660,
+              "p10_bps": -265.199238697128,
+              "p90_bps": 274.824739282441,
+              "positive_rate": 0.491530054645
+            },
+            "4h": {
+              "mean_bps": 1.993493481375,
+              "median_bps": 1.19532527875,
+              "observations": 3660,
+              "p10_bps": -101.27051808076,
+              "p90_bps": 106.279698287962,
+              "positive_rate": 0.505737704918
+            }
+          }
+        },
+        "BTCUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": -0.717720315316,
+                "median_bps": -2.55132143888,
+                "observations": 2927,
+                "p10_bps": -47.88535248471,
+                "p90_bps": 47.939710357191,
+                "positive_rate": 0.462931329006
+              },
+              "24h": {
+                "mean_bps": 0.3781655744,
+                "median_bps": -4.717214078949,
+                "observations": 2927,
+                "p10_bps": -244.096685586168,
+                "p90_bps": 228.202863441281,
+                "positive_rate": 0.488554834301
+              },
+              "4h": {
+                "mean_bps": -0.741704185733,
+                "median_bps": -4.283496112185,
+                "observations": 2927,
+                "p10_bps": -95.852343373466,
+                "p90_bps": 92.879645139461,
+                "positive_rate": 0.470105910489
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": -1.488989857624,
+                "median_bps": -3.259465839537,
+                "observations": 92,
+                "p10_bps": -46.983290864964,
+                "p90_bps": 44.096761693868,
+                "positive_rate": 0.467391304348
+              },
+              "24h": {
+                "mean_bps": -105.159889050553,
+                "median_bps": -69.426096847431,
+                "observations": 92,
+                "p10_bps": -394.053587909771,
+                "p90_bps": 159.503820263711,
+                "positive_rate": 0.336956521739
+              },
+              "4h": {
+                "mean_bps": -4.848778430039,
+                "median_bps": 6.99975515961,
+                "observations": 92,
+                "p10_bps": -133.099277061158,
+                "p90_bps": 90.54466456042,
+                "positive_rate": 0.510869565217
+              }
+            },
+            "crowded_signals": 92,
+            "improvement_24h_bps": 3.424868086595,
+            "kept": {
+              "1h": {
+                "mean_bps": -0.692691462444,
+                "median_bps": -2.501203717323,
+                "observations": 2835,
+                "p10_bps": -47.891439451952,
+                "p90_bps": 48.152819534363,
+                "positive_rate": 0.46278659612
+              },
+              "24h": {
+                "mean_bps": 3.803033660995,
+                "median_bps": -2.788448257776,
+                "observations": 2835,
+                "p10_bps": -236.412970081177,
+                "p90_bps": 229.374682915087,
+                "positive_rate": 0.493474426808
+              },
+              "4h": {
+                "mean_bps": -0.608423469515,
+                "median_bps": -4.416013214808,
+                "observations": 2835,
+                "p10_bps": -94.729428127748,
+                "p90_bps": 92.971754427442,
+                "positive_rate": 0.468783068783
+              }
+            },
+            "kept_signals": 2835,
+            "retained_fraction": 0.968568500171
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -0.406470678027,
+              "median_bps": -1.914567738999,
+              "observations": 377,
+              "p10_bps": -64.414798213111,
+              "p90_bps": 58.828999658421,
+              "positive_rate": 0.472148541114
+            },
+            "24h": {
+              "mean_bps": -26.114848027656,
+              "median_bps": -2.394907273518,
+              "observations": 377,
+              "p10_bps": -322.619176245914,
+              "p90_bps": 273.292481205218,
+              "positive_rate": 0.498673740053
+            },
+            "4h": {
+              "mean_bps": 2.477240457538,
+              "median_bps": 0.994341978805,
+              "observations": 377,
+              "p10_bps": -117.435586363086,
+              "p90_bps": 100.44899576163,
+              "positive_rate": 0.511936339523
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 3.83e-05,
+              "p01": -8.798e-05,
+              "p99": 0.0001
+            },
+            "hours": 9480,
+            "open_interest_24h_change": {
+              "median": -0.001480231823,
+              "p01": -0.110997793085,
+              "p99": 0.120599757867
+            },
+            "premium_close_bps": {
+              "median": -4.572,
+              "p01": -7.761357,
+              "p99": -0.193474
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": 2.090586280063,
+              "median_bps": 0.026797928093,
+              "observations": 1216,
+              "p10_bps": -38.754220693252,
+              "p90_bps": 45.619689855348,
+              "positive_rate": 0.5
+            },
+            "24h": {
+              "mean_bps": 25.469951464374,
+              "median_bps": 1.500856587333,
+              "observations": 1216,
+              "p10_bps": -166.348577253866,
+              "p90_bps": 254.685766699004,
+              "positive_rate": 0.504934210526
+            },
+            "4h": {
+              "mean_bps": 6.37308709589,
+              "median_bps": -0.2925346527,
+              "observations": 1216,
+              "p10_bps": -78.238996621531,
+              "p90_bps": 96.943077545552,
+              "positive_rate": 0.495888157895
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": 0.894111092983,
+              "median_bps": 0.39830893962,
+              "observations": 3199,
+              "p10_bps": -48.164991787823,
+              "p90_bps": 50.369230867566,
+              "positive_rate": 0.505470459519
+            },
+            "24h": {
+              "mean_bps": -12.104164593551,
+              "median_bps": -3.500803670756,
+              "observations": 3199,
+              "p10_bps": -274.864422017565,
+              "p90_bps": 252.74528474649,
+              "positive_rate": 0.492653954361
+            },
+            "4h": {
+              "mean_bps": 0.008727835525,
+              "median_bps": -0.75261965891,
+              "observations": 3199,
+              "p10_bps": -95.801564590526,
+              "p90_bps": 105.428142672464,
+              "positive_rate": 0.493591747421
+            }
+          }
+        },
+        "ETHUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": 1.469573581074,
+                "median_bps": -2.298313894473,
+                "observations": 3039,
+                "p10_bps": -72.515727632645,
+                "p90_bps": 74.541606396684,
+                "positive_rate": 0.482395524844
+              },
+              "24h": {
+                "mean_bps": 27.080783946407,
+                "median_bps": -2.475132664277,
+                "observations": 3039,
+                "p10_bps": -352.906693634757,
+                "p90_bps": 440.287332140353,
+                "positive_rate": 0.498190194143
+              },
+              "4h": {
+                "mean_bps": 4.725101291409,
+                "median_bps": -3.006731220881,
+                "observations": 3039,
+                "p10_bps": -141.691932675143,
+                "p90_bps": 149.775968795807,
+                "positive_rate": 0.483053636064
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": 8.18695048706,
+                "median_bps": 4.104669118689,
+                "observations": 303,
+                "p10_bps": -54.224961554976,
+                "p90_bps": 76.469353100748,
+                "positive_rate": 0.521452145215
+              },
+              "24h": {
+                "mean_bps": 45.398165388284,
+                "median_bps": 2.832847606944,
+                "observations": 303,
+                "p10_bps": -316.524394923,
+                "p90_bps": 513.401121687998,
+                "positive_rate": 0.50495049505
+              },
+              "4h": {
+                "mean_bps": 22.937734626948,
+                "median_bps": 19.318565853635,
+                "observations": 303,
+                "p10_bps": -105.255411005586,
+                "p90_bps": 162.940680165305,
+                "positive_rate": 0.57095709571
+              }
+            },
+            "crowded_signals": 303,
+            "improvement_24h_bps": -2.028569655296,
+            "kept": {
+              "1h": {
+                "mean_bps": 0.725653550915,
+                "median_bps": -2.813304025818,
+                "observations": 2736,
+                "p10_bps": -74.175778084009,
+                "p90_bps": 73.951250473262,
+                "positive_rate": 0.478070175439
+              },
+              "24h": {
+                "mean_bps": 25.052214291111,
+                "median_bps": -2.694823517836,
+                "observations": 2736,
+                "p10_bps": -361.727486716456,
+                "p90_bps": 432.722304437887,
+                "positive_rate": 0.497441520468
+              },
+              "4h": {
+                "mean_bps": 2.708132029469,
+                "median_bps": -4.246306318868,
+                "observations": 2736,
+                "p10_bps": -144.260423134205,
+                "p90_bps": 147.214243832508,
+                "positive_rate": 0.47331871345
+              }
+            },
+            "kept_signals": 2736,
+            "retained_fraction": 0.900296150049
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": 2.425271162261,
+              "median_bps": 3.012365830591,
+              "observations": 694,
+              "p10_bps": -96.557651302271,
+              "p90_bps": 102.904736741041,
+              "positive_rate": 0.521613832853
+            },
+            "24h": {
+              "mean_bps": 21.797330344097,
+              "median_bps": 23.788984629837,
+              "observations": 694,
+              "p10_bps": -444.315390189452,
+              "p90_bps": 427.550484669884,
+              "positive_rate": 0.548991354467
+            },
+            "4h": {
+              "mean_bps": 4.790668356831,
+              "median_bps": -0.553613934656,
+              "observations": 694,
+              "p10_bps": -173.140370579298,
+              "p90_bps": 171.666597007158,
+              "positive_rate": 0.49711815562
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 3.202e-05,
+              "p01": -0.00015064,
+              "p99": 0.0001
+            },
+            "hours": 9480,
+            "open_interest_24h_change": {
+              "median": -0.001612127829,
+              "p01": -0.13873311216,
+              "p99": 0.172928760218
+            },
+            "premium_close_bps": {
+              "median": -4.6411,
+              "p01": -8.929112,
+              "p99": 0.174244
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": -2.382083695926,
+              "median_bps": -2.107297249331,
+              "observations": 1248,
+              "p10_bps": -73.558949047598,
+              "p90_bps": 68.978737798442,
+              "positive_rate": 0.479967948718
+            },
+            "24h": {
+              "mean_bps": -24.637239215563,
+              "median_bps": -0.557775168993,
+              "observations": 1248,
+              "p10_bps": -485.654456516348,
+              "p90_bps": 386.011297066265,
+              "positive_rate": 0.5
+            },
+            "4h": {
+              "mean_bps": -9.502254037344,
+              "median_bps": -11.421725133814,
+              "observations": 1248,
+              "p10_bps": -162.787080850892,
+              "p90_bps": 140.431365697414,
+              "positive_rate": 0.460737179487
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": 0.145447670365,
+              "median_bps": 0.580635053969,
+              "observations": 3572,
+              "p10_bps": -66.737773745653,
+              "p90_bps": 66.067469889349,
+              "positive_rate": 0.503359462486
+            },
+            "24h": {
+              "mean_bps": -9.724413707375,
+              "median_bps": 0.964123062792,
+              "observations": 3572,
+              "p10_bps": -391.648771059229,
+              "p90_bps": 376.66585552358,
+              "positive_rate": 0.501399776036
+            },
+            "4h": {
+              "mean_bps": -1.732140615476,
+              "median_bps": 0.588767719318,
+              "observations": 3572,
+              "p10_bps": -146.181246265765,
+              "p90_bps": 142.077068563355,
+              "positive_rate": 0.503639417693
+            }
+          }
+        },
+        "SOLUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": -1.458437979998,
+                "median_bps": -3.572279152064,
+                "observations": 3091,
+                "p10_bps": -82.028012785969,
+                "p90_bps": 77.947780178649,
+                "positive_rate": 0.464898091233
+              },
+              "24h": {
+                "mean_bps": 8.104139937396,
+                "median_bps": 5.71346965978,
+                "observations": 3091,
+                "p10_bps": -418.48229093983,
+                "p90_bps": 432.37679054646,
+                "positive_rate": 0.507279197671
+              },
+              "4h": {
+                "mean_bps": -0.060205108057,
+                "median_bps": -5.463585340523,
+                "observations": 3091,
+                "p10_bps": -158.701194481428,
+                "p90_bps": 164.443582263773,
+                "positive_rate": 0.478162406988
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": 2.987449720398,
+                "median_bps": 2.134016226622,
+                "observations": 355,
+                "p10_bps": -79.630382931745,
+                "p90_bps": 89.494036516563,
+                "positive_rate": 0.507042253521
+              },
+              "24h": {
+                "mean_bps": 69.333960157233,
+                "median_bps": 77.562079104526,
+                "observations": 355,
+                "p10_bps": -341.821075561733,
+                "p90_bps": 432.036854409762,
+                "positive_rate": 0.628169014085
+              },
+              "4h": {
+                "mean_bps": 13.786593075723,
+                "median_bps": 12.068186711331,
+                "observations": 355,
+                "p10_bps": -156.997373890314,
+                "p90_bps": 206.095499049523,
+                "positive_rate": 0.535211267606
+              }
+            },
+            "crowded_signals": 355,
+            "improvement_24h_bps": -7.944658690805,
+            "kept": {
+              "1h": {
+                "mean_bps": -2.035298408961,
+                "median_bps": -4.282252196448,
+                "observations": 2736,
+                "p10_bps": -82.142556523151,
+                "p90_bps": 77.110810320771,
+                "positive_rate": 0.459429824561
+              },
+              "24h": {
+                "mean_bps": 0.159481246592,
+                "median_bps": -4.721894110581,
+                "observations": 2736,
+                "p10_bps": -433.03937793053,
+                "p90_bps": 430.762275918035,
+                "positive_rate": 0.491593567251
+              },
+              "4h": {
+                "mean_bps": -1.856847416259,
+                "median_bps": -6.924675457896,
+                "observations": 2736,
+                "p10_bps": -158.803334445956,
+                "p90_bps": 157.160799554801,
+                "positive_rate": 0.470760233918
+              }
+            },
+            "kept_signals": 2736,
+            "retained_fraction": 0.885150436752
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -4.036163866831,
+              "median_bps": -5.632720279259,
+              "observations": 724,
+              "p10_bps": -104.538902012624,
+              "p90_bps": 98.204380531639,
+              "positive_rate": 0.437845303867
+            },
+            "24h": {
+              "mean_bps": -30.943465576236,
+              "median_bps": 1.158629731354,
+              "observations": 724,
+              "p10_bps": -507.505432264157,
+              "p90_bps": 405.29357476661,
+              "positive_rate": 0.50138121547
+            },
+            "4h": {
+              "mean_bps": -0.736179551341,
+              "median_bps": -10.622357860179,
+              "observations": 724,
+              "p10_bps": -191.950525117566,
+              "p90_bps": 194.420903903611,
+              "positive_rate": 0.46270718232
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 1.188e-05,
+              "p01": -0.00047041,
+              "p99": 0.0001
+            },
+            "hours": 9480,
+            "open_interest_24h_change": {
+              "median": -0.002428875454,
+              "p01": -0.143783154354,
+              "p99": 0.172906626625
+            },
+            "premium_close_bps": {
+              "median": -4.86625,
+              "p01": -10.863646,
+              "p99": 3.169392
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": -0.304237927919,
+              "median_bps": -1.092272480151,
+              "observations": 2600,
+              "p10_bps": -85.819293569049,
+              "p90_bps": 86.613560890095,
+              "positive_rate": 0.489230769231
+            },
+            "24h": {
+              "mean_bps": 3.340842772754,
+              "median_bps": -9.837659503695,
+              "observations": 2600,
+              "p10_bps": -449.858656115168,
+              "p90_bps": 471.851201445946,
+              "positive_rate": 0.487307692308
+            },
+            "4h": {
+              "mean_bps": -3.166241811526,
+              "median_bps": -3.401760430385,
+              "observations": 2600,
+              "p10_bps": -178.775049501802,
+              "p90_bps": 165.680137427408,
+              "positive_rate": 0.483076923077
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": 0.152201567512,
+              "median_bps": 1.454228170961,
+              "observations": 4433,
+              "p10_bps": -79.947012653629,
+              "p90_bps": 77.979644655605,
+              "positive_rate": 0.51048951049
+            },
+            "24h": {
+              "mean_bps": -16.940865762381,
+              "median_bps": -3.530699468234,
+              "observations": 4433,
+              "p10_bps": -476.198113484304,
+              "p90_bps": 419.6161336766,
+              "positive_rate": 0.494924430408
+            },
+            "4h": {
+              "mean_bps": -0.777404989776,
+              "median_bps": 1.185887934981,
+              "observations": 4433,
+              "p10_bps": -160.540117714518,
+              "p90_bps": 162.268966624708,
+              "positive_rate": 0.502143018272
+            }
+          }
+        },
+        "XRPUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": 0.141485325957,
+                "median_bps": -3.107278825593,
+                "observations": 3059,
+                "p10_bps": -74.909143001373,
+                "p90_bps": 79.732723758366,
+                "positive_rate": 0.469434455704
+              },
+              "24h": {
+                "mean_bps": 11.276099242812,
+                "median_bps": -8.051107462112,
+                "observations": 3059,
+                "p10_bps": -367.634989182671,
+                "p90_bps": 405.670665980092,
+                "positive_rate": 0.485779666558
+              },
+              "4h": {
+                "mean_bps": 1.784048966863,
+                "median_bps": -2.939231412151,
+                "observations": 3059,
+                "p10_bps": -160.140013181067,
+                "p90_bps": 160.765570013186,
+                "positive_rate": 0.485125858124
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": 1.670293293089,
+                "median_bps": -5.270922912142,
+                "observations": 402,
+                "p10_bps": -95.863014781336,
+                "p90_bps": 101.367285722845,
+                "positive_rate": 0.47263681592
+              },
+              "24h": {
+                "mean_bps": 5.433547328299,
+                "median_bps": -41.1537474199,
+                "observations": 402,
+                "p10_bps": -484.285835197186,
+                "p90_bps": 648.651242511388,
+                "positive_rate": 0.460199004975
+              },
+              "4h": {
+                "mean_bps": 15.630407454502,
+                "median_bps": 0.327428689874,
+                "observations": 402,
+                "p10_bps": -183.863043263952,
+                "p90_bps": 244.2887724135,
+                "positive_rate": 0.5
+              }
+            },
+            "crowded_signals": 402,
+            "improvement_24h_bps": 0.883969089061,
+            "kept": {
+              "1h": {
+                "mean_bps": -0.089820960377,
+                "median_bps": -2.877490847855,
+                "observations": 2657,
+                "p10_bps": -72.734718204154,
+                "p90_bps": 75.739396481027,
+                "positive_rate": 0.468949943545
+              },
+              "24h": {
+                "mean_bps": 12.160068331872,
+                "median_bps": -6.546645078334,
+                "observations": 2657,
+                "p10_bps": -351.486778642903,
+                "p90_bps": 384.874103513788,
+                "positive_rate": 0.489649981182
+              },
+              "4h": {
+                "mean_bps": -0.310883706088,
+                "median_bps": -3.227107732726,
+                "observations": 2657,
+                "p10_bps": -155.953596217072,
+                "p90_bps": 148.86232121937,
+                "positive_rate": 0.48287542341
+              }
+            },
+            "kept_signals": 2657,
+            "retained_fraction": 0.86858450474
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -6.555675655418,
+              "median_bps": -5.16493276855,
+              "observations": 666,
+              "p10_bps": -97.06348367143,
+              "p90_bps": 78.580621889302,
+              "positive_rate": 0.454954954955
+            },
+            "24h": {
+              "mean_bps": -33.108429591803,
+              "median_bps": -7.292169917568,
+              "observations": 666,
+              "p10_bps": -406.705877550704,
+              "p90_bps": 275.951020300102,
+              "positive_rate": 0.492492492492
+            },
+            "4h": {
+              "mean_bps": -13.340449464663,
+              "median_bps": -15.399849790342,
+              "observations": 666,
+              "p10_bps": -192.381611578303,
+              "p90_bps": 142.158358267519,
+              "positive_rate": 0.447447447447
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 1.759e-05,
+              "p01": -0.00020446,
+              "p99": 0.0001
+            },
+            "hours": 9480,
+            "open_interest_24h_change": {
+              "median": -0.002381655358,
+              "p01": -0.136128146829,
+              "p99": 0.191877215341
+            },
+            "premium_close_bps": {
+              "median": -4.7228,
+              "p01": -9.171301,
+              "p99": 4.366102
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": 1.458874153863,
+              "median_bps": 0.0,
+              "observations": 2224,
+              "p10_bps": -79.355232156937,
+              "p90_bps": 81.703332679201,
+              "positive_rate": 0.499550359712
+            },
+            "24h": {
+              "mean_bps": 12.123844984391,
+              "median_bps": 19.450311761449,
+              "observations": 2224,
+              "p10_bps": -413.175762592184,
+              "p90_bps": 423.261224693863,
+              "positive_rate": 0.528327338129
+            },
+            "4h": {
+              "mean_bps": 2.951077836943,
+              "median_bps": 2.149877287546,
+              "observations": 2224,
+              "p10_bps": -170.13389729968,
+              "p90_bps": 174.682505335446,
+              "positive_rate": 0.508543165468
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": 0.396164236102,
+              "median_bps": 0.0,
+              "observations": 4031,
+              "p10_bps": -71.273930480539,
+              "p90_bps": 72.365761302508,
+              "positive_rate": 0.494666335897
+            },
+            "24h": {
+              "mean_bps": -2.374301685393,
+              "median_bps": -8.243714634807,
+              "observations": 4031,
+              "p10_bps": -362.928640812014,
+              "p90_bps": 372.439797960703,
+              "positive_rate": 0.486231704292
+            },
+            "4h": {
+              "mean_bps": 0.004452873282,
+              "median_bps": 0.0,
+              "observations": 4031,
+              "p10_bps": -146.587619342617,
+              "p90_bps": 151.277276300894,
+              "positive_rate": 0.496402877698
+            }
+          }
+        }
+      },
+      "start_inclusive": "2025-07-01"
+    },
+    "selection": {
+      "aggregate": {
+        "crowding_veto_trend": {
+          "base": {
+            "1h": {
+              "mean_bps": -0.348600835787,
+              "observations": 12819,
+              "positive_rate": 0.465012871519
+            },
+            "24h": {
+              "mean_bps": 20.466611049204,
+              "observations": 12819,
+              "positive_rate": 0.494110305016
+            },
+            "4h": {
+              "mean_bps": 2.433103025083,
+              "observations": 12819,
+              "positive_rate": 0.462750604571
+            }
+          },
+          "crowded": {
+            "1h": {
+              "mean_bps": 4.302583187417,
+              "observations": 1962,
+              "positive_rate": 0.490825688073
+            },
+            "24h": {
+              "mean_bps": 88.507979923163,
+              "observations": 1962,
+              "positive_rate": 0.512742099898
+            },
+            "4h": {
+              "mean_bps": 19.669447380263,
+              "observations": 1962,
+              "positive_rate": 0.48878695209
+            }
+          },
+          "crowded_signals": 1962,
+          "improvement_24h_bps": -12.29595336932,
+          "kept": {
+            "1h": {
+              "mean_bps": -1.189129808203,
+              "observations": 10857,
+              "positive_rate": 0.460348162476
+            },
+            "24h": {
+              "mean_bps": 8.170657679883,
+              "observations": 10857,
+              "positive_rate": 0.490743299254
+            },
+            "4h": {
+              "mean_bps": -0.681726819705,
+              "observations": 10857,
+              "positive_rate": 0.458045500599
+            }
+          },
+          "kept_signals": 10857,
+          "retained_fraction": 0.846945939621
+        },
+        "deleveraging_trend": {
+          "1h": {
+            "mean_bps": -2.180008245454,
+            "observations": 2842,
+            "positive_rate": 0.459535538353
+          },
+          "24h": {
+            "mean_bps": -28.008479065899,
+            "observations": 2842,
+            "positive_rate": 0.453905700211
+          },
+          "4h": {
+            "mean_bps": -7.815361080924,
+            "observations": 2842,
+            "positive_rate": 0.431738212526
+          }
+        },
+        "funding_contrarian": {
+          "1h": {
+            "mean_bps": -0.190203323876,
+            "observations": 14480,
+            "positive_rate": 0.494060773481
+          },
+          "24h": {
+            "mean_bps": -26.341412706338,
+            "observations": 14480,
+            "positive_rate": 0.493301104972
+          },
+          "4h": {
+            "mean_bps": -1.104384646678,
+            "observations": 14480,
+            "positive_rate": 0.503038674033
+          }
+        },
+        "premium_contrarian": {
+          "1h": {
+            "mean_bps": -0.429939898833,
+            "observations": 16002,
+            "positive_rate": 0.504999375078
+          },
+          "24h": {
+            "mean_bps": -6.596925712583,
+            "observations": 16002,
+            "positive_rate": 0.520309961255
+          },
+          "4h": {
+            "mean_bps": -1.531489106334,
+            "observations": 16002,
+            "positive_rate": 0.508498937633
+          }
+        }
+      },
+      "end_exclusive": "2025-07-01",
+      "joined_hours": {
+        "BNBUSDT": 8760,
+        "BTCUSDT": 8760,
+        "ETHUSDT": 8760,
+        "SOLUSDT": 8760,
+        "XRPUSDT": 8760
+      },
+      "per_symbol": {
+        "BNBUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": 0.082778451889,
+                "median_bps": -3.243355813342,
+                "observations": 2586,
+                "p10_bps": -67.406852796552,
+                "p90_bps": 67.580007019773,
+                "positive_rate": 0.470997679814
+              },
+              "24h": {
+                "mean_bps": -7.901845283985,
+                "median_bps": -16.923592214758,
+                "observations": 2586,
+                "p10_bps": -347.411486211385,
+                "p90_bps": 308.10712962255,
+                "positive_rate": 0.466357308585
+              },
+              "4h": {
+                "mean_bps": -0.513487239117,
+                "median_bps": -7.552425250389,
+                "observations": 2586,
+                "p10_bps": -131.841383288399,
+                "p90_bps": 131.361992169849,
+                "positive_rate": 0.470224284609
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": -0.192122690367,
+                "median_bps": -5.185881554008,
+                "observations": 173,
+                "p10_bps": -78.467953867952,
+                "p90_bps": 98.843818602953,
+                "positive_rate": 0.473988439306
+              },
+              "24h": {
+                "mean_bps": -84.814094068267,
+                "median_bps": -55.870307932172,
+                "observations": 173,
+                "p10_bps": -537.537189573429,
+                "p90_bps": 239.710223659311,
+                "positive_rate": 0.387283236994
+              },
+              "4h": {
+                "mean_bps": -18.41258932356,
+                "median_bps": -21.498542080285,
+                "observations": 173,
+                "p10_bps": -217.853695982943,
+                "p90_bps": 152.087166685478,
+                "positive_rate": 0.421965317919
+              }
+            },
+            "crowded_signals": 173,
+            "improvement_24h_bps": 5.514222560995,
+            "kept": {
+              "1h": {
+                "mean_bps": 0.102487485295,
+                "median_bps": -3.241724625875,
+                "observations": 2413,
+                "p10_bps": -65.836629928928,
+                "p90_bps": 65.971559386646,
+                "positive_rate": 0.470783257356
+              },
+              "24h": {
+                "mean_bps": -2.38762272299,
+                "median_bps": -12.792930743976,
+                "observations": 2413,
+                "p10_bps": -341.753112131752,
+                "p90_bps": 313.206214506938,
+                "positive_rate": 0.472026523
+              },
+              "4h": {
+                "mean_bps": 0.769788625205,
+                "median_bps": -6.839815591643,
+                "observations": 2413,
+                "p10_bps": -125.871317905441,
+                "p90_bps": 130.276773542785,
+                "positive_rate": 0.473684210526
+              }
+            },
+            "kept_signals": 2413,
+            "retained_fraction": 0.933101314772
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -0.432184368519,
+              "median_bps": -7.143095383794,
+              "observations": 450,
+              "p10_bps": -93.762717537895,
+              "p90_bps": 102.974813967926,
+              "positive_rate": 0.453333333333
+            },
+            "24h": {
+              "mean_bps": -13.411828055974,
+              "median_bps": -49.270839482618,
+              "observations": 450,
+              "p10_bps": -528.272414758262,
+              "p90_bps": 467.502681805822,
+              "positive_rate": 0.444444444444
+            },
+            "4h": {
+              "mean_bps": -9.033710032539,
+              "median_bps": -25.202107212912,
+              "observations": 450,
+              "p10_bps": -197.418825360052,
+              "p90_bps": 165.644243418943,
+              "positive_rate": 0.42
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 0.0,
+              "p01": -0.0004673613,
+              "p99": 0.0003125737
+            },
+            "hours": 8760,
+            "open_interest_24h_change": {
+              "median": -0.001467730073,
+              "p01": -0.135956760535,
+              "p99": 0.183688597754
+            },
+            "premium_close_bps": {
+              "median": -0.8715,
+              "p01": -11.420737,
+              "p99": 9.545097
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": -0.966230694966,
+              "median_bps": 0.15859997772,
+              "observations": 1696,
+              "p10_bps": -71.429256058689,
+              "p90_bps": 69.32034527419,
+              "positive_rate": 0.500589622642
+            },
+            "24h": {
+              "mean_bps": -5.733057956694,
+              "median_bps": 10.625532236535,
+              "observations": 1696,
+              "p10_bps": -323.110736883093,
+              "p90_bps": 309.40225203647,
+              "positive_rate": 0.525943396226
+            },
+            "4h": {
+              "mean_bps": -2.319173571966,
+              "median_bps": 2.164017298351,
+              "observations": 1696,
+              "p10_bps": -138.708465584849,
+              "p90_bps": 128.291391643942,
+              "positive_rate": 0.507075471698
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": 1.17966003259,
+              "median_bps": 1.529024680038,
+              "observations": 3012,
+              "p10_bps": -67.346160417776,
+              "p90_bps": 69.265177742638,
+              "positive_rate": 0.515604249668
+            },
+            "24h": {
+              "mean_bps": 16.806750836899,
+              "median_bps": 28.369093633696,
+              "observations": 3012,
+              "p10_bps": -296.87244662774,
+              "p90_bps": 332.598183658768,
+              "positive_rate": 0.565737051793
+            },
+            "4h": {
+              "mean_bps": 2.337972775165,
+              "median_bps": 3.773807326046,
+              "observations": 3012,
+              "p10_bps": -130.915524771787,
+              "p90_bps": 137.42253289682,
+              "positive_rate": 0.516600265604
+            }
+          }
+        },
+        "BTCUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": -2.049745546862,
+                "median_bps": -4.008367196366,
+                "observations": 2564,
+                "p10_bps": -61.314361299784,
+                "p90_bps": 59.298955038558,
+                "positive_rate": 0.457878315133
+              },
+              "24h": {
+                "mean_bps": 3.572107454773,
+                "median_bps": 13.020063559528,
+                "observations": 2564,
+                "p10_bps": -337.876770710821,
+                "p90_bps": 317.477841774996,
+                "positive_rate": 0.52496099844
+              },
+              "4h": {
+                "mean_bps": -4.533457523874,
+                "median_bps": -9.387026354929,
+                "observations": 2564,
+                "p10_bps": -115.140367893252,
+                "p90_bps": 121.664848460189,
+                "positive_rate": 0.453588143526
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": 0.487576209859,
+                "median_bps": -1.680339583969,
+                "observations": 290,
+                "p10_bps": -61.805825131961,
+                "p90_bps": 72.466750964058,
+                "positive_rate": 0.489655172414
+              },
+              "24h": {
+                "mean_bps": 3.325534515961,
+                "median_bps": 19.096529822801,
+                "observations": 290,
+                "p10_bps": -352.854847959309,
+                "p90_bps": 292.482734570402,
+                "positive_rate": 0.551724137931
+              },
+              "4h": {
+                "mean_bps": 2.838563892208,
+                "median_bps": 1.090824180327,
+                "observations": 290,
+                "p10_bps": -104.959101911292,
+                "p90_bps": 128.096052507829,
+                "positive_rate": 0.503448275862
+              }
+            },
+            "crowded_signals": 290,
+            "improvement_24h_bps": 0.031445097738,
+            "kept": {
+              "1h": {
+                "mean_bps": -2.373326597631,
+                "median_bps": -4.34452396487,
+                "observations": 2274,
+                "p10_bps": -61.230104196162,
+                "p90_bps": 57.58426093634,
+                "positive_rate": 0.45382585752
+              },
+              "24h": {
+                "mean_bps": 3.603552552511,
+                "median_bps": 12.859126954442,
+                "observations": 2274,
+                "p10_bps": -336.198174634686,
+                "p90_bps": 322.13356920799,
+                "positive_rate": 0.521547933157
+              },
+              "4h": {
+                "mean_bps": -5.473600976233,
+                "median_bps": -10.336273589395,
+                "observations": 2274,
+                "p10_bps": -115.442764486852,
+                "p90_bps": 121.245763601335,
+                "positive_rate": 0.447229551451
+              }
+            },
+            "kept_signals": 2274,
+            "retained_fraction": 0.886895475819
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -6.67417048165,
+              "median_bps": -7.412569567175,
+              "observations": 398,
+              "p10_bps": -79.140768419421,
+              "p90_bps": 59.86557011935,
+              "positive_rate": 0.442211055276
+            },
+            "24h": {
+              "mean_bps": -66.657652072745,
+              "median_bps": -32.438098972373,
+              "observations": 398,
+              "p10_bps": -482.730618708056,
+              "p90_bps": 260.755579279121,
+              "positive_rate": 0.429648241206
+            },
+            "4h": {
+              "mean_bps": -22.769770518347,
+              "median_bps": -24.132784626374,
+              "observations": 398,
+              "p10_bps": -185.553256137492,
+              "p90_bps": 142.073357687958,
+              "positive_rate": 0.402010050251
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 5.343e-05,
+              "p01": -7.60509e-05,
+              "p99": 0.0002985197
+            },
+            "hours": 8760,
+            "open_interest_24h_change": {
+              "median": -0.001101235508,
+              "p01": -0.107472347256,
+              "p99": 0.12226683809
+            },
+            "premium_close_bps": {
+              "median": -4.23545,
+              "p01": -7.766912,
+              "p99": 8.650438
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": -0.300851333106,
+              "median_bps": -1.809529475687,
+              "observations": 2648,
+              "p10_bps": -58.461741182958,
+              "p90_bps": 58.992313177259,
+              "positive_rate": 0.481117824773
+            },
+            "24h": {
+              "mean_bps": -13.18342522032,
+              "median_bps": -19.019633571236,
+              "observations": 2648,
+              "p10_bps": -331.650982093524,
+              "p90_bps": 305.12429371459,
+              "positive_rate": 0.461102719033
+            },
+            "4h": {
+              "mean_bps": -1.529395341499,
+              "median_bps": -4.12785296913,
+              "observations": 2648,
+              "p10_bps": -120.399877032583,
+              "p90_bps": 122.158269596864,
+              "positive_rate": 0.478474320242
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": 0.204477021419,
+              "median_bps": -0.749237700704,
+              "observations": 2952,
+              "p10_bps": -54.071037565105,
+              "p90_bps": 58.762455319933,
+              "positive_rate": 0.493902439024
+            },
+            "24h": {
+              "mean_bps": 8.757593160511,
+              "median_bps": 11.547063626231,
+              "observations": 2952,
+              "p10_bps": -280.920586126436,
+              "p90_bps": 318.451133584536,
+              "positive_rate": 0.522357723577
+            },
+            "4h": {
+              "mean_bps": 4.474230124108,
+              "median_bps": 2.884011038185,
+              "observations": 2952,
+              "p10_bps": -106.424004253227,
+              "p90_bps": 118.060277102557,
+              "positive_rate": 0.512195121951
+            }
+          }
+        },
+        "ETHUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": -1.173433377873,
+                "median_bps": -6.158699357231,
+                "observations": 2549,
+                "p10_bps": -85.249294303497,
+                "p90_bps": 87.302414636459,
+                "positive_rate": 0.451157316595
+              },
+              "24h": {
+                "mean_bps": 21.085138282363,
+                "median_bps": -10.494424688849,
+                "observations": 2549,
+                "p10_bps": -442.304097719781,
+                "p90_bps": 507.791020141968,
+                "positive_rate": 0.483326794821
+              },
+              "4h": {
+                "mean_bps": -0.990031093834,
+                "median_bps": -15.040811527121,
+                "observations": 2549,
+                "p10_bps": -180.494658566736,
+                "p90_bps": 184.482634853495,
+                "positive_rate": 0.443311102393
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": 1.894246868678,
+                "median_bps": -1.06912482279,
+                "observations": 404,
+                "p10_bps": -84.084554421835,
+                "p90_bps": 89.49369672979,
+                "positive_rate": 0.49504950495
+              },
+              "24h": {
+                "mean_bps": 40.361499999093,
+                "median_bps": -31.81854476129,
+                "observations": 404,
+                "p10_bps": -392.930185428786,
+                "p90_bps": 486.574540049776,
+                "positive_rate": 0.462871287129
+              },
+              "4h": {
+                "mean_bps": 9.229748362428,
+                "median_bps": -9.986203493673,
+                "observations": 404,
+                "p10_bps": -157.586514316133,
+                "p90_bps": 184.416794543266,
+                "positive_rate": 0.472772277228
+              }
+            },
+            "crowded_signals": 404,
+            "improvement_24h_bps": -3.630606122871,
+            "kept": {
+              "1h": {
+                "mean_bps": -1.751215578156,
+                "median_bps": -7.0324515152,
+                "observations": 2145,
+                "p10_bps": -85.503464480827,
+                "p90_bps": 86.678869628784,
+                "positive_rate": 0.44289044289
+              },
+              "24h": {
+                "mean_bps": 17.454532159492,
+                "median_bps": -8.002896713405,
+                "observations": 2145,
+                "p10_bps": -453.035665900007,
+                "p90_bps": 511.10941877404,
+                "positive_rate": 0.487179487179
+              },
+              "4h": {
+                "mean_bps": -2.914875336412,
+                "median_bps": -15.416496611078,
+                "observations": 2145,
+                "p10_bps": -183.737737053979,
+                "p90_bps": 184.536836692482,
+                "positive_rate": 0.437762237762
+              }
+            },
+            "kept_signals": 2145,
+            "retained_fraction": 0.841506473127
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": 0.654022109215,
+              "median_bps": -6.773820580017,
+              "observations": 645,
+              "p10_bps": -117.135877699397,
+              "p90_bps": 114.28542958634,
+              "positive_rate": 0.462015503876
+            },
+            "24h": {
+              "mean_bps": -2.903596819812,
+              "median_bps": -45.77584104422,
+              "observations": 645,
+              "p10_bps": -562.455276310022,
+              "p90_bps": 692.168743773345,
+              "positive_rate": 0.448062015504
+            },
+            "4h": {
+              "mean_bps": 0.889243887183,
+              "median_bps": -17.759670951399,
+              "observations": 645,
+              "p10_bps": -245.62525779359,
+              "p90_bps": 250.306857405896,
+              "positive_rate": 0.448062015504
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 6.424e-05,
+              "p01": -6.65381e-05,
+              "p99": 0.0003171086
+            },
+            "hours": 8760,
+            "open_interest_24h_change": {
+              "median": -0.000683698078,
+              "p01": -0.151307959124,
+              "p99": 0.215487265063
+            },
+            "premium_close_bps": {
+              "median": -4.0546,
+              "p01": -8.419764,
+              "p99": 9.37338
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": 0.715836615534,
+              "median_bps": 0.105725822717,
+              "observations": 2944,
+              "p10_bps": -74.788941229981,
+              "p90_bps": 79.583969511639,
+              "positive_rate": 0.500339673913
+            },
+            "24h": {
+              "mean_bps": 7.441529728048,
+              "median_bps": 13.166508325468,
+              "observations": 2944,
+              "p10_bps": -435.846680830675,
+              "p90_bps": 430.158388850238,
+              "positive_rate": 0.513247282609
+            },
+            "4h": {
+              "mean_bps": 2.310913702523,
+              "median_bps": 3.337341897489,
+              "observations": 2944,
+              "p10_bps": -156.118271058901,
+              "p90_bps": 158.729173304926,
+              "positive_rate": 0.512907608696
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": -0.849167187989,
+              "median_bps": 0.342697890087,
+              "observations": 3000,
+              "p10_bps": -85.38914471157,
+              "p90_bps": 82.385966612278,
+              "positive_rate": 0.503
+            },
+            "24h": {
+              "mean_bps": -7.235806945625,
+              "median_bps": 19.209191318677,
+              "observations": 3000,
+              "p10_bps": -432.166320215236,
+              "p90_bps": 409.393818976117,
+              "positive_rate": 0.528333333333
+            },
+            "4h": {
+              "mean_bps": -4.398958877757,
+              "median_bps": 1.486279351516,
+              "observations": 3000,
+              "p10_bps": -171.436047976121,
+              "p90_bps": 165.305600165137,
+              "positive_rate": 0.504666666667
+            }
+          }
+        },
+        "SOLUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": -1.987405175756,
+                "median_bps": -5.36041161002,
+                "observations": 2668,
+                "p10_bps": -107.302456683724,
+                "p90_bps": 105.583888345616,
+                "positive_rate": 0.473388305847
+              },
+              "24h": {
+                "mean_bps": 40.409026982992,
+                "median_bps": 27.279314329631,
+                "observations": 2668,
+                "p10_bps": -541.549325064138,
+                "p90_bps": 621.514995295869,
+                "positive_rate": 0.534482758621
+              },
+              "4h": {
+                "mean_bps": 4.833151422677,
+                "median_bps": -4.799038707255,
+                "observations": 2668,
+                "p10_bps": -193.41330831646,
+                "p90_bps": 233.372842423699,
+                "positive_rate": 0.483883058471
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": -1.972754049777,
+                "median_bps": -5.971535857376,
+                "observations": 469,
+                "p10_bps": -100.681669743505,
+                "p90_bps": 87.135842631361,
+                "positive_rate": 0.473347547974
+              },
+              "24h": {
+                "mean_bps": 46.783009019907,
+                "median_bps": 30.966878743337,
+                "observations": 469,
+                "p10_bps": -448.130405691704,
+                "p90_bps": 540.925679064924,
+                "positive_rate": 0.539445628998
+              },
+              "4h": {
+                "mean_bps": 15.324277978383,
+                "median_bps": -6.95501006084,
+                "observations": 469,
+                "p10_bps": -171.658221577814,
+                "p90_bps": 233.359381825424,
+                "positive_rate": 0.479744136461
+              }
+            },
+            "crowded_signals": 469,
+            "improvement_24h_bps": -1.35943500469,
+            "kept": {
+              "1h": {
+                "mean_bps": -1.990529949783,
+                "median_bps": -5.026224595279,
+                "observations": 2199,
+                "p10_bps": -107.935573344113,
+                "p90_bps": 108.106163815183,
+                "positive_rate": 0.473396998636
+              },
+              "24h": {
+                "mean_bps": 39.049591978302,
+                "median_bps": 26.87290739646,
+                "observations": 2199,
+                "p10_bps": -562.144401336392,
+                "p90_bps": 639.486277248479,
+                "positive_rate": 0.533424283765
+              },
+              "4h": {
+                "mean_bps": 2.595616927621,
+                "median_bps": -4.318954880072,
+                "observations": 2199,
+                "p10_bps": -199.413471057463,
+                "p90_bps": 233.363696661789,
+                "positive_rate": 0.484765802638
+              }
+            },
+            "kept_signals": 2199,
+            "retained_fraction": 0.824212893553
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -0.452263192531,
+              "median_bps": 0.0,
+              "observations": 699,
+              "p10_bps": -136.047675877865,
+              "p90_bps": 132.441259112512,
+              "positive_rate": 0.497854077253
+            },
+            "24h": {
+              "mean_bps": -6.153178399966,
+              "median_bps": 12.861738107441,
+              "observations": 699,
+              "p10_bps": -649.954022974257,
+              "p90_bps": 552.874783257381,
+              "positive_rate": 0.515021459227
+            },
+            "4h": {
+              "mean_bps": -3.732990170889,
+              "median_bps": -12.556016630209,
+              "observations": 699,
+              "p10_bps": -242.772558668598,
+              "p90_bps": 248.525905535855,
+              "positive_rate": 0.473533619456
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 3.965e-05,
+              "p01": -0.0002168005,
+              "p99": 0.0003674923
+            },
+            "hours": 8760,
+            "open_interest_24h_change": {
+              "median": -0.00132567109,
+              "p01": -0.153868789436,
+              "p99": 0.224728563636
+            },
+            "premium_close_bps": {
+              "median": -4.46215,
+              "p01": -9.062742,
+              "p99": 9.738692
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": 1.397445017131,
+              "median_bps": -0.923208459179,
+              "observations": 2936,
+              "p10_bps": -95.982163610325,
+              "p90_bps": 101.536386455669,
+              "positive_rate": 0.493528610354
+            },
+            "24h": {
+              "mean_bps": -11.385385598906,
+              "median_bps": -12.599740935999,
+              "observations": 2936,
+              "p10_bps": -510.032101903202,
+              "p90_bps": 492.665077113438,
+              "positive_rate": 0.485354223433
+            },
+            "4h": {
+              "mean_bps": 2.413501462252,
+              "median_bps": 6.284061745886,
+              "observations": 2936,
+              "p10_bps": -190.510925988107,
+              "p90_bps": 208.677568003505,
+              "positive_rate": 0.512602179837
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": -0.866377017058,
+              "median_bps": 1.187671966399,
+              "observations": 3865,
+              "p10_bps": -101.977598909212,
+              "p90_bps": 95.871129877119,
+              "positive_rate": 0.50297542044
+            },
+            "24h": {
+              "mean_bps": -7.704408167949,
+              "median_bps": -12.526914928413,
+              "observations": 3865,
+              "p10_bps": -529.852908636309,
+              "p90_bps": 526.636852910622,
+              "positive_rate": 0.487968952135
+            },
+            "4h": {
+              "mean_bps": -0.901217503536,
+              "median_bps": 3.509387647879,
+              "observations": 3865,
+              "p10_bps": -206.264695661661,
+              "p90_bps": 202.795109895727,
+              "positive_rate": 0.509961190168
+            }
+          }
+        },
+        "XRPUSDT": {
+          "crowding_veto_trend": {
+            "base": {
+              "1h": {
+                "mean_bps": 3.615924584314,
+                "median_bps": -4.47252199704,
+                "observations": 2452,
+                "p10_bps": -117.881298103319,
+                "p90_bps": 125.097220905888,
+                "positive_rate": 0.47145187602
+              },
+              "24h": {
+                "mean_bps": 45.709410260082,
+                "median_bps": -30.781035455535,
+                "observations": 2452,
+                "p10_bps": -527.613290752921,
+                "p90_bps": 726.4333336953,
+                "positive_rate": 0.458401305057
+              },
+              "4h": {
+                "mean_bps": 13.772574238414,
+                "median_bps": -13.75077351323,
+                "observations": 2452,
+                "p10_bps": -214.694225877326,
+                "p90_bps": 283.614086081758,
+                "positive_rate": 0.461663947798
+              }
+            },
+            "crowded": {
+              "1h": {
+                "mean_bps": 13.567818295025,
+                "median_bps": 1.131187739787,
+                "observations": 626,
+                "p10_bps": -148.330000139547,
+                "p90_bps": 182.507724497155,
+                "positive_rate": 0.506389776358
+              },
+              "24h": {
+                "mean_bps": 238.200978663671,
+                "median_bps": 63.22359642886,
+                "observations": 626,
+                "p10_bps": -474.751867631002,
+                "p90_bps": 1280.45451326037,
+                "positive_rate": 0.541533546326
+              },
+              "4h": {
+                "mean_bps": 47.983618968098,
+                "median_bps": 10.019726705647,
+                "observations": 626,
+                "p10_bps": -244.212938598391,
+                "p90_bps": 390.814719241856,
+                "positive_rate": 0.517571884984
+              }
+            },
+            "crowded_signals": 626,
+            "improvement_24h_bps": -65.991085334418,
+            "kept": {
+              "1h": {
+                "mean_bps": 0.204158175275,
+                "median_bps": -6.665973647009,
+                "observations": 1826,
+                "p10_bps": -109.549324355619,
+                "p90_bps": 102.733809075901,
+                "positive_rate": 0.459474260679
+              },
+              "24h": {
+                "mean_bps": -20.281675074336,
+                "median_bps": -49.398118101303,
+                "observations": 1826,
+                "p10_bps": -562.906268407226,
+                "p90_bps": 526.291129658413,
+                "positive_rate": 0.429901423877
+              },
+              "4h": {
+                "mean_bps": 2.044143788917,
+                "median_bps": -17.618478180541,
+                "observations": 1826,
+                "p10_bps": -208.229635054985,
+                "p90_bps": 243.34949185875,
+                "positive_rate": 0.442497261774
+              }
+            },
+            "kept_signals": 1826,
+            "retained_fraction": 0.744698205546
+          },
+          "deleveraging_trend": {
+            "1h": {
+              "mean_bps": -5.308450622946,
+              "median_bps": -12.698704367521,
+              "observations": 650,
+              "p10_bps": -147.097450646826,
+              "p90_bps": 143.260111363075,
+              "positive_rate": 0.430769230769
+            },
+            "24h": {
+              "mean_bps": -62.863288776598,
+              "median_bps": -77.282824497001,
+              "observations": 650,
+              "p10_bps": -750.494131135193,
+              "p90_bps": 567.287816573305,
+              "positive_rate": 0.415384615385
+            },
+            "4h": {
+              "mean_bps": -10.84295413665,
+              "median_bps": -37.62983529105,
+              "observations": 650,
+              "p10_bps": -289.96401292947,
+              "p90_bps": 301.970401263666,
+              "positive_rate": 0.396923076923
+            }
+          },
+          "factor_distribution": {
+            "funding_rate": {
+              "median": 7.997e-05,
+              "p01": -0.000183505,
+              "p99": 0.0003356518
+            },
+            "hours": 8760,
+            "open_interest_24h_change": {
+              "median": -0.000955436379,
+              "p01": -0.222722606661,
+              "p99": 0.394250767003
+            },
+            "premium_close_bps": {
+              "median": -3.8387,
+              "p01": -9.504695,
+              "p99": 10.716502
+            }
+          },
+          "funding_contrarian": {
+            "1h": {
+              "mean_bps": -1.534089310955,
+              "median_bps": 0.0,
+              "observations": 4256,
+              "p10_bps": -105.054999318823,
+              "p90_bps": 100.700978573228,
+              "positive_rate": 0.495535714286
+            },
+            "24h": {
+              "mean_bps": -76.426468776033,
+              "median_bps": -5.751573055907,
+              "observations": 4256,
+              "p10_bps": -730.998805893229,
+              "p90_bps": 483.386214062233,
+              "positive_rate": 0.492011278195
+            },
+            "4h": {
+              "mean_bps": -5.145136906711,
+              "median_bps": 1.698381338935,
+              "observations": 4256,
+              "p10_bps": -223.242987697949,
+              "p90_bps": 196.516605375691,
+              "positive_rate": 0.503289473684
+            }
+          },
+          "premium_contrarian": {
+            "1h": {
+              "mean_bps": -1.620107693542,
+              "median_bps": 1.788748775004,
+              "observations": 3173,
+              "p10_bps": -109.109686541776,
+              "p90_bps": 104.945730227654,
+              "positive_rate": 0.509612354239
+            },
+            "24h": {
+              "mean_bps": -41.145097818255,
+              "median_bps": 8.001600746987,
+              "observations": 3173,
+              "p10_bps": -611.321750570035,
+              "p90_bps": 525.54271726831,
+              "positive_rate": 0.507091080996
+            },
+            "4h": {
+              "mean_bps": -8.848631490791,
+              "median_bps": 0.0,
+              "observations": 3173,
+              "p10_bps": -235.818706347585,
+              "p90_bps": 198.620881863936,
+              "positive_rate": 0.499212102112
+            }
+          }
+        }
+      },
+      "start_inclusive": "2024-07-01"
+    }
+  }
+}
