@@ -18,6 +18,10 @@ The plain-language comparison of the three completed strategy screens is in
 [`reports/strategy-runs-report.md`](reports/strategy-runs-report.md), with a
 visual overview in
 [`reports/strategy-runs-report-overview.png`](reports/strategy-runs-report-overview.png).
+The economic strategy-family map, market evolution and return/capacity
+boundary are recorded in [`MARKET_RESEARCH.md`](MARKET_RESEARCH.md). Its first
+descriptive-only executable study is preregistered in
+[`reports/market-anatomy/plan.json`](reports/market-anatomy/plan.json).
 
 ## Reproducible local checks
 
@@ -33,6 +37,22 @@ uv run --locked bandit -q -r kairos_backtest
 uv run --locked pytest -q --tb=short
 uv build --no-sources
 ```
+
+Verify the frozen market-anatomy plan without opening historical values:
+
+```sh
+uv run --locked kairos-market-anatomy --verify-plan
+```
+
+After the study code and plan are committed in a clean worktree, run the
+one-shot descriptive analysis with:
+
+```sh
+uv run --locked kairos-market-anatomy
+```
+
+The result can only identify a family for a separately preregistered prototype;
+it cannot authorize PAPER, alpha promotion or LIVE trading.
 
 `make check` runs the same sequence. Internal dependencies resolve from the
 exact `kairos-core` and `kairos-quant-scouts` commits recorded in

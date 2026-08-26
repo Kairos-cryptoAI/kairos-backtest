@@ -1,0 +1,120 @@
+{
+  "bar_definition": {
+    "complete_minutes_required": 60,
+    "decision_time": "hour_close",
+    "forward_return_start": "same_hour_close",
+    "timeframe": "1h"
+  },
+  "classification": "descriptive_reused_data_only",
+  "data": {
+    "end_exclusive": "2026-08-01",
+    "gap_policy": "drop_incomplete_hours_and_never_bridge_a_gap",
+    "integrity": "official_sha256_plus_zip_crc",
+    "source": "official_binance_usdm_monthly_1m_klines",
+    "start_inclusive": "2021-07-01",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "windows": [
+      {
+        "end": "2024-07-01",
+        "name": "research",
+        "start": "2021-07-01"
+      },
+      {
+        "end": "2025-07-01",
+        "name": "selection",
+        "start": "2024-07-01"
+      },
+      {
+        "end": "2026-08-01",
+        "name": "robustness",
+        "start": "2025-07-01"
+      }
+    ]
+  },
+  "diagnostics": {
+    "breakout_lookback_hours": 24,
+    "continuation_lookbacks_hours": [
+      4,
+      24
+    ],
+    "cost_hurdles_bps": [
+      9.0,
+      15.0,
+      25.0
+    ],
+    "families": [
+      "regime_trend",
+      "breakout_24h",
+      "range_shock_reversion",
+      "flow_alignment"
+    ],
+    "flow_imbalance_minimum_absolute": 0.1,
+    "forward_horizons_hours": [
+      1,
+      4,
+      24
+    ],
+    "range_shock_minimum_score": 1.0
+  },
+  "known_limitations": [
+    "Binance is a signal proxy and not EVEDEX execution evidence.",
+    "Klines do not contain historical EVEDEX basis, funding, depth, open interest or liquidations.",
+    "Forward close-to-close movement is an opportunity upper bound, not executable PnL.",
+    "Every data window is already visible reused research data."
+  ],
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "prototype_gates": {
+    "families": {
+      "breakout_24h": {
+        "24h_minimum_mean_bps": 25.0,
+        "4h_minimum_mean_bps": 15.0
+      },
+      "flow_alignment": {
+        "1h_minimum_mean_bps": 9.0,
+        "4h_minimum_mean_bps": 15.0
+      },
+      "range_shock_reversion": {
+        "24h_minimum_mean_bps": 15.0,
+        "4h_minimum_mean_bps": 9.0
+      },
+      "regime_trend": {
+        "24h_minimum_mean_bps": 15.0,
+        "4h_minimum_mean_bps": 9.0
+      }
+    },
+    "meaning": "permission_to_preregister_one_new_prototype_not_alpha",
+    "minimum_hit_rate": 0.51,
+    "minimum_observations_per_window": 1000,
+    "required_windows": [
+      "selection",
+      "robustness"
+    ]
+  },
+  "purpose": "Measure causal regime persistence, reversal, breakout, flow and movement capacity before registering another strategy trial.",
+  "regime_definition": {
+    "annualized_realized_volatility": {
+      "high_at_or_above": 0.8,
+      "lookback_hours": 24,
+      "low_below": 0.45,
+      "otherwise": "normal"
+    },
+    "downtrend_maximum_score": -1.0,
+    "otherwise": "range",
+    "trend_lookback_hours": 24,
+    "trend_score": "sum_log_return_divided_by_root_sum_squared_log_return",
+    "uptrend_minimum_score": 1.0
+  },
+  "schema_version": 1,
+  "study_id": "market_anatomy_v1"
+}
