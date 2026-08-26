@@ -113,6 +113,23 @@ def test_committed_plan_matches_executable_definition():
     }
 
 
+def test_committed_result_and_compact_summary_preserve_fail_closed_evidence():
+    root = Path(__file__).resolve().parents[1]
+    report_root = root / "reports" / "market-anatomy"
+    result = json.loads((report_root / "result.json").read_text(encoding="utf-8"))
+    summary = json.loads((report_root / "summary.json").read_text(encoding="utf-8"))
+
+    expected_result_hash = _sha256({key: value for key, value in result.items() if key != "result_sha256"})
+    assert result["result_sha256"] == expected_result_hash
+    assert summary["result_sha256"] == expected_result_hash
+    assert summary["plan_sha256"] == result["plan_sha256"]
+    assert summary["decision"] == result["decision"] == "NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES"
+    assert not any(result["permissions"].values())
+    assert all(
+        item["decision"] == "INSUFFICIENT_DESCRIPTIVE_EDGE" for item in result["prototype_decisions"].values()
+    )
+
+
 def test_plan_mutation_and_result_overwrite_are_rejected(tmp_path):
     plan = expected_plan()
     plan["classification"] = "promotion"

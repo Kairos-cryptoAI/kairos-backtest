@@ -131,6 +131,12 @@ The study uses only reused research, selection and robustness data. Its gates
 can return permission to preregister one new prototype family. They cannot
 produce `ALPHA_READY`, PAPER permission, promotion evidence or LIVE authority.
 
+The completed study returned `NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES`. Movement
+was ample, but simple regime trend, 24-hour breakout, range-shock reversion and
+hourly taker-flow alignment were not stable enough across the two later reused
+windows. The full evidence and interpretation are in the
+[`market_anatomy_v1` report](reports/market-anatomy/REPORT.md).
+
 Historical EVEDEX basis, funding, depth, open interest and liquidations are not
 present in the kline archive. Carry and liquidation hypotheses remain blocked
 on a separately versioned data-acquisition study rather than being represented

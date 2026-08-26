@@ -65,6 +65,15 @@ reclaims, one baseline trade and zero stress trades. The sole trade lost
 as out-of-sample evidence. Full evidence is in
 [`reports/regime-retest-screen/REPORT.md`](reports/regime-retest-screen/REPORT.md).
 
+The later descriptive-only market-anatomy study did not register another
+strategy trial. It measured causal trend, breakout, post-shock reversal and
+hourly taker-flow alignment across all reused research roles. None passed its
+fixed prototype gates. Twenty-four-hour regime trend retained a positive mean
+right tail in selection and robustness, but did not meet the frozen stability,
+hit-rate and robustness hurdles. All permissions remain false; the next
+research dimension is basis/funding and leverage state. See
+[`reports/market-anatomy/REPORT.md`](reports/market-anatomy/REPORT.md).
+
 ## Decision path
 
 1. A sleeve consumes only complete, closed candles and emits an immutable

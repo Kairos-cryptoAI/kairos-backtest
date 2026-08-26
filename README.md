@@ -54,6 +54,15 @@ uv run --locked kairos-market-anatomy
 The result can only identify a family for a separately preregistered prototype;
 it cannot authorize PAPER, alpha promotion or LIVE trading.
 
+The completed study returned `NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES`: causal
+regime trend had a positive 24-hour right tail but failed the frozen stability
+and hit-rate requirements, while breakout, post-shock reversion and hourly
+taker-flow alignment were weaker. See the committed
+[`report`](reports/market-anatomy/REPORT.md),
+[`summary`](reports/market-anatomy/summary.json) and full
+[`result`](reports/market-anatomy/result.json). The next research dimension is
+historical basis/funding and leverage state, not another price-threshold trial.
+
 `make check` runs the same sequence. Internal dependencies resolve from the
 exact `kairos-core` and `kairos-quant-scouts` commits recorded in
 `pyproject.toml` and `uv.lock`. Frozen validation also rejects an installed

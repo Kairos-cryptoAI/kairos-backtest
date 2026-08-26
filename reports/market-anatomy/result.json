@@ -1,0 +1,3640 @@
+{
+  "classification": "descriptive_reused_data_only",
+  "data": {
+    "audits": [
+      {
+        "archives": 61,
+        "checksum_files_verified": 61,
+        "complete_hour_bars": 44568,
+        "first_hour_ms": 1625097600000,
+        "hourly_gap_boundaries": 0,
+        "incomplete_hours_dropped": 0,
+        "invalid_minute_rows": 0,
+        "last_hour_ms": 1785538800000,
+        "minute_rows": 2674080,
+        "symbol": "BTCUSDT"
+      },
+      {
+        "archives": 61,
+        "checksum_files_verified": 61,
+        "complete_hour_bars": 44568,
+        "first_hour_ms": 1625097600000,
+        "hourly_gap_boundaries": 0,
+        "incomplete_hours_dropped": 0,
+        "invalid_minute_rows": 0,
+        "last_hour_ms": 1785538800000,
+        "minute_rows": 2674080,
+        "symbol": "ETHUSDT"
+      },
+      {
+        "archives": 61,
+        "checksum_files_verified": 61,
+        "complete_hour_bars": 44448,
+        "first_hour_ms": 1625097600000,
+        "hourly_gap_boundaries": 2,
+        "incomplete_hours_dropped": 0,
+        "invalid_minute_rows": 0,
+        "last_hour_ms": 1785538800000,
+        "minute_rows": 2666880,
+        "symbol": "SOLUSDT"
+      },
+      {
+        "archives": 61,
+        "checksum_files_verified": 61,
+        "complete_hour_bars": 44568,
+        "first_hour_ms": 1625097600000,
+        "hourly_gap_boundaries": 0,
+        "incomplete_hours_dropped": 0,
+        "invalid_minute_rows": 0,
+        "last_hour_ms": 1785538800000,
+        "minute_rows": 2674080,
+        "symbol": "BNBUSDT"
+      },
+      {
+        "archives": 61,
+        "checksum_files_verified": 61,
+        "complete_hour_bars": 44447,
+        "first_hour_ms": 1625097600000,
+        "hourly_gap_boundaries": 3,
+        "incomplete_hours_dropped": 1,
+        "invalid_minute_rows": 1,
+        "last_hour_ms": 1785538800000,
+        "minute_rows": 2666879,
+        "symbol": "XRPUSDT"
+      }
+    ],
+    "inventory_sha256": "1b83503434c9471eecdd84265a5d4d4d29a8ee66dd54fdaedba85f797e6e89fe"
+  },
+  "decision": "NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES",
+  "environment": {
+    "git_head_sha": "81da251c9e233020c062e83c06d05a064e06cebf",
+    "git_tree_sha": "ddfa9c1eb263a52ad20ad9f8f742943f769a3eb8",
+    "pyproject_sha256": "ff4b54cec1c6a564e81bf3ab0e99449bfb683750b64e048ab6b0c4a4fd6364b6",
+    "runtime": {
+      "implementation": "CPython",
+      "packages": {
+        "kairos-backtest": "0.1.0",
+        "kairos-core": "0.3.0",
+        "kairos-quant-scouts": "0.1.0",
+        "kairos-strategy-engine": "0.2.0",
+        "numpy": "2.4.6"
+      },
+      "platform": "win32",
+      "python": "3.11.15"
+    },
+    "source_sha256": "362fb11ed1ad9beb8fd44de09102016f53dbbce183a574f8a6e89eadcd687dd2",
+    "uv_lock_sha256": "8c31be3319cf0f687c2d54fc56b4254776c6ecdb31d0c98404f3e7e9fffdd80a"
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "07b6d8f4a79eec0781719d5777db88b31a00310a095f58267e71fad014e9c149",
+  "prototype_decisions": {
+    "breakout_24h": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.4h.mean_bps_below_15",
+        "selection.4h.hit_rate_below_0.51",
+        "selection.24h.mean_bps_below_25",
+        "selection.24h.hit_rate_below_0.51",
+        "robustness.4h.mean_bps_below_15",
+        "robustness.4h.hit_rate_below_0.51",
+        "robustness.24h.mean_bps_below_25",
+        "robustness.24h.hit_rate_below_0.51"
+      ]
+    },
+    "flow_alignment": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.1h.mean_bps_below_9",
+        "selection.1h.hit_rate_below_0.51",
+        "selection.4h.mean_bps_below_15",
+        "selection.4h.hit_rate_below_0.51",
+        "robustness.1h.mean_bps_below_9",
+        "robustness.1h.hit_rate_below_0.51",
+        "robustness.4h.mean_bps_below_15",
+        "robustness.4h.hit_rate_below_0.51"
+      ]
+    },
+    "range_shock_reversion": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.4h.mean_bps_below_9",
+        "selection.4h.hit_rate_below_0.51",
+        "selection.24h.mean_bps_below_15",
+        "robustness.4h.mean_bps_below_9",
+        "robustness.24h.mean_bps_below_15",
+        "robustness.24h.hit_rate_below_0.51"
+      ]
+    },
+    "regime_trend": {
+      "decision": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+      "failures": [
+        "selection.4h.mean_bps_below_9",
+        "selection.4h.hit_rate_below_0.51",
+        "selection.24h.hit_rate_below_0.51",
+        "robustness.4h.mean_bps_below_9",
+        "robustness.4h.hit_rate_below_0.51",
+        "robustness.24h.mean_bps_below_15",
+        "robustness.24h.hit_rate_below_0.51"
+      ]
+    }
+  },
+  "result_sha256": "6f0a17e0edd702afff2a83d0b9bdb810f0f75d049993c39399751c5dfc227b5f",
+  "schema_version": 1,
+  "study_id": "market_anatomy_v1",
+  "windows": {
+    "research": {
+      "aggregate_families": {
+        "breakout_24h": {
+          "1h": {
+            "mean_bps": -2.387561102885,
+            "observations": 8724,
+            "positive_rate": 0.424805135259
+          },
+          "24h": {
+            "mean_bps": -11.998496712501,
+            "observations": 8724,
+            "positive_rate": 0.453805593764
+          },
+          "4h": {
+            "mean_bps": -7.084385088974,
+            "observations": 8724,
+            "positive_rate": 0.430307198533
+          }
+        },
+        "flow_alignment": {
+          "1h": {
+            "mean_bps": -0.307057795401,
+            "observations": 24039,
+            "positive_rate": 0.453263446899
+          },
+          "24h": {
+            "mean_bps": 4.071611099345,
+            "observations": 24039,
+            "positive_rate": 0.492990557012
+          },
+          "4h": {
+            "mean_bps": 1.458680798977,
+            "observations": 24039,
+            "positive_rate": 0.475227754898
+          }
+        },
+        "range_shock_reversion": {
+          "1h": {
+            "mean_bps": -1.098230054828,
+            "observations": 4834,
+            "positive_rate": 0.548200248242
+          },
+          "24h": {
+            "mean_bps": -20.517704483619,
+            "observations": 4834,
+            "positive_rate": 0.514894497311
+          },
+          "4h": {
+            "mean_bps": -10.709321068865,
+            "observations": 4834,
+            "positive_rate": 0.520066197766
+          }
+        },
+        "regime_trend": {
+          "1h": {
+            "mean_bps": 0.495756085244,
+            "observations": 38311,
+            "positive_rate": 0.46485343635
+          },
+          "24h": {
+            "mean_bps": -3.621998480242,
+            "observations": 38311,
+            "positive_rate": 0.45918926679
+          },
+          "4h": {
+            "mean_bps": 1.042797079075,
+            "observations": 38311,
+            "positive_rate": 0.457884158597
+          }
+        }
+      },
+      "correlations": {
+        "BNBUSDT.XRPUSDT": {
+          "correlation": 0.641013795717,
+          "observations": 26179
+        },
+        "BTCUSDT.BNBUSDT": {
+          "correlation": 0.744304993402,
+          "observations": 26303
+        },
+        "BTCUSDT.ETHUSDT": {
+          "correlation": 0.865489651739,
+          "observations": 26303
+        },
+        "BTCUSDT.SOLUSDT": {
+          "correlation": 0.679499749774,
+          "observations": 26181
+        },
+        "BTCUSDT.XRPUSDT": {
+          "correlation": 0.658738813785,
+          "observations": 26179
+        },
+        "ETHUSDT.BNBUSDT": {
+          "correlation": 0.774444509491,
+          "observations": 26303
+        },
+        "ETHUSDT.SOLUSDT": {
+          "correlation": 0.706141726959,
+          "observations": 26181
+        },
+        "ETHUSDT.XRPUSDT": {
+          "correlation": 0.671738663723,
+          "observations": 26179
+        },
+        "SOLUSDT.BNBUSDT": {
+          "correlation": 0.662123898127,
+          "observations": 26181
+        },
+        "SOLUSDT.XRPUSDT": {
+          "correlation": 0.587974627064,
+          "observations": 26179
+        }
+      },
+      "end_exclusive": "2024-07-01",
+      "per_symbol": {
+        "BNBUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -2.043688571407,
+                "median_bps": -8.281662527404,
+                "observations": 1920,
+                "p10_bps": -86.859727948084,
+                "p90_bps": 94.261017925437,
+                "positive_rate": 0.4390625
+              },
+              "24h": {
+                "mean_bps": -28.224732518439,
+                "median_bps": -45.757795493433,
+                "observations": 1920,
+                "p10_bps": -450.007568778264,
+                "p90_bps": 405.984107640483,
+                "positive_rate": 0.43125
+              },
+              "4h": {
+                "mean_bps": -8.36618996625,
+                "median_bps": -15.443954808176,
+                "observations": 1920,
+                "p10_bps": -170.777003458365,
+                "p90_bps": 165.472686397063,
+                "positive_rate": 0.433854166667
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -0.338646708087,
+                "median_bps": -2.145656173111,
+                "observations": 26234,
+                "p10_bps": -67.224633209425,
+                "p90_bps": 67.342933892884,
+                "positive_rate": 0.474803689868
+              },
+              "24h_to_24h": {
+                "mean_bps": -15.262710650165,
+                "median_bps": -20.798790445108,
+                "observations": 26234,
+                "p10_bps": -391.692777437993,
+                "p90_bps": 363.660566272795,
+                "positive_rate": 0.456239993901
+              },
+              "24h_to_4h": {
+                "mean_bps": -2.156160360177,
+                "median_bps": -6.618642540369,
+                "observations": 26234,
+                "p10_bps": -137.221991323759,
+                "p90_bps": 139.436456766678,
+                "positive_rate": 0.463177555844
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.540338513537,
+                "median_bps": -2.318303012585,
+                "observations": 26209,
+                "p10_bps": -66.973488074769,
+                "p90_bps": 67.839982651264,
+                "positive_rate": 0.472776527147
+              },
+              "4h_to_24h": {
+                "mean_bps": -4.757753983705,
+                "median_bps": -8.168600356191,
+                "observations": 26209,
+                "p10_bps": -377.700917812266,
+                "p90_bps": 379.263364271272,
+                "positive_rate": 0.480941661261
+              },
+              "4h_to_4h": {
+                "mean_bps": -1.301536422784,
+                "median_bps": -4.457671858063,
+                "observations": 26209,
+                "p10_bps": -138.371702409211,
+                "p90_bps": 138.539675702886,
+                "positive_rate": 0.475943378229
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -1.895734759662,
+                "median_bps": -4.010719613314,
+                "observations": 5991,
+                "p10_bps": -61.279539118614,
+                "p90_bps": 59.322207866214,
+                "positive_rate": 0.452512101486
+              },
+              "24h": {
+                "mean_bps": -1.748463973801,
+                "median_bps": -5.555646476987,
+                "observations": 5991,
+                "p10_bps": -363.977523275873,
+                "p90_bps": 354.420410363538,
+                "positive_rate": 0.486229344016
+              },
+              "4h": {
+                "mean_bps": -0.457520670145,
+                "median_bps": -3.57482200253,
+                "observations": 5991,
+                "p10_bps": -120.060921181436,
+                "p90_bps": 121.726596290953,
+                "positive_rate": 0.47454515106
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 28.519719502199,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.707069937529,
+                  "25bps": 0.54750114277,
+                  "9bps": 0.818032911778
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 151.733636134002,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.936004875819,
+                  "25bps": 0.895779369191,
+                  "9bps": 0.961450556148
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 57.708925292829,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.843478592107,
+                  "25bps": 0.747028797806,
+                  "9bps": 0.902940728325
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": 0.854745171283,
+                "median_bps": 4.887665259655,
+                "observations": 923,
+                "p10_bps": -98.404714601466,
+                "p90_bps": 82.771670749764,
+                "positive_rate": 0.535211267606
+              },
+              "24h": {
+                "mean_bps": 9.079168080355,
+                "median_bps": 26.585177073988,
+                "observations": 923,
+                "p10_bps": -453.013331999257,
+                "p90_bps": 470.735747957663,
+                "positive_rate": 0.538461538462
+              },
+              "4h": {
+                "mean_bps": -7.98521426616,
+                "median_bps": 1.546936638843,
+                "observations": 923,
+                "p10_bps": -176.633322658025,
+                "p90_bps": 161.871719900819,
+                "positive_rate": 0.503791982665
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 905,
+              "downtrend.low": 1170,
+              "downtrend.normal": 1381,
+              "range.high": 3128,
+              "range.low": 8619,
+              "range.normal": 6947,
+              "uptrend.high": 897,
+              "uptrend.low": 1290,
+              "uptrend.normal": 1915
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": -1.100047335021,
+                "median_bps": -4.662259253318,
+                "observations": 7558,
+                "p10_bps": -76.186735479204,
+                "p90_bps": 77.491206289928,
+                "positive_rate": 0.45594072506
+              },
+              "24h": {
+                "mean_bps": -21.036921260667,
+                "median_bps": -32.520188686632,
+                "observations": 7558,
+                "p10_bps": -408.998708938614,
+                "p90_bps": 391.899140552614,
+                "positive_rate": 0.441783540619
+              },
+              "4h": {
+                "mean_bps": -4.751733142363,
+                "median_bps": -10.529970854661,
+                "observations": 7558,
+                "p10_bps": -153.435816256211,
+                "p90_bps": 149.439824855335,
+                "positive_rate": 0.448399047367
+              }
+            }
+          },
+          "market": {
+            "bars": 26304,
+            "first_hour_ms": 1625097600000,
+            "last_hour_ms": 1719788400000,
+            "maximum_drawdown": 0.719029928997,
+            "maximum_hourly_gain_bps": 1393.430914168142,
+            "maximum_hourly_loss_bps": -1704.364995416181,
+            "median_hourly_quote_volume_usd": 15943413.796,
+            "realized_volatility_annualized": 0.677269796139,
+            "total_return": 0.940095234924
+          }
+        },
+        "BTCUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": 0.960589681029,
+                "median_bps": -9.087059517556,
+                "observations": 1587,
+                "p10_bps": -73.971925840578,
+                "p90_bps": 90.697991581393,
+                "positive_rate": 0.427221172023
+              },
+              "24h": {
+                "mean_bps": 14.95100645631,
+                "median_bps": -22.020752532871,
+                "observations": 1587,
+                "p10_bps": -365.659041240187,
+                "p90_bps": 442.16278805219,
+                "positive_rate": 0.468809073724
+              },
+              "4h": {
+                "mean_bps": 4.616851286088,
+                "median_bps": -12.851939729019,
+                "observations": 1587,
+                "p10_bps": -133.061511561189,
+                "p90_bps": 167.778948539324,
+                "positive_rate": 0.442344045369
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -0.136864570293,
+                "median_bps": -2.090661545191,
+                "observations": 26249,
+                "p10_bps": -53.73974832533,
+                "p90_bps": 55.176712826078,
+                "positive_rate": 0.474341879691
+              },
+              "24h_to_24h": {
+                "mean_bps": -1.961521599141,
+                "median_bps": -14.175611816043,
+                "observations": 26249,
+                "p10_bps": -320.948757982926,
+                "p90_bps": 336.767342682503,
+                "positive_rate": 0.460969941712
+              },
+              "24h_to_4h": {
+                "mean_bps": -0.927806903546,
+                "median_bps": -4.731920151705,
+                "observations": 26249,
+                "p10_bps": -111.814368264055,
+                "p90_bps": 118.381610668886,
+                "positive_rate": 0.464741513962
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.03998704245,
+                "median_bps": -3.047863799737,
+                "observations": 26244,
+                "p10_bps": -53.043626144278,
+                "p90_bps": 56.267394549212,
+                "positive_rate": 0.461210181375
+              },
+              "4h_to_24h": {
+                "mean_bps": 0.642001888552,
+                "median_bps": -6.485069553684,
+                "observations": 26244,
+                "p10_bps": -322.023296288379,
+                "p90_bps": 334.323090922573,
+                "positive_rate": 0.480262155159
+              },
+              "4h_to_4h": {
+                "mean_bps": -0.682104552675,
+                "median_bps": -5.764385224989,
+                "observations": 26244,
+                "p10_bps": -109.916819298528,
+                "p90_bps": 120.647003538415,
+                "positive_rate": 0.456980643195
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": 0.328209779172,
+                "median_bps": -3.091841374341,
+                "observations": 5279,
+                "p10_bps": -43.138156440444,
+                "p90_bps": 42.678948087334,
+                "positive_rate": 0.45046410305
+              },
+              "24h": {
+                "mean_bps": 3.092760788565,
+                "median_bps": -5.654336797625,
+                "observations": 5279,
+                "p10_bps": -268.915870574549,
+                "p90_bps": 289.860594113345,
+                "positive_rate": 0.481151733283
+              },
+              "4h": {
+                "mean_bps": 1.019771764403,
+                "median_bps": -3.370766958881,
+                "observations": 5279,
+                "p10_bps": -85.032626082058,
+                "p90_bps": 94.927123737196,
+                "positive_rate": 0.469975374124
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 22.429790513274,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.634199299101,
+                  "25bps": 0.463012341917,
+                  "9bps": 0.769350906598
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 133.183252653432,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.918939509371,
+                  "25bps": 0.869229011123,
+                  "9bps": 0.950213317081
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 43.829846073874,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.788777997867,
+                  "25bps": 0.671986896236,
+                  "9bps": 0.871362181929
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -2.94686848966,
+                "median_bps": 4.568351024978,
+                "observations": 1119,
+                "p10_bps": -81.398852533388,
+                "p90_bps": 63.304524706088,
+                "positive_rate": 0.538873994638
+              },
+              "24h": {
+                "mean_bps": -26.70379440957,
+                "median_bps": 0.307224381351,
+                "observations": 1119,
+                "p10_bps": -431.094277270835,
+                "p90_bps": 346.702742724941,
+                "positive_rate": 0.501340482574
+              },
+              "4h": {
+                "mean_bps": -8.336103594847,
+                "median_bps": 4.089510462803,
+                "observations": 1119,
+                "p10_bps": -160.004316840675,
+                "p90_bps": 109.256825590842,
+                "positive_rate": 0.518319928508
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 567,
+              "downtrend.low": 1331,
+              "downtrend.normal": 1705,
+              "range.high": 1574,
+              "range.low": 10462,
+              "range.normal": 6504,
+              "uptrend.high": 580,
+              "uptrend.low": 1599,
+              "uptrend.normal": 1930
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 1.261890028094,
+                "median_bps": -2.732772947471,
+                "observations": 7712,
+                "p10_bps": -59.385159946704,
+                "p90_bps": 66.441643293784,
+                "positive_rate": 0.473547717842
+              },
+              "24h": {
+                "mean_bps": 7.781103831843,
+                "median_bps": -16.803333419087,
+                "observations": 7712,
+                "p10_bps": -345.054191947147,
+                "p90_bps": 390.983322576166,
+                "positive_rate": 0.464470954357
+              },
+              "4h": {
+                "mean_bps": 4.314729017238,
+                "median_bps": -5.079901255282,
+                "observations": 7712,
+                "p10_bps": -110.894852759153,
+                "p90_bps": 144.575937437066,
+                "positive_rate": 0.464470954357
+              }
+            }
+          },
+          "market": {
+            "bars": 26304,
+            "first_hour_ms": 1625097600000,
+            "last_hour_ms": 1719788400000,
+            "maximum_drawdown": 0.772423282595,
+            "maximum_hourly_gain_bps": 636.118562812566,
+            "maximum_hourly_loss_bps": -729.87109242786,
+            "median_hourly_quote_volume_usd": 396822097.383935,
+            "realized_volatility_annualized": 0.557322683696,
+            "total_return": 0.807857726326
+          }
+        },
+        "ETHUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -2.349004320161,
+                "median_bps": -11.158064515586,
+                "observations": 1729,
+                "p10_bps": -91.412733672265,
+                "p90_bps": 95.972386027163,
+                "positive_rate": 0.417582417582
+              },
+              "24h": {
+                "mean_bps": -7.623323784492,
+                "median_bps": -26.133494167871,
+                "observations": 1729,
+                "p10_bps": -467.539163986905,
+                "p90_bps": 488.468307496832,
+                "positive_rate": 0.463273568537
+              },
+              "4h": {
+                "mean_bps": -6.894307042717,
+                "median_bps": -17.972504532764,
+                "observations": 1729,
+                "p10_bps": -161.520985415747,
+                "p90_bps": 173.620315647187,
+                "positive_rate": 0.432041642568
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -0.122686653701,
+                "median_bps": -2.460080554085,
+                "observations": 26248,
+                "p10_bps": -68.621490514937,
+                "p90_bps": 69.684443225832,
+                "positive_rate": 0.475121914051
+              },
+              "24h_to_24h": {
+                "mean_bps": -7.18462216848,
+                "median_bps": -17.883419264127,
+                "observations": 26248,
+                "p10_bps": -411.604373082455,
+                "p90_bps": 421.968989293667,
+                "positive_rate": 0.462435233161
+              },
+              "24h_to_4h": {
+                "mean_bps": -1.39447656509,
+                "median_bps": -6.14796362677,
+                "observations": 26248,
+                "p10_bps": -144.462950159658,
+                "p90_bps": 151.511201494113,
+                "positive_rate": 0.464721121609
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.153796125752,
+                "median_bps": -3.436442722052,
+                "observations": 26238,
+                "p10_bps": -67.578106423364,
+                "p90_bps": 71.440862796941,
+                "positive_rate": 0.4628401555
+              },
+              "4h_to_24h": {
+                "mean_bps": -1.249424446184,
+                "median_bps": -8.259962694142,
+                "observations": 26238,
+                "p10_bps": -414.050986948107,
+                "p90_bps": 419.428451767181,
+                "positive_rate": 0.482391950606
+              },
+              "4h_to_4h": {
+                "mean_bps": 0.07028801008,
+                "median_bps": -5.834960530324,
+                "observations": 26238,
+                "p10_bps": -142.058963610067,
+                "p90_bps": 153.473045412789,
+                "positive_rate": 0.466765759585
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": 0.434357580277,
+                "median_bps": -3.914090723387,
+                "observations": 5006,
+                "p10_bps": -55.036776394283,
+                "p90_bps": 59.389639626546,
+                "positive_rate": 0.449460647223
+              },
+              "24h": {
+                "mean_bps": 8.521015744968,
+                "median_bps": -2.206072248586,
+                "observations": 5006,
+                "p10_bps": -352.290490966563,
+                "p90_bps": 381.083397677554,
+                "positive_rate": 0.494806232521
+              },
+              "4h": {
+                "mean_bps": 0.872786688562,
+                "median_bps": -4.066441592172,
+                "observations": 5006,
+                "p10_bps": -113.158101344929,
+                "p90_bps": 121.366657233943,
+                "positive_rate": 0.471833799441
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 28.659782094836,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.70086088679,
+                  "25bps": 0.545596525979,
+                  "9bps": 0.812776169435
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 174.142183081971,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.941261618162,
+                  "25bps": 0.901455127228,
+                  "9bps": 0.965335974402
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 57.120262684815,
+                "observations": 26252,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.834679262532,
+                  "25bps": 0.737353344507,
+                  "9bps": 0.899626695109
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -3.926200572866,
+                "median_bps": 6.780158700426,
+                "observations": 1016,
+                "p10_bps": -98.838298756551,
+                "p90_bps": 78.116460653775,
+                "positive_rate": 0.555118110236
+              },
+              "24h": {
+                "mean_bps": -30.735690748259,
+                "median_bps": -2.794076503946,
+                "observations": 1016,
+                "p10_bps": -530.106325109149,
+                "p90_bps": 437.218448259729,
+                "positive_rate": 0.498031496063
+              },
+              "4h": {
+                "mean_bps": -14.527540038306,
+                "median_bps": 3.836294748795,
+                "observations": 1016,
+                "p10_bps": -180.11305468117,
+                "p90_bps": 130.619613523369,
+                "positive_rate": 0.514763779528
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 1168,
+              "downtrend.low": 973,
+              "downtrend.normal": 1640,
+              "range.high": 3454,
+              "range.low": 7602,
+              "range.normal": 7143,
+              "uptrend.high": 1136,
+              "uptrend.low": 1081,
+              "uptrend.normal": 2055
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 0.941513913364,
+                "median_bps": -3.926003185701,
+                "observations": 8053,
+                "p10_bps": -75.18665902223,
+                "p90_bps": 83.496189795544,
+                "positive_rate": 0.466534210853
+              },
+              "24h": {
+                "mean_bps": 0.107231508628,
+                "median_bps": -15.180954744142,
+                "observations": 8053,
+                "p10_bps": -437.243922818974,
+                "p90_bps": 466.863559151051,
+                "positive_rate": 0.472618899789
+              },
+              "4h": {
+                "mean_bps": 2.109905443128,
+                "median_bps": -7.752468637355,
+                "observations": 8053,
+                "p10_bps": -149.047787757465,
+                "p90_bps": 173.658743846312,
+                "positive_rate": 0.458835216689
+              }
+            }
+          },
+          "market": {
+            "bars": 26304,
+            "first_hour_ms": 1625097600000,
+            "last_hour_ms": 1719788400000,
+            "maximum_drawdown": 0.813840662149,
+            "maximum_hourly_gain_bps": 885.119262509094,
+            "maximum_hourly_loss_bps": -1038.161749806677,
+            "median_hourly_quote_volume_usd": 206320003.83594,
+            "realized_volatility_annualized": 0.701174133182,
+            "total_return": 0.530223963667
+          }
+        },
+        "SOLUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -4.115797799855,
+                "median_bps": -17.165363845919,
+                "observations": 1971,
+                "p10_bps": -145.638691942773,
+                "p90_bps": 151.651257991019,
+                "positive_rate": 0.432267884323
+              },
+              "24h": {
+                "mean_bps": 3.312289753298,
+                "median_bps": -38.487068521145,
+                "observations": 1971,
+                "p10_bps": -656.745303478137,
+                "p90_bps": 754.22473209341,
+                "positive_rate": 0.475393201421
+              },
+              "4h": {
+                "mean_bps": -11.563009348623,
+                "median_bps": -30.935586215603,
+                "observations": 1971,
+                "p10_bps": -273.459862157256,
+                "p90_bps": 274.67112434448,
+                "positive_rate": 0.432775240994
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": 0.567003710977,
+                "median_bps": -2.956101908505,
+                "observations": 26009,
+                "p10_bps": -115.467466659017,
+                "p90_bps": 121.188602549705,
+                "positive_rate": 0.481987004498
+              },
+              "24h_to_24h": {
+                "mean_bps": 0.762961302883,
+                "median_bps": -23.089654240843,
+                "observations": 26009,
+                "p10_bps": -637.818692438549,
+                "p90_bps": 652.645235422212,
+                "positive_rate": 0.476681148833
+              },
+              "24h_to_4h": {
+                "mean_bps": 1.996856318289,
+                "median_bps": -7.292375771402,
+                "observations": 26009,
+                "p10_bps": -234.871560677257,
+                "p90_bps": 252.352792102174,
+                "positive_rate": 0.478526663847
+              },
+              "4h_to_1h": {
+                "mean_bps": 0.911672168218,
+                "median_bps": -3.731971212393,
+                "observations": 25976,
+                "p10_bps": -114.405084742958,
+                "p90_bps": 122.763351959072,
+                "positive_rate": 0.477402217431
+              },
+              "4h_to_24h": {
+                "mean_bps": 2.88901856638,
+                "median_bps": -9.672355848867,
+                "observations": 25976,
+                "p10_bps": -640.691941700029,
+                "p90_bps": 647.118029373431,
+                "positive_rate": 0.490645210964
+              },
+              "4h_to_4h": {
+                "mean_bps": -0.30067631426,
+                "median_bps": -6.75912059303,
+                "observations": 25976,
+                "p10_bps": -237.665923480425,
+                "p90_bps": 248.931780594947,
+                "positive_rate": 0.479827533107
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": 0.794027692826,
+                "median_bps": -4.997501353386,
+                "observations": 3411,
+                "p10_bps": -102.248406964536,
+                "p90_bps": 108.340768973612,
+                "positive_rate": 0.467311638816
+              },
+              "24h": {
+                "mean_bps": 5.944282045033,
+                "median_bps": 11.392117887336,
+                "observations": 3411,
+                "p10_bps": -582.047359340839,
+                "p90_bps": 588.769774024026,
+                "positive_rate": 0.509527997655
+              },
+              "4h": {
+                "mean_bps": 4.193203061147,
+                "median_bps": -3.180589344577,
+                "observations": 3411,
+                "p10_bps": -194.558666153657,
+                "p90_bps": 214.504158985963,
+                "positive_rate": 0.49164467898
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 52.24349605033,
+                "observations": 26028,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.838865836791,
+                  "25bps": 0.735630859075,
+                  "9bps": 0.906639004149
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 295.644508870884,
+                "observations": 26028,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.970416474566,
+                  "25bps": 0.949323805133,
+                  "9bps": 0.982903027509
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 106.266892614748,
+                "observations": 26028,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.915091439988,
+                  "25bps": 0.858921161826,
+                  "9bps": 0.950553250346
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": 2.170709983417,
+                "median_bps": 10.723438835595,
+                "observations": 791,
+                "p10_bps": -146.001745747402,
+                "p90_bps": 142.955181862482,
+                "positive_rate": 0.542351453856
+              },
+              "24h": {
+                "mean_bps": -86.570685141174,
+                "median_bps": -31.821262222693,
+                "observations": 791,
+                "p10_bps": -784.317528346083,
+                "p90_bps": 584.698441059868,
+                "positive_rate": 0.475347661188
+              },
+              "4h": {
+                "mean_bps": -17.473939503382,
+                "median_bps": 0.0,
+                "observations": 791,
+                "p10_bps": -299.242252559656,
+                "p90_bps": 251.286050571732,
+                "positive_rate": 0.498103666245
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 2378,
+              "downtrend.low": 258,
+              "downtrend.normal": 1477,
+              "range.high": 9600,
+              "range.low": 1889,
+              "range.normal": 6315,
+              "uptrend.high": 2819,
+              "uptrend.low": 202,
+              "uptrend.normal": 1090
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 1.859127197962,
+                "median_bps": -5.100743326442,
+                "observations": 8224,
+                "p10_bps": -124.852037519484,
+                "p90_bps": 138.82288164759,
+                "positive_rate": 0.473005836576
+              },
+              "24h": {
+                "mean_bps": 15.714602095791,
+                "median_bps": -22.211710290041,
+                "observations": 8224,
+                "p10_bps": -624.765771392102,
+                "p90_bps": 693.372784244571,
+                "positive_rate": 0.478964007782
+              },
+              "4h": {
+                "mean_bps": 5.809757778922,
+                "median_bps": -10.24861232441,
+                "observations": 8224,
+                "p10_bps": -251.972268676714,
+                "p90_bps": 282.85420293473,
+                "positive_rate": 0.474100194553
+              }
+            }
+          },
+          "market": {
+            "bars": 26184,
+            "first_hour_ms": 1625097600000,
+            "last_hour_ms": 1719788400000,
+            "maximum_drawdown": 0.968084200421,
+            "maximum_hourly_gain_bps": 2083.112407850454,
+            "maximum_hourly_loss_bps": -2319.726766773516,
+            "median_hourly_quote_volume_usd": 37287889.674,
+            "realized_volatility_annualized": 1.153679084015,
+            "total_return": 3.16213300017
+          }
+        },
+        "XRPUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -4.123922805003,
+                "median_bps": -15.552102668065,
+                "observations": 1517,
+                "p10_bps": -108.334728359215,
+                "p90_bps": 107.5817817651,
+                "positive_rate": 0.402768622281
+              },
+              "24h": {
+                "mean_bps": -44.534240218185,
+                "median_bps": -48.091466297495,
+                "observations": 1517,
+                "p10_bps": -508.644978214892,
+                "p90_bps": 398.563361967413,
+                "positive_rate": 0.427818061964
+              },
+              "4h": {
+                "mean_bps": -12.100913295342,
+                "median_bps": -24.955449671481,
+                "observations": 1517,
+                "p10_bps": -201.808068743484,
+                "p90_bps": 181.53971687317,
+                "positive_rate": 0.40804218853
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -0.634731564621,
+                "median_bps": -3.118665236566,
+                "observations": 25895,
+                "p10_bps": -77.837208554646,
+                "p90_bps": 76.621028418745,
+                "positive_rate": 0.465224946901
+              },
+              "24h_to_24h": {
+                "mean_bps": -20.484456165791,
+                "median_bps": -25.759931812941,
+                "observations": 25895,
+                "p10_bps": -415.335854796832,
+                "p90_bps": 392.335406554466,
+                "positive_rate": 0.453407993821
+              },
+              "24h_to_4h": {
+                "mean_bps": -1.821100661275,
+                "median_bps": -6.662965265936,
+                "observations": 25895,
+                "p10_bps": -160.897259878483,
+                "p90_bps": 156.026308648988,
+                "positive_rate": 0.465495269357
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.939325136204,
+                "median_bps": -4.140359309132,
+                "observations": 25764,
+                "p10_bps": -77.647401017818,
+                "p90_bps": 76.553742015828,
+                "positive_rate": 0.457227138643
+              },
+              "4h_to_24h": {
+                "mean_bps": -4.047988829656,
+                "median_bps": -8.734090372613,
+                "observations": 25764,
+                "p10_bps": -409.984924106311,
+                "p90_bps": 401.16182909823,
+                "positive_rate": 0.484280391244
+              },
+              "4h_to_4h": {
+                "mean_bps": -3.187950931228,
+                "median_bps": -8.02246353291,
+                "observations": 25764,
+                "p10_bps": -161.468600040616,
+                "p90_bps": 156.026031862396,
+                "positive_rate": 0.45924545878
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -0.606492952631,
+                "median_bps": -4.119040714964,
+                "observations": 4352,
+                "p10_bps": -70.796217692589,
+                "p90_bps": 67.753028038237,
+                "positive_rate": 0.451056985294
+              },
+              "24h": {
+                "mean_bps": 6.68512679376,
+                "median_bps": 1.7865689912,
+                "observations": 4352,
+                "p10_bps": -370.669897220234,
+                "p90_bps": 386.678891155707,
+                "positive_rate": 0.501608455882
+              },
+              "4h": {
+                "mean_bps": 3.159621579191,
+                "median_bps": -3.95574097512,
+                "observations": 4352,
+                "p10_bps": -137.423887627854,
+                "p90_bps": 147.464624872317,
+                "positive_rate": 0.473575367647
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 34.403703658675,
+                "observations": 25975,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.757035611165,
+                  "25bps": 0.616015399423,
+                  "9bps": 0.85239653513
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 181.63446930231,
+                "observations": 25975,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.950144369586,
+                  "25bps": 0.915534167469,
+                  "9bps": 0.970009624639
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 67.383245308138,
+                "observations": 25975,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.870182868142,
+                  "25bps": 0.787988450433,
+                  "9bps": 0.919615014437
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -0.536284114777,
+                "median_bps": 11.202391014691,
+                "observations": 985,
+                "p10_bps": -108.380812693934,
+                "p90_bps": 104.400491108492,
+                "positive_rate": 0.568527918782
+              },
+              "24h": {
+                "mean_bps": 22.359151349466,
+                "median_bps": 40.80323496397,
+                "observations": 985,
+                "p10_bps": -472.642538318135,
+                "p90_bps": 509.169229474386,
+                "positive_rate": 0.557360406091
+              },
+              "4h": {
+                "mean_bps": -6.587348761931,
+                "median_bps": 19.058515393352,
+                "observations": 985,
+                "p10_bps": -200.718233959971,
+                "p90_bps": 192.32620468541,
+                "positive_rate": 0.560406091371
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 1106,
+              "downtrend.low": 742,
+              "downtrend.normal": 1522,
+              "range.high": 4829,
+              "range.low": 6360,
+              "range.normal": 8022,
+              "uptrend.high": 1161,
+              "uptrend.low": 901,
+              "uptrend.normal": 1332
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": -0.782983497509,
+                "median_bps": -6.024097114252,
+                "observations": 6764,
+                "p10_bps": -92.999517421858,
+                "p90_bps": 91.801006297312,
+                "positive_rate": 0.452986398581
+              },
+              "24h": {
+                "mean_bps": -25.114374425543,
+                "median_bps": -40.452030142566,
+                "observations": 6764,
+                "p10_bps": -467.808325690661,
+                "p90_bps": 428.80312002453,
+                "positive_rate": 0.432584269663
+              },
+              "4h": {
+                "mean_bps": -3.27934782701,
+                "median_bps": -15.287400861763,
+                "observations": 6764,
+                "p10_bps": -183.774191025926,
+                "p90_bps": 183.485238629874,
+                "positive_rate": 0.440124186872
+              }
+            }
+          },
+          "market": {
+            "bars": 26183,
+            "first_hour_ms": 1625097600000,
+            "last_hour_ms": 1719788400000,
+            "maximum_drawdown": 0.791734599844,
+            "maximum_hourly_gain_bps": 2233.970046167957,
+            "maximum_hourly_loss_bps": -1699.831165784632,
+            "median_hourly_quote_volume_usd": 19562280.93896,
+            "realized_volatility_annualized": 0.826589171031,
+            "total_return": -0.311840393234
+          }
+        }
+      },
+      "start_inclusive": "2021-07-01"
+    },
+    "robustness": {
+      "aggregate_families": {
+        "breakout_24h": {
+          "1h": {
+            "mean_bps": 2.629878135696,
+            "observations": 3837,
+            "positive_rate": 0.466770914777
+          },
+          "24h": {
+            "mean_bps": 8.82243886415,
+            "observations": 3837,
+            "positive_rate": 0.508209538702
+          },
+          "4h": {
+            "mean_bps": 5.210219398228,
+            "observations": 3837,
+            "positive_rate": 0.462600990357
+          }
+        },
+        "flow_alignment": {
+          "1h": {
+            "mean_bps": 0.227222528112,
+            "observations": 14421,
+            "positive_rate": 0.48027182581
+          },
+          "24h": {
+            "mean_bps": 6.459583290212,
+            "observations": 14421,
+            "positive_rate": 0.503709867554
+          },
+          "4h": {
+            "mean_bps": 1.702331036533,
+            "observations": 14421,
+            "positive_rate": 0.488593024062
+          }
+        },
+        "range_shock_reversion": {
+          "1h": {
+            "mean_bps": -3.816842751926,
+            "observations": 1722,
+            "positive_rate": 0.529036004646
+          },
+          "24h": {
+            "mean_bps": -21.689523545812,
+            "observations": 1722,
+            "positive_rate": 0.470963995354
+          },
+          "4h": {
+            "mean_bps": -7.873121569341,
+            "observations": 1722,
+            "positive_rate": 0.516260162602
+          }
+        },
+        "regime_trend": {
+          "1h": {
+            "mean_bps": -0.044886800489,
+            "observations": 15112,
+            "positive_rate": 0.471810481736
+          },
+          "24h": {
+            "mean_bps": 11.679486386338,
+            "observations": 15112,
+            "positive_rate": 0.490603493912
+          },
+          "4h": {
+            "mean_bps": 1.443720242681,
+            "observations": 15112,
+            "positive_rate": 0.477038115405
+          }
+        }
+      },
+      "correlations": {
+        "BNBUSDT.XRPUSDT": {
+          "correlation": 0.715728917717,
+          "observations": 9503
+        },
+        "BTCUSDT.BNBUSDT": {
+          "correlation": 0.745368415558,
+          "observations": 9503
+        },
+        "BTCUSDT.ETHUSDT": {
+          "correlation": 0.857614423008,
+          "observations": 9503
+        },
+        "BTCUSDT.SOLUSDT": {
+          "correlation": 0.81021314888,
+          "observations": 9503
+        },
+        "BTCUSDT.XRPUSDT": {
+          "correlation": 0.763553005792,
+          "observations": 9503
+        },
+        "ETHUSDT.BNBUSDT": {
+          "correlation": 0.758328666103,
+          "observations": 9503
+        },
+        "ETHUSDT.SOLUSDT": {
+          "correlation": 0.845554699059,
+          "observations": 9503
+        },
+        "ETHUSDT.XRPUSDT": {
+          "correlation": 0.779556855535,
+          "observations": 9503
+        },
+        "SOLUSDT.BNBUSDT": {
+          "correlation": 0.755520117982,
+          "observations": 9503
+        },
+        "SOLUSDT.XRPUSDT": {
+          "correlation": 0.802743028675,
+          "observations": 9503
+        }
+      },
+      "end_exclusive": "2026-08-01",
+      "per_symbol": {
+        "BNBUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": 2.050113753203,
+                "median_bps": -4.273545996598,
+                "observations": 822,
+                "p10_bps": -67.924551648707,
+                "p90_bps": 76.485605053419,
+                "positive_rate": 0.463503649635
+              },
+              "24h": {
+                "mean_bps": 22.270874384837,
+                "median_bps": 9.613108175652,
+                "observations": 822,
+                "p10_bps": -268.492485541172,
+                "p90_bps": 327.429852894039,
+                "positive_rate": 0.513381995134
+              },
+              "4h": {
+                "mean_bps": 3.658939729949,
+                "median_bps": -9.223569209642,
+                "observations": 822,
+                "p10_bps": -134.306410145981,
+                "p90_bps": 152.152383321692,
+                "positive_rate": 0.452554744526
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": 0.91224994043,
+                "median_bps": -0.830295834884,
+                "observations": 9451,
+                "p10_bps": -53.143130579313,
+                "p90_bps": 56.825979385372,
+                "positive_rate": 0.487355835361
+              },
+              "24h_to_24h": {
+                "mean_bps": 16.938208875828,
+                "median_bps": -1.224608509496,
+                "observations": 9451,
+                "p10_bps": -258.126040365454,
+                "p90_bps": 309.224471166441,
+                "positive_rate": 0.496878637181
+              },
+              "24h_to_4h": {
+                "mean_bps": 4.073535992808,
+                "median_bps": -1.139899918021,
+                "observations": 9451,
+                "p10_bps": -109.810426053999,
+                "p90_bps": 115.189907504372,
+                "positive_rate": 0.492646280817
+              },
+              "4h_to_1h": {
+                "mean_bps": 0.221138036658,
+                "median_bps": -1.064841225573,
+                "observations": 9443,
+                "p10_bps": -53.39461925697,
+                "p90_bps": 55.737684473617,
+                "positive_rate": 0.485756645134
+              },
+              "4h_to_24h": {
+                "mean_bps": 8.253414409954,
+                "median_bps": 4.327059165156,
+                "observations": 9443,
+                "p10_bps": -276.122803172804,
+                "p90_bps": 291.161243614172,
+                "positive_rate": 0.508101239013
+              },
+              "4h_to_4h": {
+                "mean_bps": 0.593949120179,
+                "median_bps": -2.079110148349,
+                "observations": 9443,
+                "p10_bps": -111.473927252114,
+                "p90_bps": 113.777997091123,
+                "positive_rate": 0.488192311765
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": 0.36584217818,
+                "median_bps": -1.391927821671,
+                "observations": 3422,
+                "p10_bps": -48.309865051971,
+                "p90_bps": 49.650209201279,
+                "positive_rate": 0.476037405026
+              },
+              "24h": {
+                "mean_bps": 8.117550919138,
+                "median_bps": 4.259000794449,
+                "observations": 3422,
+                "p10_bps": -254.56887064583,
+                "p90_bps": 270.834782925006,
+                "positive_rate": 0.509643483343
+              },
+              "4h": {
+                "mean_bps": 1.286139477505,
+                "median_bps": -1.959385009728,
+                "observations": 3422,
+                "p10_bps": -100.419477558896,
+                "p90_bps": 104.057898433738,
+                "positive_rate": 0.487726475745
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 23.709174359815,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.656792213288,
+                  "25bps": 0.48381294964,
+                  "9bps": 0.788616165891
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 134.503971221843,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.94255184088,
+                  "25bps": 0.901713922979,
+                  "9bps": 0.9656157427
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 47.943595736441,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.819085907744,
+                  "25bps": 0.706834532374,
+                  "9bps": 0.892826914939
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -5.232492352494,
+                "median_bps": 2.982494761009,
+                "observations": 294,
+                "p10_bps": -99.054035611991,
+                "p90_bps": 73.020988183534,
+                "positive_rate": 0.530612244898
+              },
+              "24h": {
+                "mean_bps": -0.665418174928,
+                "median_bps": -3.421882109544,
+                "observations": 294,
+                "p10_bps": -277.661161788228,
+                "p90_bps": 272.65334315414,
+                "positive_rate": 0.496598639456
+              },
+              "4h": {
+                "mean_bps": -4.134433567013,
+                "median_bps": -0.797491004688,
+                "observations": 294,
+                "p10_bps": -171.53918477147,
+                "p90_bps": 140.750602508641,
+                "positive_rate": 0.496598639456
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 164,
+              "downtrend.low": 635,
+              "downtrend.normal": 497,
+              "range.high": 456,
+              "range.low": 3924,
+              "range.normal": 2112,
+              "uptrend.high": 78,
+              "uptrend.low": 1054,
+              "uptrend.normal": 532
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 0.339299062585,
+                "median_bps": -2.35264617339,
+                "observations": 2960,
+                "p10_bps": -57.792892379461,
+                "p90_bps": 62.287730435862,
+                "positive_rate": 0.477702702703
+              },
+              "24h": {
+                "mean_bps": 13.01053054643,
+                "median_bps": -12.130047687534,
+                "observations": 2960,
+                "p10_bps": -264.08911823043,
+                "p90_bps": 312.000779687456,
+                "positive_rate": 0.477364864865
+              },
+              "4h": {
+                "mean_bps": 1.701734550586,
+                "median_bps": -5.773216826338,
+                "observations": 2960,
+                "p10_bps": -118.217686729852,
+                "p90_bps": 125.618850218432,
+                "positive_rate": 0.468581081081
+              }
+            }
+          },
+          "market": {
+            "bars": 9504,
+            "first_hour_ms": 1751328000000,
+            "last_hour_ms": 1785538800000,
+            "maximum_drawdown": 0.603462399251,
+            "maximum_hourly_gain_bps": 502.791951856032,
+            "maximum_hourly_loss_bps": -795.196531482864,
+            "median_hourly_quote_volume_usd": 15045437.66985,
+            "realized_volatility_annualized": 0.50990831543,
+            "total_return": -0.107646960512
+          }
+        },
+        "BTCUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": 1.915646021222,
+                "median_bps": -3.636172643099,
+                "observations": 756,
+                "p10_bps": -58.498549219438,
+                "p90_bps": 72.350534312581,
+                "positive_rate": 0.453703703704
+              },
+              "24h": {
+                "mean_bps": 2.293166926061,
+                "median_bps": -4.595777923287,
+                "observations": 756,
+                "p10_bps": -255.594834585081,
+                "p90_bps": 272.115454673662,
+                "positive_rate": 0.488095238095
+              },
+              "4h": {
+                "mean_bps": 1.432879340467,
+                "median_bps": -5.948238624411,
+                "observations": 756,
+                "p10_bps": -105.967497422618,
+                "p90_bps": 112.297848713096,
+                "positive_rate": 0.458994708995
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": 0.310397178939,
+                "median_bps": -0.973511226893,
+                "observations": 9452,
+                "p10_bps": -43.563778205443,
+                "p90_bps": 44.968342208302,
+                "positive_rate": 0.483918747355
+              },
+              "24h_to_24h": {
+                "mean_bps": 3.136603022203,
+                "median_bps": -0.8271247875,
+                "observations": 9452,
+                "p10_bps": -248.479287893837,
+                "p90_bps": 252.625396769054,
+                "positive_rate": 0.498307236564
+              },
+              "24h_to_4h": {
+                "mean_bps": -0.867594669909,
+                "median_bps": -2.460512814747,
+                "observations": 9452,
+                "p10_bps": -92.571377113878,
+                "p90_bps": 93.397806239354,
+                "positive_rate": 0.483178163352
+              },
+              "4h_to_1h": {
+                "mean_bps": 0.289009413933,
+                "median_bps": -1.1775833383,
+                "observations": 9452,
+                "p10_bps": -42.54964546525,
+                "p90_bps": 45.548523977216,
+                "positive_rate": 0.47936944562
+              },
+              "4h_to_24h": {
+                "mean_bps": 1.239129865514,
+                "median_bps": 0.300408330346,
+                "observations": 9452,
+                "p10_bps": -252.326277206512,
+                "p90_bps": 248.465370879238,
+                "positive_rate": 0.500952179433
+              },
+              "4h_to_4h": {
+                "mean_bps": 0.645357939526,
+                "median_bps": -2.024916091015,
+                "observations": 9452,
+                "p10_bps": -90.043032971708,
+                "p90_bps": 96.73648873195,
+                "positive_rate": 0.485823106221
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": 0.412984208416,
+                "median_bps": -0.609351101696,
+                "observations": 3364,
+                "p10_bps": -40.216690874439,
+                "p90_bps": 39.784465368292,
+                "positive_rate": 0.489298454221
+              },
+              "24h": {
+                "mean_bps": -0.845835236202,
+                "median_bps": -3.355278225362,
+                "observations": 3364,
+                "p10_bps": -232.456370852806,
+                "p90_bps": 232.354857343793,
+                "positive_rate": 0.491973840666
+              },
+              "4h": {
+                "mean_bps": 1.269835068183,
+                "median_bps": -1.471202427341,
+                "observations": 3364,
+                "p10_bps": -83.625340306173,
+                "p90_bps": 88.980132473789,
+                "positive_rate": 0.487514863258
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 19.502641075362,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.594900550148,
+                  "25bps": 0.403195090986,
+                  "9bps": 0.735611510791
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 117.828043019883,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.922344477359,
+                  "25bps": 0.870080406263,
+                  "9bps": 0.953977994075
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 38.642555887488,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.775603046974,
+                  "25bps": 0.643779094372,
+                  "9bps": 0.863097757088
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -0.024927804553,
+                "median_bps": 5.42471878831,
+                "observations": 380,
+                "p10_bps": -67.534472303453,
+                "p90_bps": 48.871040215113,
+                "positive_rate": 0.55
+              },
+              "24h": {
+                "mean_bps": -25.752898259553,
+                "median_bps": -22.998580520187,
+                "observations": 380,
+                "p10_bps": -296.060648673169,
+                "p90_bps": 233.842098987573,
+                "positive_rate": 0.457894736842
+              },
+              "4h": {
+                "mean_bps": 4.390506265983,
+                "median_bps": 5.546065367207,
+                "observations": 380,
+                "p10_bps": -98.268436343504,
+                "p90_bps": 113.896752230507,
+                "positive_rate": 0.528947368421
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 76,
+              "downtrend.low": 964,
+              "downtrend.normal": 448,
+              "range.high": 217,
+              "range.low": 4839,
+              "range.normal": 1451,
+              "uptrend.high": 19,
+              "uptrend.low": 1046,
+              "uptrend.normal": 392
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": -0.722074869313,
+                "median_bps": -2.501203717323,
+                "observations": 2945,
+                "p10_bps": -47.891439451952,
+                "p90_bps": 47.804813043464,
+                "positive_rate": 0.463497453311
+              },
+              "24h": {
+                "mean_bps": -0.765485293519,
+                "median_bps": -5.566275007867,
+                "observations": 2945,
+                "p10_bps": -246.587100148463,
+                "p90_bps": 228.127099129498,
+                "positive_rate": 0.485908319185
+              },
+              "4h": {
+                "mean_bps": -0.810408052003,
+                "median_bps": -4.283496112185,
+                "observations": 2945,
+                "p10_bps": -95.78037718282,
+                "p90_bps": 92.561278819979,
+                "positive_rate": 0.469949066214
+              }
+            }
+          },
+          "market": {
+            "bars": 9504,
+            "first_hour_ms": 1751328000000,
+            "last_hour_ms": 1785538800000,
+            "maximum_drawdown": 0.537659739971,
+            "maximum_hourly_gain_bps": 341.65198415788,
+            "maximum_hourly_loss_bps": -496.985032185049,
+            "median_hourly_quote_volume_usd": 375694874.01965,
+            "realized_volatility_annualized": 0.423190778927,
+            "total_return": -0.414318564249
+          }
+        },
+        "ETHUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": 3.62706738779,
+                "median_bps": -7.525989274071,
+                "observations": 650,
+                "p10_bps": -78.239780803403,
+                "p90_bps": 106.342364362727,
+                "positive_rate": 0.463076923077
+              },
+              "24h": {
+                "mean_bps": 8.445189237401,
+                "median_bps": 10.633699919115,
+                "observations": 650,
+                "p10_bps": -401.394016048388,
+                "p90_bps": 424.370981608855,
+                "positive_rate": 0.515384615385
+              },
+              "4h": {
+                "mean_bps": 9.93670474061,
+                "median_bps": -10.078236285932,
+                "observations": 650,
+                "p10_bps": -163.058988292703,
+                "p90_bps": 211.62224282007,
+                "positive_rate": 0.455384615385
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": 0.431517391511,
+                "median_bps": -1.37615670626,
+                "observations": 9452,
+                "p10_bps": -64.383649425467,
+                "p90_bps": 65.757462867333,
+                "positive_rate": 0.485717308506
+              },
+              "24h_to_24h": {
+                "mean_bps": 10.150746376947,
+                "median_bps": -3.050845670912,
+                "observations": 9452,
+                "p10_bps": -375.097371724273,
+                "p90_bps": 416.305819594248,
+                "positive_rate": 0.494815911976
+              },
+              "24h_to_4h": {
+                "mean_bps": 0.451409048878,
+                "median_bps": -2.914283511541,
+                "observations": 9452,
+                "p10_bps": -138.530431239817,
+                "p90_bps": 140.354319932216,
+                "positive_rate": 0.484553533644
+              },
+              "4h_to_1h": {
+                "mean_bps": 0.778063278634,
+                "median_bps": -2.039411045624,
+                "observations": 9450,
+                "p10_bps": -63.574393974537,
+                "p90_bps": 66.253021713756,
+                "positive_rate": 0.480423280423
+              },
+              "4h_to_24h": {
+                "mean_bps": 2.436407392105,
+                "median_bps": -4.247956136183,
+                "observations": 9450,
+                "p10_bps": -389.137069723161,
+                "p90_bps": 399.773869646193,
+                "positive_rate": 0.493862433862
+              },
+              "4h_to_4h": {
+                "mean_bps": 1.02841538729,
+                "median_bps": -4.090958142515,
+                "observations": 9450,
+                "p10_bps": -138.119398221897,
+                "p90_bps": 140.846920216866,
+                "positive_rate": 0.475873015873
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": 0.060535554368,
+                "median_bps": -2.362576794736,
+                "observations": 2467,
+                "p10_bps": -59.871938987851,
+                "p90_bps": 57.656950095822,
+                "positive_rate": 0.473854884475
+              },
+              "24h": {
+                "mean_bps": -1.323199537805,
+                "median_bps": -0.944663700426,
+                "observations": 2467,
+                "p10_bps": -359.220130745315,
+                "p90_bps": 358.297801898501,
+                "positive_rate": 0.49655451966
+              },
+              "4h": {
+                "mean_bps": 2.403065883474,
+                "median_bps": -3.063120731327,
+                "observations": 2467,
+                "p10_bps": -124.671940270321,
+                "p90_bps": 133.341827455429,
+                "positive_rate": 0.481961897041
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 27.694015961217,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.698688108337,
+                  "25bps": 0.539674143039,
+                  "9bps": 0.816969953449
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 178.366030818287,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.948370715193,
+                  "25bps": 0.913245873889,
+                  "9bps": 0.968789674143
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 55.623093058615,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.839928057554,
+                  "25bps": 0.744286923402,
+                  "9bps": 0.901184934405
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -4.0553287599,
+                "median_bps": 5.44212315598,
+                "observations": 405,
+                "p10_bps": -88.655553906223,
+                "p90_bps": 64.954099015661,
+                "positive_rate": 0.533333333333
+              },
+              "24h": {
+                "mean_bps": -30.362211679491,
+                "median_bps": -24.394953357686,
+                "observations": 405,
+                "p10_bps": -393.011317274522,
+                "p90_bps": 354.266903171745,
+                "positive_rate": 0.461728395062
+              },
+              "4h": {
+                "mean_bps": -5.972512501301,
+                "median_bps": 10.140274656289,
+                "observations": 405,
+                "p10_bps": -174.155436596348,
+                "p90_bps": 147.314985764786,
+                "positive_rate": 0.543209876543
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 307,
+              "downtrend.low": 346,
+              "downtrend.normal": 809,
+              "range.high": 849,
+              "range.low": 2503,
+              "range.normal": 3053,
+              "uptrend.high": 323,
+              "uptrend.low": 511,
+              "uptrend.normal": 751
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 1.469747673967,
+                "median_bps": -2.255211734818,
+                "observations": 3047,
+                "p10_bps": -72.428783753231,
+                "p90_bps": 74.373721816198,
+                "positive_rate": 0.48244174598
+              },
+              "24h": {
+                "mean_bps": 26.747488029804,
+                "median_bps": -2.911255256779,
+                "observations": 3047,
+                "p10_bps": -349.361393896964,
+                "p90_bps": 439.628570046698,
+                "positive_rate": 0.496882179193
+              },
+              "4h": {
+                "mean_bps": 4.682628780678,
+                "median_bps": -3.006731220881,
+                "observations": 3047,
+                "p10_bps": -141.715094196968,
+                "p90_bps": 149.62429495916,
+                "positive_rate": 0.482769937644
+              }
+            }
+          },
+          "market": {
+            "bars": 9504,
+            "first_hour_ms": 1751328000000,
+            "last_hour_ms": 1785538800000,
+            "maximum_drawdown": 0.691546857388,
+            "maximum_hourly_gain_bps": 727.091970870674,
+            "maximum_hourly_loss_bps": -617.48786246412,
+            "median_hourly_quote_volume_usd": 379528388.608785,
+            "realized_volatility_annualized": 0.622946222997,
+            "total_return": -0.252868442914
+          }
+        },
+        "SOLUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": 1.172843002465,
+                "median_bps": -6.125440918034,
+                "observations": 778,
+                "p10_bps": -96.451009645533,
+                "p90_bps": 111.657493207256,
+                "positive_rate": 0.457583547558
+              },
+              "24h": {
+                "mean_bps": 10.497896102393,
+                "median_bps": 22.831996368909,
+                "observations": 778,
+                "p10_bps": -443.037529902869,
+                "p90_bps": 437.556929830397,
+                "positive_rate": 0.53470437018
+              },
+              "4h": {
+                "mean_bps": 5.79398662849,
+                "median_bps": -10.139703136921,
+                "observations": 778,
+                "p10_bps": -168.354100410291,
+                "p90_bps": 214.275716294889,
+                "positive_rate": 0.462724935733
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": 0.140893523835,
+                "median_bps": -1.430249316199,
+                "observations": 9444,
+                "p10_bps": -76.046478912125,
+                "p90_bps": 79.646576452051,
+                "positive_rate": 0.481363828886
+              },
+              "24h_to_24h": {
+                "mean_bps": -8.309808892248,
+                "median_bps": -7.730319144211,
+                "observations": 9444,
+                "p10_bps": -450.285031026341,
+                "p90_bps": 424.659461442569,
+                "positive_rate": 0.488246505718
+              },
+              "24h_to_4h": {
+                "mean_bps": -0.250575677176,
+                "median_bps": -2.448003350139,
+                "observations": 9444,
+                "p10_bps": -159.393179532583,
+                "p90_bps": 161.975725539348,
+                "positive_rate": 0.48845828039
+              },
+              "4h_to_1h": {
+                "mean_bps": 0.145905265894,
+                "median_bps": -2.385512620243,
+                "observations": 9418,
+                "p10_bps": -77.142327968557,
+                "p90_bps": 77.885992726831,
+                "positive_rate": 0.474304523253
+              },
+              "4h_to_24h": {
+                "mean_bps": 0.97071575859,
+                "median_bps": 4.333477154249,
+                "observations": 9418,
+                "p10_bps": -441.74378982057,
+                "p90_bps": 431.756545711233,
+                "positive_rate": 0.506052240391
+              },
+              "4h_to_4h": {
+                "mean_bps": -0.520915053579,
+                "median_bps": -3.991788048605,
+                "observations": 9418,
+                "p10_bps": -160.928097595605,
+                "p90_bps": 160.784378316515,
+                "positive_rate": 0.48205563814
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -1.66965830053,
+                "median_bps": -3.062115838031,
+                "observations": 2708,
+                "p10_bps": -74.958799653475,
+                "p90_bps": 66.588324815714,
+                "positive_rate": 0.468242245199
+              },
+              "24h": {
+                "mean_bps": 10.601067632578,
+                "median_bps": -1.202894569763,
+                "observations": 2708,
+                "p10_bps": -383.189378759304,
+                "p90_bps": 412.353281314387,
+                "positive_rate": 0.497784342688
+              },
+              "4h": {
+                "mean_bps": -1.670038414339,
+                "median_bps": -2.540950729553,
+                "observations": 2708,
+                "p10_bps": -142.949264869657,
+                "p90_bps": 139.255027824609,
+                "positive_rate": 0.484859675037
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 34.177820992094,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.756559458316,
+                  "25bps": 0.613520947948,
+                  "9bps": 0.852306390182
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 211.51021792269,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.955353364367,
+                  "25bps": 0.928057553957,
+                  "9bps": 0.973338975878
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 70.093269380076,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.869763013119,
+                  "25bps": 0.789779940753,
+                  "9bps": 0.923190859077
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -9.368395554139,
+                "median_bps": -2.427479074915,
+                "observations": 317,
+                "p10_bps": -120.743720356191,
+                "p90_bps": 82.900076868339,
+                "positive_rate": 0.485804416404
+              },
+              "24h": {
+                "mean_bps": -60.206338162704,
+                "median_bps": -53.61186655941,
+                "observations": 317,
+                "p10_bps": -559.61896861716,
+                "p90_bps": 423.891167469385,
+                "positive_rate": 0.416403785489
+              },
+              "4h": {
+                "mean_bps": -23.441998328083,
+                "median_bps": 0.0,
+                "observations": 317,
+                "p10_bps": -213.507672967586,
+                "p90_bps": 130.601436786836,
+                "positive_rate": 0.498422712934
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 479,
+              "downtrend.low": 329,
+              "downtrend.normal": 834,
+              "range.high": 1284,
+              "range.low": 1821,
+              "range.normal": 3248,
+              "uptrend.high": 331,
+              "uptrend.low": 236,
+              "uptrend.normal": 890
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": -1.451176093659,
+                "median_bps": -3.520093905518,
+                "observations": 3099,
+                "p10_bps": -82.125024174116,
+                "p90_bps": 77.923724183674,
+                "positive_rate": 0.465634075508
+              },
+              "24h": {
+                "mean_bps": 7.728661046599,
+                "median_bps": 4.744753900993,
+                "observations": 3099,
+                "p10_bps": -416.217500222855,
+                "p90_bps": 431.696918273065,
+                "positive_rate": 0.506292352372
+              },
+              "4h": {
+                "mean_bps": -0.235261623378,
+                "median_bps": -5.721478586107,
+                "observations": 3099,
+                "p10_bps": -157.836173087814,
+                "p90_bps": 164.084380476371,
+                "positive_rate": 0.477573410778
+              }
+            }
+          },
+          "market": {
+            "bars": 9504,
+            "first_hour_ms": 1751328000000,
+            "last_hour_ms": 1785538800000,
+            "maximum_drawdown": 0.758048469895,
+            "maximum_hourly_gain_bps": 618.842856593246,
+            "maximum_hourly_loss_bps": -614.765081548743,
+            "median_hourly_quote_volume_usd": 90736689.95285,
+            "realized_volatility_annualized": 0.693957091219,
+            "total_return": -0.529248270959
+          }
+        },
+        "XRPUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": 4.437250122151,
+                "median_bps": -0.827027251019,
+                "observations": 831,
+                "p10_bps": -87.206233487216,
+                "p90_bps": 102.958603246349,
+                "positive_rate": 0.493381468111
+              },
+              "24h": {
+                "mean_bps": 0.186123717611,
+                "median_bps": -8.193974163254,
+                "observations": 831,
+                "p10_bps": -398.588094258787,
+                "p90_bps": 392.195538344738,
+                "positive_rate": 0.490974729242
+              },
+              "4h": {
+                "mean_bps": 5.93757751291,
+                "median_bps": -6.051221997525,
+                "observations": 831,
+                "p10_bps": -174.496109613129,
+                "p90_bps": 175.485355212652,
+                "positive_rate": 0.481347773767
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": 0.408265369483,
+                "median_bps": -1.596552469655,
+                "observations": 9440,
+                "p10_bps": -68.138140664182,
+                "p90_bps": 69.960097587254,
+                "positive_rate": 0.482838983051
+              },
+              "24h_to_24h": {
+                "mean_bps": 4.459149408073,
+                "median_bps": -9.109085833242,
+                "observations": 9440,
+                "p10_bps": -371.096846723312,
+                "p90_bps": 379.774906064544,
+                "positive_rate": 0.483580508475
+              },
+              "24h_to_4h": {
+                "mean_bps": 0.292812032056,
+                "median_bps": -3.507700514779,
+                "observations": 9440,
+                "p10_bps": -144.877079929862,
+                "p90_bps": 142.612662426707,
+                "positive_rate": 0.483474576271
+              },
+              "4h_to_1h": {
+                "mean_bps": 0.993136361812,
+                "median_bps": -1.652302358283,
+                "observations": 9420,
+                "p10_bps": -67.102328489774,
+                "p90_bps": 70.812475794899,
+                "positive_rate": 0.483439490446
+              },
+              "4h_to_24h": {
+                "mean_bps": 0.241938607572,
+                "median_bps": -5.450216222685,
+                "observations": 9420,
+                "p10_bps": -373.752922682572,
+                "p90_bps": 375.54029302874,
+                "positive_rate": 0.49161358811
+              },
+              "4h_to_4h": {
+                "mean_bps": 2.538414647154,
+                "median_bps": -0.331350633149,
+                "observations": 9420,
+                "p10_bps": -141.980977234693,
+                "p90_bps": 146.055510229626,
+                "positive_rate": 0.496496815287
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": 2.035641761084,
+                "median_bps": -0.16406621714,
+                "observations": 2460,
+                "p10_bps": -59.862249680545,
+                "p90_bps": 62.438678830361,
+                "positive_rate": 0.493495934959
+              },
+              "24h": {
+                "mean_bps": 17.38919643422,
+                "median_bps": 13.557655101713,
+                "observations": 2460,
+                "p10_bps": -316.541649976367,
+                "p90_bps": 361.234490878138,
+                "positive_rate": 0.525203252033
+              },
+              "4h": {
+                "mean_bps": 5.882325978841,
+                "median_bps": 0.74936391299,
+                "observations": 2460,
+                "p10_bps": -118.652972019277,
+                "p90_bps": 127.737138968589,
+                "positive_rate": 0.502032520325
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 30.510785144069,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.727465086754,
+                  "25bps": 0.572894625476,
+                  "9bps": 0.83495556496
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 175.761821082607,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.94498518832,
+                  "25bps": 0.910812526449,
+                  "9bps": 0.969001269573
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 61.620948559199,
+                "observations": 9452,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.853893355904,
+                  "25bps": 0.761002962336,
+                  "9bps": 0.91504443504
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -1.26560847556,
+                "median_bps": 6.666296560769,
+                "observations": 326,
+                "p10_bps": -91.214463219946,
+                "p90_bps": 87.440803628951,
+                "positive_rate": 0.539877300613
+              },
+              "24h": {
+                "mean_bps": 12.314354797369,
+                "median_bps": 24.507206601116,
+                "observations": 326,
+                "p10_bps": -299.408921327415,
+                "p90_bps": 325.25183495279,
+                "positive_rate": 0.527607361963
+              },
+              "4h": {
+                "mean_bps": -12.761973072845,
+                "median_bps": 0.554557320418,
+                "observations": 326,
+                "p10_bps": -163.022627189936,
+                "p90_bps": 179.983991671642,
+                "positive_rate": 0.503067484663
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 305,
+              "downtrend.low": 617,
+              "downtrend.normal": 762,
+              "range.high": 1130,
+              "range.low": 2645,
+              "range.normal": 2616,
+              "uptrend.high": 288,
+              "uptrend.low": 403,
+              "uptrend.normal": 686
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 0.151169385025,
+                "median_bps": -2.980848073344,
+                "observations": 3061,
+                "p10_bps": -74.945884569143,
+                "p90_bps": 79.688912152349,
+                "positive_rate": 0.469781117282
+              },
+              "24h": {
+                "mean_bps": 11.366502918033,
+                "median_bps": -8.051107462112,
+                "observations": 3061,
+                "p10_bps": -367.627029030121,
+                "p90_bps": 405.563850155247,
+                "positive_rate": 0.485788957857
+              },
+              "4h": {
+                "mean_bps": 1.838655219512,
+                "median_bps": -2.472697313237,
+                "observations": 3061,
+                "p10_bps": -160.094900169107,
+                "p90_bps": 160.688113834908,
+                "positive_rate": 0.485788957857
+              }
+            }
+          },
+          "market": {
+            "bars": 9504,
+            "first_hour_ms": 1751328000000,
+            "last_hour_ms": 1785538800000,
+            "maximum_drawdown": 0.722679650956,
+            "maximum_hourly_gain_bps": 566.689902732445,
+            "maximum_hourly_loss_bps": -703.616011016873,
+            "median_hourly_quote_volume_usd": 34490697.20836,
+            "realized_volatility_annualized": 0.638616877302,
+            "total_return": -0.525824323117
+          }
+        }
+      },
+      "start_inclusive": "2025-07-01"
+    },
+    "selection": {
+      "aggregate_families": {
+        "breakout_24h": {
+          "1h": {
+            "mean_bps": -2.22500453786,
+            "observations": 3505,
+            "positive_rate": 0.434807417974
+          },
+          "24h": {
+            "mean_bps": 1.850332903931,
+            "observations": 3505,
+            "positive_rate": 0.462767475036
+          },
+          "4h": {
+            "mean_bps": -2.811816508746,
+            "observations": 3505,
+            "positive_rate": 0.449358059914
+          }
+        },
+        "flow_alignment": {
+          "1h": {
+            "mean_bps": -0.970751709801,
+            "observations": 11232,
+            "positive_rate": 0.464031339031
+          },
+          "24h": {
+            "mean_bps": 5.133974327137,
+            "observations": 11232,
+            "positive_rate": 0.493411680912
+          },
+          "4h": {
+            "mean_bps": -1.755998061238,
+            "observations": 11232,
+            "positive_rate": 0.476228632479
+          }
+        },
+        "range_shock_reversion": {
+          "1h": {
+            "mean_bps": -1.526300984085,
+            "observations": 1463,
+            "positive_rate": 0.522214627478
+          },
+          "24h": {
+            "mean_bps": -13.313275113789,
+            "observations": 1463,
+            "positive_rate": 0.522214627478
+          },
+          "4h": {
+            "mean_bps": -22.649832576431,
+            "observations": 1463,
+            "positive_rate": 0.46958304853
+          }
+        },
+        "regime_trend": {
+          "1h": {
+            "mean_bps": -0.34402550783,
+            "observations": 12816,
+            "positive_rate": 0.465121722846
+          },
+          "24h": {
+            "mean_bps": 20.444378192661,
+            "observations": 12816,
+            "positive_rate": 0.494069912609
+          },
+          "4h": {
+            "mean_bps": 2.443488866584,
+            "observations": 12816,
+            "positive_rate": 0.462780898876
+          }
+        }
+      },
+      "correlations": {
+        "BNBUSDT.XRPUSDT": {
+          "correlation": 0.605514255463,
+          "observations": 8759
+        },
+        "BTCUSDT.BNBUSDT": {
+          "correlation": 0.70740747466,
+          "observations": 8759
+        },
+        "BTCUSDT.ETHUSDT": {
+          "correlation": 0.793924240554,
+          "observations": 8759
+        },
+        "BTCUSDT.SOLUSDT": {
+          "correlation": 0.75805258735,
+          "observations": 8759
+        },
+        "BTCUSDT.XRPUSDT": {
+          "correlation": 0.607820933694,
+          "observations": 8759
+        },
+        "ETHUSDT.BNBUSDT": {
+          "correlation": 0.73999349462,
+          "observations": 8759
+        },
+        "ETHUSDT.SOLUSDT": {
+          "correlation": 0.752507770283,
+          "observations": 8759
+        },
+        "ETHUSDT.XRPUSDT": {
+          "correlation": 0.634373755933,
+          "observations": 8759
+        },
+        "SOLUSDT.BNBUSDT": {
+          "correlation": 0.68306633975,
+          "observations": 8759
+        },
+        "SOLUSDT.XRPUSDT": {
+          "correlation": 0.612025471171,
+          "observations": 8759
+        }
+      },
+      "end_exclusive": "2025-07-01",
+      "per_symbol": {
+        "BNBUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -2.977997633523,
+                "median_bps": -6.977181323004,
+                "observations": 755,
+                "p10_bps": -80.525227317351,
+                "p90_bps": 72.565909363426,
+                "positive_rate": 0.44238410596
+              },
+              "24h": {
+                "mean_bps": -22.174451736145,
+                "median_bps": -33.525194584302,
+                "observations": 755,
+                "p10_bps": -347.113444172238,
+                "p90_bps": 294.802804232341,
+                "positive_rate": 0.441059602649
+              },
+              "4h": {
+                "mean_bps": -6.723239026088,
+                "median_bps": -10.845988048043,
+                "observations": 755,
+                "p10_bps": -144.480858032796,
+                "p90_bps": 121.116250628088,
+                "positive_rate": 0.454304635762
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -1.122244826498,
+                "median_bps": -2.197524676508,
+                "observations": 8706,
+                "p10_bps": -59.93766264775,
+                "p90_bps": 58.062600178346,
+                "positive_rate": 0.477486790719
+              },
+              "24h_to_24h": {
+                "mean_bps": -3.489470211854,
+                "median_bps": -6.838961687684,
+                "observations": 8706,
+                "p10_bps": -307.366094289518,
+                "p90_bps": 290.852163077738,
+                "positive_rate": 0.484493452791
+              },
+              "24h_to_4h": {
+                "mean_bps": -3.485372708027,
+                "median_bps": -6.617419882476,
+                "observations": 8706,
+                "p10_bps": -122.785593454503,
+                "p90_bps": 115.510351128531,
+                "positive_rate": 0.468527452332
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.234248591278,
+                "median_bps": -1.805234700823,
+                "observations": 8702,
+                "p10_bps": -58.724418335121,
+                "p90_bps": 59.254698908419,
+                "positive_rate": 0.478051022753
+              },
+              "4h_to_24h": {
+                "mean_bps": -6.071259996904,
+                "median_bps": -9.887056189484,
+                "observations": 8702,
+                "p10_bps": -302.159761841381,
+                "p90_bps": 296.440994236248,
+                "positive_rate": 0.477821190531
+              },
+              "4h_to_4h": {
+                "mean_bps": 0.48938988198,
+                "median_bps": -0.885772439157,
+                "observations": 8702,
+                "p10_bps": -119.482906394777,
+                "p90_bps": 118.958633758551,
+                "positive_rate": 0.495058607217
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -1.201174532383,
+                "median_bps": -3.246058399281,
+                "observations": 2744,
+                "p10_bps": -54.045033800894,
+                "p90_bps": 52.526537601137,
+                "positive_rate": 0.467930029155
+              },
+              "24h": {
+                "mean_bps": -0.036434219254,
+                "median_bps": -2.87058889779,
+                "observations": 2744,
+                "p10_bps": -272.136665514649,
+                "p90_bps": 277.156542905917,
+                "positive_rate": 0.493804664723
+              },
+              "4h": {
+                "mean_bps": -3.27504923442,
+                "median_bps": -6.645598161944,
+                "observations": 2744,
+                "p10_bps": -117.337856295989,
+                "p90_bps": 102.393088197298,
+                "positive_rate": 0.464285714286
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 26.813301287717,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.695567294442,
+                  "25bps": 0.525493798806,
+                  "9bps": 0.818098300413
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 140.039084766094,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.935691318328,
+                  "25bps": 0.893890675241,
+                  "9bps": 0.96164446486
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 54.118218243029,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.845429490124,
+                  "25bps": 0.740698208544,
+                  "9bps": 0.906982085439
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": 7.053522785259,
+                "median_bps": 12.755569414663,
+                "observations": 246,
+                "p10_bps": -87.710954958372,
+                "p90_bps": 99.27863373288,
+                "positive_rate": 0.609756097561
+              },
+              "24h": {
+                "mean_bps": 24.184290359859,
+                "median_bps": 51.954892417456,
+                "observations": 246,
+                "p10_bps": -287.347550415812,
+                "p90_bps": 326.073512078011,
+                "positive_rate": 0.581300813008
+              },
+              "4h": {
+                "mean_bps": -2.048352193246,
+                "median_bps": 8.146143380955,
+                "observations": 246,
+                "p10_bps": -170.535869302788,
+                "p90_bps": 156.77160466024,
+                "positive_rate": 0.524390243902
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 162,
+              "downtrend.low": 558,
+              "downtrend.normal": 412,
+              "range.high": 626,
+              "range.low": 3200,
+              "range.normal": 2297,
+              "uptrend.high": 120,
+              "uptrend.low": 816,
+              "uptrend.normal": 517
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 0.096618560522,
+                "median_bps": -3.241724625875,
+                "observations": 2585,
+                "p10_bps": -67.419448553182,
+                "p90_bps": 67.621131703941,
+                "positive_rate": 0.471179883946
+              },
+              "24h": {
+                "mean_bps": -7.898796324164,
+                "median_bps": -17.225380750713,
+                "observations": 2585,
+                "p10_bps": -347.457446456391,
+                "p90_bps": 308.153450218289,
+                "positive_rate": 0.466537717602
+              },
+              "4h": {
+                "mean_bps": -0.475133468822,
+                "median_bps": -7.530813934807,
+                "observations": 2585,
+                "p10_bps": -131.855183760203,
+                "p90_bps": 131.369741912282,
+                "positive_rate": 0.470406189555
+              }
+            }
+          },
+          "market": {
+            "bars": 8760,
+            "first_hour_ms": 1719792000000,
+            "last_hour_ms": 1751324400000,
+            "maximum_drawdown": 0.340019114368,
+            "maximum_hourly_gain_bps": 562.456015892331,
+            "maximum_hourly_loss_bps": -924.288911229718,
+            "median_hourly_quote_volume_usd": 14459267.07615,
+            "realized_volatility_annualized": 0.572499207992,
+            "total_return": 0.126989844929
+          }
+        },
+        "BTCUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -1.167426068302,
+                "median_bps": -4.370289817683,
+                "observations": 697,
+                "p10_bps": -68.783506864292,
+                "p90_bps": 76.372935877528,
+                "positive_rate": 0.463414634146
+              },
+              "24h": {
+                "mean_bps": -17.869300246328,
+                "median_bps": -17.644206276464,
+                "observations": 697,
+                "p10_bps": -317.849443152827,
+                "p90_bps": 281.389176740699,
+                "positive_rate": 0.466284074605
+              },
+              "4h": {
+                "mean_bps": -6.457081155311,
+                "median_bps": -14.110546847528,
+                "observations": 697,
+                "p10_bps": -121.795321487214,
+                "p90_bps": 132.7576059229,
+                "positive_rate": 0.426111908178
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -0.427865468228,
+                "median_bps": -1.638951047793,
+                "observations": 8706,
+                "p10_bps": -52.521936883054,
+                "p90_bps": 52.447590325841,
+                "positive_rate": 0.4818515966
+              },
+              "24h_to_24h": {
+                "mean_bps": 3.295084606231,
+                "median_bps": -1.005884594415,
+                "observations": 8706,
+                "p10_bps": -307.196888352947,
+                "p90_bps": 296.251006214948,
+                "positive_rate": 0.497702733747
+              },
+              "24h_to_4h": {
+                "mean_bps": -0.122621089924,
+                "median_bps": -4.534416636105,
+                "observations": 8706,
+                "p10_bps": -103.426876783038,
+                "p90_bps": 116.226733658814,
+                "positive_rate": 0.470480128647
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.356691965866,
+                "median_bps": -1.956378871227,
+                "observations": 8708,
+                "p10_bps": -51.768196653165,
+                "p90_bps": 53.681984984181,
+                "positive_rate": 0.478525493799
+              },
+              "4h_to_24h": {
+                "mean_bps": -3.134441643203,
+                "median_bps": -4.168197313057,
+                "observations": 8708,
+                "p10_bps": -307.930783072061,
+                "p90_bps": 295.347522485037,
+                "positive_rate": 0.487367937529
+              },
+              "4h_to_4h": {
+                "mean_bps": -2.051850598033,
+                "median_bps": -3.783899633381,
+                "observations": 8708,
+                "p10_bps": -108.087928004653,
+                "p90_bps": 109.488306267217,
+                "positive_rate": 0.477721635278
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -0.675907927871,
+                "median_bps": -2.611857083354,
+                "observations": 2533,
+                "p10_bps": -43.636931470691,
+                "p90_bps": 42.342366157478,
+                "positive_rate": 0.46940386893
+              },
+              "24h": {
+                "mean_bps": 3.54683538811,
+                "median_bps": -3.799121498859,
+                "observations": 2533,
+                "p10_bps": -263.695722596056,
+                "p90_bps": 277.071064634901,
+                "positive_rate": 0.486774575602
+              },
+              "4h": {
+                "mean_bps": -1.1543984452,
+                "median_bps": -1.996143172868,
+                "observations": 2533,
+                "p10_bps": -93.12209204416,
+                "p90_bps": 88.426109863824,
+                "positive_rate": 0.48519542045
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 23.388079400623,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.655833716123,
+                  "25bps": 0.4741616904,
+                  "9bps": 0.78835553514
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 130.7978994322,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.929834634819,
+                  "25bps": 0.882177308222,
+                  "9bps": 0.958429030776
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 47.117072765667,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.814538355535,
+                  "25bps": 0.700045934773,
+                  "9bps": 0.887459807074
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -4.520208330714,
+                "median_bps": 0.0,
+                "observations": 333,
+                "p10_bps": -90.068153802618,
+                "p90_bps": 61.523509227654,
+                "positive_rate": 0.495495495495
+              },
+              "24h": {
+                "mean_bps": 28.560762411017,
+                "median_bps": 19.116708938424,
+                "observations": 333,
+                "p10_bps": -254.937274437708,
+                "p90_bps": 360.514605089591,
+                "positive_rate": 0.528528528529
+              },
+              "4h": {
+                "mean_bps": -10.018277041954,
+                "median_bps": -0.123955097268,
+                "observations": 333,
+                "p10_bps": -142.265585463265,
+                "p90_bps": 105.399160677648,
+                "positive_rate": 0.498498498498
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 91,
+              "downtrend.low": 545,
+              "downtrend.normal": 475,
+              "range.high": 411,
+              "range.low": 3727,
+              "range.normal": 2006,
+              "uptrend.high": 132,
+              "uptrend.low": 741,
+              "uptrend.normal": 580
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": -2.049745546862,
+                "median_bps": -4.008367196366,
+                "observations": 2564,
+                "p10_bps": -61.314361299784,
+                "p90_bps": 59.298955038558,
+                "positive_rate": 0.457878315133
+              },
+              "24h": {
+                "mean_bps": 3.572107454773,
+                "median_bps": 13.020063559528,
+                "observations": 2564,
+                "p10_bps": -337.876770710821,
+                "p90_bps": 317.477841774996,
+                "positive_rate": 0.52496099844
+              },
+              "4h": {
+                "mean_bps": -4.533457523874,
+                "median_bps": -9.387026354929,
+                "observations": 2564,
+                "p10_bps": -115.140367893252,
+                "p90_bps": 121.664848460189,
+                "positive_rate": 0.453588143526
+              }
+            }
+          },
+          "market": {
+            "bars": 8760,
+            "first_hour_ms": 1719792000000,
+            "last_hour_ms": 1751324400000,
+            "maximum_drawdown": 0.309701657867,
+            "maximum_hourly_gain_bps": 497.891846971375,
+            "maximum_hourly_loss_bps": -503.04362929299,
+            "median_hourly_quote_volume_usd": 517473346.88935,
+            "realized_volatility_annualized": 0.511786334194,
+            "total_return": 0.701836801505
+          }
+        },
+        "ETHUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": 1.760166198357,
+                "median_bps": -10.570356680374,
+                "observations": 629,
+                "p10_bps": -97.585992693674,
+                "p90_bps": 106.580117631512,
+                "positive_rate": 0.424483306836
+              },
+              "24h": {
+                "mean_bps": -17.195546044912,
+                "median_bps": -52.905219152852,
+                "observations": 629,
+                "p10_bps": -478.381003776485,
+                "p90_bps": 495.320007689513,
+                "positive_rate": 0.413354531002
+              },
+              "4h": {
+                "mean_bps": 3.477577935174,
+                "median_bps": -18.079645742599,
+                "observations": 629,
+                "p10_bps": -169.624125514523,
+                "p90_bps": 214.564140282071,
+                "positive_rate": 0.453100158983
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -1.519629164382,
+                "median_bps": -3.780839829324,
+                "observations": 8708,
+                "p10_bps": -76.202545978091,
+                "p90_bps": 72.715961467497,
+                "positive_rate": 0.465663757464
+              },
+              "24h_to_24h": {
+                "mean_bps": 0.960528172519,
+                "median_bps": -13.597606135574,
+                "observations": 8708,
+                "p10_bps": -418.371834352639,
+                "p90_bps": 434.66440597055,
+                "positive_rate": 0.479673863114
+              },
+              "24h_to_4h": {
+                "mean_bps": -2.044329547027,
+                "median_bps": -9.306100274333,
+                "observations": 8708,
+                "p10_bps": -156.681768202618,
+                "p90_bps": 158.143502920792,
+                "positive_rate": 0.46164446486
+              },
+              "4h_to_1h": {
+                "mean_bps": 0.192652870554,
+                "median_bps": -2.409821372498,
+                "observations": 8707,
+                "p10_bps": -72.866937783124,
+                "p90_bps": 76.397962908375,
+                "positive_rate": 0.477661651545
+              },
+              "4h_to_24h": {
+                "mean_bps": 0.69019288921,
+                "median_bps": -11.684426467562,
+                "observations": 8707,
+                "p10_bps": -419.818510792706,
+                "p90_bps": 432.882125354692,
+                "positive_rate": 0.480303204318
+              },
+              "4h_to_4h": {
+                "mean_bps": 3.558330927151,
+                "median_bps": -1.056838440979,
+                "observations": 8707,
+                "p10_bps": -153.120192227916,
+                "p90_bps": 164.899076489818,
+                "positive_rate": 0.496267371081
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -0.420719355463,
+                "median_bps": -3.821899530565,
+                "observations": 2209,
+                "p10_bps": -65.756461715083,
+                "p90_bps": 66.496425338121,
+                "positive_rate": 0.462200090539
+              },
+              "24h": {
+                "mean_bps": 3.593498651466,
+                "median_bps": -9.24503412497,
+                "observations": 2209,
+                "p10_bps": -415.388396732355,
+                "p90_bps": 402.377852566889,
+                "positive_rate": 0.486192847442
+              },
+              "4h": {
+                "mean_bps": -0.367278896852,
+                "median_bps": -4.769217652566,
+                "observations": 2209,
+                "p10_bps": -135.77422130229,
+                "p90_bps": 139.966356200259,
+                "positive_rate": 0.477138976913
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 33.360664526926,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.748851630684,
+                  "25bps": 0.604042259991,
+                  "9bps": 0.847266881029
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 184.463960539933,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.953146531925,
+                  "25bps": 0.919958658705,
+                  "9bps": 0.972209462563
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 69.327047812828,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.877354157097,
+                  "25bps": 0.795934772623,
+                  "9bps": 0.925470831419
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -5.558615956229,
+                "median_bps": 0.289260381886,
+                "observations": 339,
+                "p10_bps": -91.706790320862,
+                "p90_bps": 91.312047916936,
+                "positive_rate": 0.504424778761
+              },
+              "24h": {
+                "mean_bps": -0.371129903759,
+                "median_bps": 44.244098686074,
+                "observations": 339,
+                "p10_bps": -490.871117858258,
+                "p90_bps": 474.447075249133,
+                "positive_rate": 0.551622418879
+              },
+              "4h": {
+                "mean_bps": -39.848137311098,
+                "median_bps": -32.597605761265,
+                "observations": 339,
+                "p10_bps": -245.013446536021,
+                "p90_bps": 157.983819295027,
+                "positive_rate": 0.410029498525
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 430,
+              "downtrend.low": 199,
+              "downtrend.normal": 605,
+              "range.high": 1224,
+              "range.low": 1938,
+              "range.normal": 2999,
+              "uptrend.high": 315,
+              "uptrend.low": 247,
+              "uptrend.normal": 751
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": -1.164936151142,
+                "median_bps": -6.122639314926,
+                "observations": 2547,
+                "p10_bps": -85.376379392162,
+                "p90_bps": 87.324756262894,
+                "positive_rate": 0.451511582254
+              },
+              "24h": {
+                "mean_bps": 20.959520201305,
+                "median_bps": -10.825994713029,
+                "observations": 2547,
+                "p10_bps": -442.367298165783,
+                "p90_bps": 508.103542826454,
+                "positive_rate": 0.482921083628
+              },
+              "4h": {
+                "mean_bps": -0.980542444458,
+                "median_bps": -15.040811527121,
+                "observations": 2547,
+                "p10_bps": -180.538688277969,
+                "p90_bps": 184.533356326316,
+                "positive_rate": 0.443266588143
+              }
+            }
+          },
+          "market": {
+            "bars": 8760,
+            "first_hour_ms": 1719792000000,
+            "last_hour_ms": 1751324400000,
+            "maximum_drawdown": 0.653077252431,
+            "maximum_hourly_gain_bps": 911.242999740188,
+            "maximum_hourly_loss_bps": -1230.433922129156,
+            "median_hourly_quote_volume_usd": 304945938.80419505,
+            "realized_volatility_annualized": 0.729600124724,
+            "total_return": -0.278254073857
+          }
+        },
+        "SOLUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -7.092471687931,
+                "median_bps": -12.800120209028,
+                "observations": 778,
+                "p10_bps": -119.931308899928,
+                "p90_bps": 110.420871333866,
+                "positive_rate": 0.43059125964
+              },
+              "24h": {
+                "mean_bps": 20.361054922283,
+                "median_bps": 7.637071307534,
+                "observations": 778,
+                "p10_bps": -520.457751886712,
+                "p90_bps": 593.299056894402,
+                "positive_rate": 0.511568123393
+              },
+              "4h": {
+                "mean_bps": -8.523574450188,
+                "median_bps": -12.43988566634,
+                "observations": 778,
+                "p10_bps": -211.703220207475,
+                "p90_bps": 212.10360970977,
+                "positive_rate": 0.466580976864
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": -0.986784122416,
+                "median_bps": -3.640732555598,
+                "observations": 8701,
+                "p10_bps": -96.58344588527,
+                "p90_bps": 97.52104614111,
+                "positive_rate": 0.478680611424
+              },
+              "24h_to_24h": {
+                "mean_bps": 9.582530287788,
+                "median_bps": 4.988880521416,
+                "observations": 8701,
+                "p10_bps": -509.533548935063,
+                "p90_bps": 540.054261211753,
+                "positive_rate": 0.505344213309
+              },
+              "24h_to_4h": {
+                "mean_bps": -2.42370894651,
+                "median_bps": -9.996178764346,
+                "observations": 8701,
+                "p10_bps": -195.808812015143,
+                "p90_bps": 200.630893750361,
+                "positive_rate": 0.473049074819
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.249654514542,
+                "median_bps": -3.879797740709,
+                "observations": 8700,
+                "p10_bps": -94.531742622676,
+                "p90_bps": 99.217569147552,
+                "positive_rate": 0.479425287356
+              },
+              "4h_to_24h": {
+                "mean_bps": 0.977700083168,
+                "median_bps": -12.647553974075,
+                "observations": 8700,
+                "p10_bps": -524.491431988245,
+                "p90_bps": 528.676990817755,
+                "positive_rate": 0.487356321839
+              },
+              "4h_to_4h": {
+                "mean_bps": 0.716942962466,
+                "median_bps": 0.971341757185,
+                "observations": 8700,
+                "p10_bps": -196.77628052186,
+                "p90_bps": 199.306753313473,
+                "positive_rate": 0.502068965517
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -2.35941719716,
+                "median_bps": -6.719140202877,
+                "observations": 1875,
+                "p10_bps": -86.5434389903,
+                "p90_bps": 84.693707416568,
+                "positive_rate": 0.4608
+              },
+              "24h": {
+                "mean_bps": 14.235005862606,
+                "median_bps": 11.254349458823,
+                "observations": 1875,
+                "p10_bps": -506.836277756782,
+                "p90_bps": 538.954121823439,
+                "positive_rate": 0.509333333333
+              },
+              "4h": {
+                "mean_bps": -1.956175724969,
+                "median_bps": -7.44985707808,
+                "observations": 1875,
+                "p10_bps": -178.998567405988,
+                "p90_bps": 184.777841809665,
+                "positive_rate": 0.478933333333
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 46.041405615014,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.832797427653,
+                  "25bps": 0.715893431328,
+                  "9bps": 0.900091869545
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 254.504935880202,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.969223702343,
+                  "25bps": 0.94545245751,
+                  "9bps": 0.981740927882
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 93.920323532492,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.912379421222,
+                  "25bps": 0.857372531006,
+                  "9bps": 0.949471750115
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": -2.742868148449,
+                "median_bps": -3.004602238118,
+                "observations": 282,
+                "p10_bps": -114.542203988051,
+                "p90_bps": 114.684415382133,
+                "positive_rate": 0.478723404255
+              },
+              "24h": {
+                "mean_bps": 1.748040458165,
+                "median_bps": -22.614622615647,
+                "observations": 282,
+                "p10_bps": -516.531827148548,
+                "p90_bps": 612.323808432041,
+                "positive_rate": 0.468085106383
+              },
+              "4h": {
+                "mean_bps": -31.130335993329,
+                "median_bps": -16.622738854732,
+                "observations": 282,
+                "p10_bps": -245.149991374549,
+                "p90_bps": 189.740928206014,
+                "positive_rate": 0.460992907801
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 558,
+              "downtrend.low": 90,
+              "downtrend.normal": 605,
+              "range.high": 2315,
+              "range.low": 601,
+              "range.normal": 3124,
+              "uptrend.high": 500,
+              "uptrend.low": 80,
+              "uptrend.normal": 835
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": -1.987405175756,
+                "median_bps": -5.36041161002,
+                "observations": 2668,
+                "p10_bps": -107.302456683724,
+                "p90_bps": 105.583888345616,
+                "positive_rate": 0.473388305847
+              },
+              "24h": {
+                "mean_bps": 40.409026982992,
+                "median_bps": 27.279314329631,
+                "observations": 2668,
+                "p10_bps": -541.549325064138,
+                "p90_bps": 621.514995295869,
+                "positive_rate": 0.534482758621
+              },
+              "4h": {
+                "mean_bps": 4.833151422677,
+                "median_bps": -4.799038707255,
+                "observations": 2668,
+                "p10_bps": -193.41330831646,
+                "p90_bps": 233.372842423699,
+                "positive_rate": 0.483883058471
+              }
+            }
+          },
+          "market": {
+            "bars": 8760,
+            "first_hour_ms": 1719792000000,
+            "last_hour_ms": 1751324400000,
+            "maximum_drawdown": 0.660666223916,
+            "maximum_hourly_gain_bps": 1119.137351212941,
+            "maximum_hourly_loss_bps": -846.411645907173,
+            "median_hourly_quote_volume_usd": 103389582.91801,
+            "realized_volatility_annualized": 0.907855563382,
+            "total_return": 0.04730575805
+          }
+        },
+        "XRPUSDT": {
+          "diagnostics": {
+            "breakout_24h": {
+              "1h": {
+                "mean_bps": -0.504269795419,
+                "median_bps": -15.277910751607,
+                "observations": 646,
+                "p10_bps": -143.422672547634,
+                "p90_bps": 144.627536211681,
+                "positive_rate": 0.410216718266
+              },
+              "24h": {
+                "mean_bps": 47.456854324258,
+                "median_bps": -26.749517167073,
+                "observations": 646,
+                "p10_bps": -501.492451662983,
+                "p90_bps": 651.724141391698,
+                "positive_rate": 0.473684210526
+              },
+              "4h": {
+                "mean_bps": 6.447613882065,
+                "median_bps": -21.130491321986,
+                "observations": 646,
+                "p10_bps": -205.249235619465,
+                "p90_bps": 259.750040514094,
+                "positive_rate": 0.44427244582
+              }
+            },
+            "continuation": {
+              "24h_to_1h": {
+                "mean_bps": 1.728990680034,
+                "median_bps": -1.903492915236,
+                "observations": 8695,
+                "p10_bps": -93.884120513615,
+                "p90_bps": 97.599457837318,
+                "positive_rate": 0.48085106383
+              },
+              "24h_to_24h": {
+                "mean_bps": 31.197278724335,
+                "median_bps": -19.675362963109,
+                "observations": 8695,
+                "p10_bps": -483.331450183239,
+                "p90_bps": 546.977145488812,
+                "positive_rate": 0.47027027027
+              },
+              "24h_to_4h": {
+                "mean_bps": 7.212986174088,
+                "median_bps": -4.607233437866,
+                "observations": 8695,
+                "p10_bps": -178.332592779061,
+                "p90_bps": 205.670217086703,
+                "positive_rate": 0.481656124209
+              },
+              "4h_to_1h": {
+                "mean_bps": -0.889443916014,
+                "median_bps": -3.76065531446,
+                "observations": 8680,
+                "p10_bps": -95.820197348294,
+                "p90_bps": 95.787406751254,
+                "positive_rate": 0.472465437788
+              },
+              "4h_to_24h": {
+                "mean_bps": 13.571789418346,
+                "median_bps": -5.474947068364,
+                "observations": 8680,
+                "p10_bps": -501.154888780638,
+                "p90_bps": 530.131252442605,
+                "positive_rate": 0.49366359447
+              },
+              "4h_to_4h": {
+                "mean_bps": -4.511207836723,
+                "median_bps": -9.208485384977,
+                "observations": 8680,
+                "p10_bps": -192.914381256784,
+                "p90_bps": 189.843518842925,
+                "positive_rate": 0.468433179724
+              }
+            },
+            "flow_alignment": {
+              "1h": {
+                "mean_bps": -0.289743028029,
+                "median_bps": -4.559547771863,
+                "observations": 1871,
+                "p10_bps": -77.191734139584,
+                "p90_bps": 77.611857073627,
+                "positive_rate": 0.4564404062
+              },
+              "24h": {
+                "mean_bps": 7.56385173088,
+                "median_bps": -5.050157350866,
+                "observations": 1871,
+                "p10_bps": -433.211893305928,
+                "p90_bps": 457.183357807498,
+                "positive_rate": 0.494388027793
+              },
+              "4h": {
+                "mean_bps": -1.781611595629,
+                "median_bps": -4.083947872985,
+                "observations": 1871,
+                "p10_bps": -154.112238139498,
+                "p90_bps": 152.674721307884,
+                "positive_rate": 0.477819347942
+              }
+            },
+            "movement_opportunity": {
+              "1h": {
+                "median_absolute_move_bps": 40.133391051652,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.796738631144,
+                  "25bps": 0.664561322921,
+                  "9bps": 0.876320624713
+                }
+              },
+              "24h": {
+                "median_absolute_move_bps": 211.357136509938,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.957625172255,
+                  "25bps": 0.931327514929,
+                  "9bps": 0.975769407441
+                }
+              },
+              "4h": {
+                "median_absolute_move_bps": 81.581791477899,
+                "observations": 8708,
+                "shares_above_cost_hurdles": {
+                  "15bps": 0.892857142857,
+                  "25bps": 0.825333027102,
+                  "9bps": 0.937873220028
+                }
+              }
+            },
+            "range_shock_reversion": {
+              "1h": {
+                "mean_bps": 0.741232153089,
+                "median_bps": 7.269093046446,
+                "observations": 263,
+                "p10_bps": -145.789592840859,
+                "p90_bps": 132.936121777344,
+                "positive_rate": 0.543726235741
+              },
+              "24h": {
+                "mean_bps": -134.23773830683,
+                "median_bps": -43.486549906766,
+                "observations": 263,
+                "p10_bps": -662.668707415209,
+                "p90_bps": 374.40955138302,
+                "positive_rate": 0.479087452471
+              },
+              "4h": {
+                "mean_bps": -26.651904434331,
+                "median_bps": -14.847812675792,
+                "observations": 263,
+                "p10_bps": -255.348630012161,
+                "p90_bps": 186.446473378498,
+                "positive_rate": 0.467680608365
+              }
+            },
+            "regime_counts": {
+              "downtrend.high": 434,
+              "downtrend.low": 231,
+              "downtrend.normal": 458,
+              "range.high": 2316,
+              "range.low": 1812,
+              "range.normal": 2128,
+              "uptrend.high": 667,
+              "uptrend.low": 253,
+              "uptrend.normal": 409
+            },
+            "regime_trend": {
+              "1h": {
+                "mean_bps": 3.615924584314,
+                "median_bps": -4.47252199704,
+                "observations": 2452,
+                "p10_bps": -117.881298103319,
+                "p90_bps": 125.097220905888,
+                "positive_rate": 0.47145187602
+              },
+              "24h": {
+                "mean_bps": 45.709410260082,
+                "median_bps": -30.781035455535,
+                "observations": 2452,
+                "p10_bps": -527.613290752921,
+                "p90_bps": 726.4333336953,
+                "positive_rate": 0.458401305057
+              },
+              "4h": {
+                "mean_bps": 13.772574238414,
+                "median_bps": -13.75077351323,
+                "observations": 2452,
+                "p10_bps": -214.694225877326,
+                "p90_bps": 283.614086081758,
+                "positive_rate": 0.461663947798
+              }
+            }
+          },
+          "market": {
+            "bars": 8760,
+            "first_hour_ms": 1719792000000,
+            "last_hour_ms": 1751324400000,
+            "maximum_drawdown": 0.510299514621,
+            "maximum_hourly_gain_bps": 1544.972669107316,
+            "maximum_hourly_loss_bps": -1323.565741538839,
+            "median_hourly_quote_volume_usd": 45400438.025865,
+            "realized_volatility_annualized": 1.020284401581,
+            "total_return": 3.700021021652
+          }
+        }
+      },
+      "start_inclusive": "2024-07-01"
+    }
+  }
+}

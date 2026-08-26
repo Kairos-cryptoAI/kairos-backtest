@@ -1,0 +1,28 @@
+{
+  "classification": "descriptive_reused_data_only",
+  "data": {
+    "archives_verified": 305,
+    "complete_hour_bars": 222599,
+    "hourly_gap_boundaries": 5,
+    "incomplete_hours_dropped": 1,
+    "invalid_minute_rows": 1,
+    "valid_minute_rows": 13355999
+  },
+  "decision": "NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES",
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "07b6d8f4a79eec0781719d5777db88b31a00310a095f58267e71fad014e9c149",
+  "prototype_decisions": {
+    "breakout_24h": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+    "flow_alignment": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+    "range_shock_reversion": "INSUFFICIENT_DESCRIPTIVE_EDGE",
+    "regime_trend": "INSUFFICIENT_DESCRIPTIVE_EDGE"
+  },
+  "result_sha256": "6f0a17e0edd702afff2a83d0b9bdb810f0f75d049993c39399751c5dfc227b5f",
+  "schema_version": 1,
+  "study_id": "market_anatomy_v1"
+}
