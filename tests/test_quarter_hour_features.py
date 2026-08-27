@@ -11,12 +11,16 @@ from pathlib import Path
 import pytest
 
 from kairos_backtest.aggtrades import (
+    AggregateGapCorroboration,
+    AggregateTradeGap,
     AggTrade,
+    AggTradeArchiveManifest,
     AggTradePeriodManifest,
     PhasePeakExtraction,
     PhasePeakWindow,
 )
 from kairos_backtest.quarter_hour_features import (
+    PLAN_FILENAME,
     PLAN_LOGICAL_SHA256,
     QuarterHourFeatureIntegrityError,
     QuarterHourFeatureLedger,
@@ -94,11 +98,11 @@ def _extraction(
 
 def test_committed_plan_matches_the_preregistered_logical_hash(tmp_path: Path) -> None:
     root = Path(__file__).resolve().parents[1]
-    plan_path = root / "reports" / "quarter-hour-lag-replication" / "plan.json"
+    plan_path = root / PLAN_FILENAME
     plan = load_plan(plan_path)
 
     assert _logical_sha256(plan) == PLAN_LOGICAL_SHA256
-    assert plan["classification"] == "PERFORMANCE_BLIND_STATISTICAL_REPLICATION"
+    assert plan["classification"] == "PERFORMANCE_BLIND_STATISTICAL_REPLICATION_AMENDMENT"
 
     mutated = dict(plan)
     mutated["classification"] = "ALPHA"
@@ -110,13 +114,24 @@ def test_committed_plan_matches_the_preregistered_logical_hash(tmp_path: Path) -
 
 def test_executable_feature_contract_is_bound_to_plan_fields() -> None:
     root = Path(__file__).resolve().parents[1]
-    plan = load_plan(root / "reports" / "quarter-hour-lag-replication" / "plan.json")
+    plan = load_plan(root / PLAN_FILENAME)
     _validate_plan_contract(plan)
 
     mutated = deepcopy(plan)
     mutated["measurement"]["phase_offsets_minutes"] = [0]
     with pytest.raises(QuarterHourFeatureIntegrityError, match="executable contract"):
         _validate_plan_contract(mutated)
+
+
+def test_v1_incomplete_result_is_hash_bound_and_contains_no_model_metrics() -> None:
+    root = Path(__file__).resolve().parents[1]
+    path = root / "reports" / "quarter-hour-lag-replication" / "result.json"
+    result = json.loads(path.read_text(encoding="utf-8"))
+    stored_sha256 = result.pop("result_sha256")
+
+    assert result["classification"] == "INCOMPLETE_DATA"
+    assert result["data"]["model_metrics_evaluated"] is False
+    assert stored_sha256 == _logical_sha256(result)
 
 
 def test_month_sequence_is_exact_and_exclusive() -> None:
@@ -167,11 +182,107 @@ def test_ledger_rejects_source_gaps_mutation_and_out_of_order_batches(tmp_path: 
         plan_sha256=PLAN_LOGICAL_SHA256,
         feature_source_sha256="c" * 64,
     ) as ledger:
-        with pytest.raises(QuarterHourFeatureIntegrityError, match="target crosses"):
+        with pytest.raises(QuarterHourFeatureIntegrityError, match="corroborated source evidence"):
             ledger.append(0, mutated)
         second = _extraction(symbol="ETHUSDT", period="2021-01")
         with pytest.raises(QuarterHourFeatureIntegrityError, match="exact plan order"):
             ledger.append(1, second)
+
+
+def test_ledger_persists_corroborated_gaps_but_excludes_them_from_clean_primary(
+    tmp_path: Path,
+) -> None:
+    extraction = _extraction(symbol="BTCUSDT", period="2021-01")
+    window = replace(
+        extraction.windows[0],
+        first_aggregate_trade_id=12,
+        last_aggregate_trade_id=12,
+        missing_aggregate_trade_ids=1,
+        missing_raw_trade_ids=1,
+    )
+    gap = AggregateTradeGap(
+        previous_aggregate_trade_id=10,
+        next_aggregate_trade_id=12,
+        missing_aggregate_trade_ids=1,
+        previous_transact_time_ms=window.start_ms,
+        next_transact_time_ms=window.end_ms,
+        in_period=True,
+    )
+    manifest = replace(
+        extraction.manifest,
+        rows=2,
+        last_aggregate_trade_id=12,
+        last_raw_trade_id=102,
+        first_transact_time_ms=window.start_ms,
+        last_transact_time_ms=window.end_ms,
+        missing_aggregate_trade_ids=1,
+        missing_raw_trade_ids=1,
+    )
+    last_trade = replace(
+        extraction.last_trade,
+        aggregate_trade_id=12,
+        first_trade_id=102,
+        last_trade_id=102,
+        transact_time_ms=window.end_ms,
+    )
+    daily = AggTradeArchiveManifest(
+        symbol="BTCUSDT",
+        day="2021-01-01",
+        filename="BTCUSDT-aggTrades-2021-01-01.zip",
+        archive_sha256="d" * 64,
+        normalized_rows_sha256="e" * 64,
+        rows=2,
+        first_aggregate_trade_id=10,
+        last_aggregate_trade_id=12,
+        first_transact_time_ms=window.start_ms,
+        last_transact_time_ms=window.end_ms,
+        missing_aggregate_trade_ids=1,
+        missing_raw_trade_ids=1,
+    )
+    corroborated = replace(
+        extraction,
+        manifest=manifest,
+        windows=(window,),
+        last_trade=last_trade,
+        aggregate_gaps=(gap,),
+        gap_corroborations=(AggregateGapCorroboration(gap, (daily,)),),
+    )
+
+    with QuarterHourFeatureLedger(
+        tmp_path / "features.sqlite3",
+        plan_sha256=PLAN_LOGICAL_SHA256,
+        feature_source_sha256="c" * 64,
+    ) as ledger:
+        assert ledger.append(0, corroborated) is True
+        assert len(ledger.verify(require_complete=False, deep=True)) == 64
+        all_targets = ledger.phase_returns(
+            symbol="BTCUSDT",
+            phase_offset_minutes=0,
+            start_ms=window.start_ms,
+            end_ms=window.end_ms + 1,
+            clean_only=False,
+        )
+        clean_targets = ledger.phase_returns(
+            symbol="BTCUSDT",
+            phase_offset_minutes=0,
+            start_ms=window.start_ms,
+            end_ms=window.end_ms + 1,
+            clean_only=True,
+        )
+        wrong_day = replace(
+            daily,
+            day="2021-01-02",
+            filename="BTCUSDT-aggTrades-2021-01-02.zip",
+        )
+        invalid_proof = replace(
+            corroborated,
+            gap_corroborations=(AggregateGapCorroboration(gap, (wrong_day,)),),
+        )
+        with pytest.raises(QuarterHourFeatureIntegrityError, match="exact aggregate gap dates"):
+            ledger.append(0, invalid_proof)
+
+    assert all_targets == ((window.start_ms, 0.001),)
+    assert clean_targets == ()
 
 
 def test_ledger_detects_cross_period_aggregate_id_gap(tmp_path: Path) -> None:
@@ -188,7 +299,7 @@ def test_ledger_detects_cross_period_aggregate_id_gap(tmp_path: Path) -> None:
             first_aggregate_id=12,
             first_raw_id=101,
         )
-        with pytest.raises(QuarterHourFeatureIntegrityError, match="cross-period gap"):
+        with pytest.raises(QuarterHourFeatureIntegrityError, match="cross-period boundary"):
             ledger.append(5, february)
 
 

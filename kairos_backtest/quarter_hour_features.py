@@ -11,7 +11,7 @@ import subprocess  # nosec B404
 from collections.abc import Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict
-from datetime import date, datetime
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from enum import Enum
 from pathlib import Path
@@ -20,16 +20,18 @@ from typing import cast
 from . import aggtrades as aggtrades_module
 from .aggtrades import (
     AggTrade,
+    BinanceAggTradeArchiveLoader,
     BinanceMonthlyAggTradeArchiveLoader,
     PhasePeakExtraction,
     PhasePeakWindow,
+    corroborate_aggregate_gaps,
     extract_phase_peak_windows,
 )
 from .scenarios import SYMBOLS
 
-SCHEMA_VERSION = "kairos.quarter-hour-feature-ledger.v1"
-PLAN_FILENAME = "reports/quarter-hour-lag-replication/plan.json"
-PLAN_LOGICAL_SHA256 = "f335b3eaf75ffd153b2f4d4341271280cb725de98b1a7584a8eaed076da9dc99"
+SCHEMA_VERSION = "kairos.quarter-hour-feature-ledger.v2"
+PLAN_FILENAME = "reports/quarter-hour-lag-replication-v2/plan.json"
+PLAN_LOGICAL_SHA256 = "2c5d91f76dcf5fd2f8c5bcc1ccec1032fb56b967e131d6136fb9b437c86f425f"
 DATA_START = date(2021, 1, 1)
 DATA_END_EXCLUSIVE = date(2026, 8, 1)
 PHASE_OFFSETS_MINUTES = (0, 2, 5, 7)
@@ -107,18 +109,46 @@ def _plan_value(plan: Mapping[str, object], path: tuple[str, ...]) -> object:
 
 def _validate_plan_contract(plan: Mapping[str, object]) -> None:
     expected: tuple[tuple[tuple[str, ...], object], ...] = (
-        (("schema_version",), "kairos.quarter-hour-lag-replication.v1"),
-        (("classification",), "PERFORMANCE_BLIND_STATISTICAL_REPLICATION"),
-        (("data", "archive_cadence"), "monthly"),
+        (("schema_version",), "kairos.quarter-hour-lag-replication.v2"),
+        (("classification",), "PERFORMANCE_BLIND_STATISTICAL_REPLICATION_AMENDMENT"),
+        (
+            ("data", "archive_cadence"),
+            "monthly with independent daily corroboration of every aggregate-ID gap",
+        ),
         (
             ("data", "checksum_policy"),
             "official adjacent SHA-256 sidecar plus ZIP CRC",
         ),
         (("data", "end_exclusive"), DATA_END_EXCLUSIVE.isoformat()),
         (("data", "market"), "Binance USD-M perpetual futures"),
-        (("data", "source"), "official Binance public-data aggTrades archives"),
+        (
+            ("data", "source"),
+            "official Binance public-data aggTrades monthly and daily archives",
+        ),
         (("data", "start"), DATA_START.isoformat()),
         (("data", "universe"), list(SYMBOLS)),
+        (
+            ("data_quality", "aggregate_trade_id_gaps"),
+            "never impute; accept only an exact gap signature corroborated by checksum-verified "
+            "official daily archives",
+        ),
+        (
+            ("data_quality", "clean_primary_analysis"),
+            "exclude every affected target and every row whose twelve-lag chain crosses an excluded target",
+        ),
+        (("data_quality", "imputation"), "forbidden"),
+        (
+            ("data_quality", "uncorroborated_aggregate_gap"),
+            "classify INCOMPLETE_DATA and stop before model evaluation",
+        ),
+        (
+            ("gates", "raw_gap_sensitivity", "all_target_metrics_are_diagnostic_only"),
+            True,
+        ),
+        (
+            ("gates", "raw_gap_sensitivity", "clean_primary_gates_are_authoritative"),
+            True,
+        ),
         (("measurement", "boundary_spacing_minutes"), 15),
         (("measurement", "forward_window"), "(T,T+10s]"),
         (("measurement", "lag_count"), PREREGISTERED_LAG_COUNT),
@@ -142,6 +172,11 @@ def _validate_plan_contract(plan: Mapping[str, object]) -> None:
             },
         ),
         (("protocol", "paid_apis"), False),
+        (("protocol", "model_metrics_examined_before_amendment"), False),
+        (
+            ("protocol", "amends_plan_sha256"),
+            "f335b3eaf75ffd153b2f4d4341271280cb725de98b1a7584a8eaed076da9dc99",
+        ),
         (("protocol", "result_may_not_change_this_plan"), True),
     )
     for path, expected_value in expected:
@@ -388,8 +423,6 @@ class QuarterHourFeatureLedger:
         manifest = extraction.manifest
         if manifest.symbol != symbol or manifest.period != period:
             raise QuarterHourFeatureIntegrityError("extraction manifest differs from plan sequence")
-        if manifest.missing_aggregate_trade_ids != 0:
-            raise QuarterHourFeatureIntegrityError("aggregate trade IDs contain an in-period gap")
         if (
             extraction.last_trade.aggregate_trade_id != manifest.last_aggregate_trade_id
             or extraction.last_trade.transact_time_ms != manifest.last_transact_time_ms
@@ -414,8 +447,80 @@ class QuarterHourFeatureLedger:
             cross_period_raw_gap = manifest.first_raw_trade_id - previous_symbol_trade.last_trade_id - 1
             if manifest.first_transact_time_ms < previous_symbol_trade.transact_time_ms:
                 raise QuarterHourFeatureIntegrityError("archive timestamps regress across periods")
-            if cross_period_aggregate_gap != 0:
-                raise QuarterHourFeatureIntegrityError("aggregate trade IDs contain a cross-period gap")
+
+        gaps = extraction.aggregate_gaps
+        proofs = extraction.gap_corroborations
+        if tuple(proof.gap for proof in proofs) != gaps:
+            raise QuarterHourFeatureIntegrityError(
+                "aggregate-ID gaps lack exact official daily corroboration"
+            )
+        for proof in proofs:
+            gap = proof.gap
+            first_day = datetime.fromtimestamp(
+                gap.previous_transact_time_ms // 1_000,
+                UTC,
+            ).date()
+            last_day = datetime.fromtimestamp(
+                gap.next_transact_time_ms // 1_000,
+                UTC,
+            ).date()
+            expected_days = tuple(
+                first_day + timedelta(days=offset) for offset in range((last_day - first_day).days + 1)
+            )
+            manifests = proof.daily_manifests
+            if tuple(date.fromisoformat(manifest.day) for manifest in manifests) != expected_days:
+                raise QuarterHourFeatureIntegrityError(
+                    "daily corroboration does not cover the exact aggregate gap dates"
+                )
+            for daily_manifest in manifests:
+                expected_filename = f"{symbol}-aggTrades-{daily_manifest.day}.zip"
+                digests = (
+                    daily_manifest.archive_sha256,
+                    daily_manifest.normalized_rows_sha256,
+                )
+                if (
+                    daily_manifest.symbol != symbol
+                    or daily_manifest.filename != expected_filename
+                    or daily_manifest.rows < 1
+                    or any(
+                        len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest)
+                        for digest in digests
+                    )
+                ):
+                    raise QuarterHourFeatureIntegrityError(
+                        "daily corroboration manifest is not canonical official evidence"
+                    )
+            if first_day == last_day:
+                daily = manifests[0]
+                endpoints_match = (
+                    daily.first_aggregate_trade_id <= gap.previous_aggregate_trade_id
+                    and gap.next_aggregate_trade_id <= daily.last_aggregate_trade_id
+                    and daily.first_transact_time_ms <= gap.previous_transact_time_ms
+                    and gap.next_transact_time_ms <= daily.last_transact_time_ms
+                    and daily.missing_aggregate_trade_ids >= gap.missing_aggregate_trade_ids
+                )
+            else:
+                endpoints_match = (
+                    len(manifests) == 2
+                    and manifests[0].last_aggregate_trade_id == gap.previous_aggregate_trade_id
+                    and manifests[0].last_transact_time_ms == gap.previous_transact_time_ms
+                    and manifests[-1].first_aggregate_trade_id == gap.next_aggregate_trade_id
+                    and manifests[-1].first_transact_time_ms == gap.next_transact_time_ms
+                )
+            if not endpoints_match:
+                raise QuarterHourFeatureIntegrityError(
+                    "daily corroboration manifest does not contain the aggregate gap endpoints"
+                )
+        in_period_gap_ids = sum(gap.missing_aggregate_trade_ids for gap in gaps if gap.in_period)
+        cross_period_gap_ids = sum(gap.missing_aggregate_trade_ids for gap in gaps if not gap.in_period)
+        if in_period_gap_ids != manifest.missing_aggregate_trade_ids:
+            raise QuarterHourFeatureIntegrityError(
+                "aggregate-ID gap signatures differ from the archive manifest"
+            )
+        if cross_period_gap_ids != cross_period_aggregate_gap:
+            raise QuarterHourFeatureIntegrityError(
+                "aggregate-ID gap signatures differ from the cross-period boundary"
+            )
 
         windows_chain = _ZERO_SHA256
         rows: list[tuple[object, ...]] = []
@@ -431,8 +536,15 @@ class QuarterHourFeatureLedger:
                 raise QuarterHourFeatureIntegrityError("feature window is off its planned phase")
             if window.end_ms != window.start_ms + 10_000:
                 raise QuarterHourFeatureIntegrityError("feature window has the wrong width")
-            if window.missing_aggregate_trade_ids != 0:
-                raise QuarterHourFeatureIntegrityError("feature target crosses an aggregate-ID gap")
+            expected_target_gap_ids = sum(
+                gap.missing_aggregate_trade_ids
+                for gap in gaps
+                if window.start_ms < gap.next_transact_time_ms <= window.end_ms
+            )
+            if window.missing_aggregate_trade_ids != expected_target_gap_ids:
+                raise QuarterHourFeatureIntegrityError(
+                    "feature target aggregate-ID gaps differ from corroborated source evidence"
+                )
             payload = _window_payload(symbol, period, window)
             feature_json = _json_bytes(payload).decode("ascii")
             feature_sha256 = _logical_sha256(payload)
@@ -466,6 +578,8 @@ class QuarterHourFeatureLedger:
             extraction=extraction,
         )
         batch_payload: dict[str, object] = {
+            "aggregate_gap_corroborations": [asdict(proof) for proof in extraction.gap_corroborations],
+            "aggregate_gaps": [asdict(gap) for gap in extraction.aggregate_gaps],
             "cross_period_missing_raw_trade_ids": cross_raw_gap,
             "empty_windows": extraction.empty_windows,
             "expected_windows": extraction.expected_windows,
@@ -764,11 +878,15 @@ def _extract_one(
 ) -> PhasePeakExtraction:
     month = date.fromisoformat(f"{period}-01")
     transport = loader.load(symbol, month)
-    return extract_phase_peak_windows(
+    extraction = extract_phase_peak_windows(
         transport,
         loader.iter_trades(transport),
         phase_offsets_minutes=PHASE_OFFSETS_MINUTES,
         prior_trade=prior_trade,
+    )
+    return corroborate_aggregate_gaps(
+        extraction,
+        BinanceAggTradeArchiveLoader(cache_dir),
     )
 
 

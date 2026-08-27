@@ -16,7 +16,7 @@ import tempfile
 import time
 import zipfile
 from collections.abc import Callable, Iterable, Iterator, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
@@ -111,6 +111,50 @@ class AggTradePeriodManifest:
 
 
 @dataclass(frozen=True, slots=True)
+class AggregateTradeGap:
+    previous_aggregate_trade_id: int
+    next_aggregate_trade_id: int
+    missing_aggregate_trade_ids: int
+    previous_transact_time_ms: int
+    next_transact_time_ms: int
+    in_period: bool
+
+    def __post_init__(self) -> None:
+        if (
+            isinstance(self.previous_aggregate_trade_id, bool)
+            or isinstance(self.next_aggregate_trade_id, bool)
+            or self.previous_aggregate_trade_id < 0
+            or self.next_aggregate_trade_id <= self.previous_aggregate_trade_id + 1
+        ):
+            raise ValueError("aggregate gap IDs are invalid")
+        if (
+            isinstance(self.missing_aggregate_trade_ids, bool)
+            or self.missing_aggregate_trade_ids
+            != self.next_aggregate_trade_id - self.previous_aggregate_trade_id - 1
+        ):
+            raise ValueError("aggregate gap count does not match its endpoints")
+        if (
+            isinstance(self.previous_transact_time_ms, bool)
+            or isinstance(self.next_transact_time_ms, bool)
+            or self.previous_transact_time_ms < 0
+            or self.next_transact_time_ms < self.previous_transact_time_ms
+        ):
+            raise ValueError("aggregate gap timestamps are invalid")
+        if type(self.in_period) is not bool:
+            raise TypeError("aggregate gap period marker must be boolean")
+
+
+@dataclass(frozen=True, slots=True)
+class AggregateGapCorroboration:
+    gap: AggregateTradeGap
+    daily_manifests: tuple[AggTradeArchiveManifest, ...]
+
+    def __post_init__(self) -> None:
+        if not self.daily_manifests:
+            raise ValueError("aggregate gap corroboration requires daily evidence")
+
+
+@dataclass(frozen=True, slots=True)
 class QuarterHourPeakWindow:
     start_ms: int
     end_ms: int
@@ -169,6 +213,8 @@ class PhasePeakExtraction:
     expected_windows: int
     empty_windows: int
     missing_reference_windows: int
+    aggregate_gaps: tuple[AggregateTradeGap, ...] = ()
+    gap_corroborations: tuple[AggregateGapCorroboration, ...] = ()
 
 
 def _date_ms(value: date) -> int:
@@ -666,6 +712,7 @@ def extract_phase_peak_windows(
     rows = 0
     missing_aggregate_ids = 0
     missing_raw_ids = 0
+    aggregate_gaps: list[AggregateTradeGap] = []
     digest = hashlib.sha256()
     windows: list[PhasePeakWindow] = []
     empty_windows = 0
@@ -689,6 +736,17 @@ def extract_phase_peak_windows(
         if previous is not None:
             aggregate_gap = trade.aggregate_trade_id - previous.aggregate_trade_id - 1
             raw_gap = trade.first_trade_id - previous.last_trade_id - 1
+            if aggregate_gap:
+                aggregate_gaps.append(
+                    AggregateTradeGap(
+                        previous_aggregate_trade_id=previous.aggregate_trade_id,
+                        next_aggregate_trade_id=trade.aggregate_trade_id,
+                        missing_aggregate_trade_ids=aggregate_gap,
+                        previous_transact_time_ms=previous.transact_time_ms,
+                        next_transact_time_ms=trade.transact_time_ms,
+                        in_period=previous_in_archive is not None,
+                    )
+                )
         if previous_in_archive is not None:
             missing_aggregate_ids += aggregate_gap
             missing_raw_ids += raw_gap
@@ -778,7 +836,104 @@ def extract_phase_peak_windows(
         expected_windows=len(boundaries),
         empty_windows=empty_windows,
         missing_reference_windows=missing_reference_windows,
+        aggregate_gaps=tuple(aggregate_gaps),
     )
+
+
+def _utc_day(timestamp_ms: int) -> date:
+    return datetime.fromtimestamp(timestamp_ms // 1_000, UTC).date()
+
+
+def _inclusive_days(start: date, end: date) -> tuple[date, ...]:
+    if end < start:
+        raise ValueError("daily corroboration range is reversed")
+    return tuple(start + timedelta(days=offset) for offset in range((end - start).days + 1))
+
+
+def _gap_key(gap: AggregateTradeGap) -> tuple[int, int, int, int, int]:
+    return (
+        gap.previous_aggregate_trade_id,
+        gap.next_aggregate_trade_id,
+        gap.missing_aggregate_trade_ids,
+        gap.previous_transact_time_ms,
+        gap.next_transact_time_ms,
+    )
+
+
+def corroborate_aggregate_gaps(
+    extraction: PhasePeakExtraction,
+    daily_loader: BinanceAggTradeArchiveLoader,
+) -> PhasePeakExtraction:
+    """Bind every monthly aggregate-ID gap to checksum-verified daily evidence."""
+
+    if extraction.gap_corroborations:
+        raise AggTradeIntegrityError("aggregate gaps have already been corroborated")
+    if not extraction.aggregate_gaps:
+        return extraction
+
+    required_days = sorted(
+        {
+            day
+            for gap in extraction.aggregate_gaps
+            for day in _inclusive_days(
+                _utc_day(gap.previous_transact_time_ms),
+                _utc_day(gap.next_transact_time_ms),
+            )
+        }
+    )
+    archives = {day: daily_loader.load(extraction.manifest.symbol, day) for day in required_days}
+    same_day_keys: dict[date, set[tuple[int, int, int, int, int]]] = {}
+    for day in {
+        _utc_day(gap.previous_transact_time_ms)
+        for gap in extraction.aggregate_gaps
+        if _utc_day(gap.previous_transact_time_ms) == _utc_day(gap.next_transact_time_ms)
+    }:
+        previous: AggTrade | None = None
+        keys: set[tuple[int, int, int, int, int]] = set()
+        for trade in daily_loader.iter_trades(archives[day]):
+            if previous is not None and trade.aggregate_trade_id > previous.aggregate_trade_id + 1:
+                keys.add(
+                    (
+                        previous.aggregate_trade_id,
+                        trade.aggregate_trade_id,
+                        trade.aggregate_trade_id - previous.aggregate_trade_id - 1,
+                        previous.transact_time_ms,
+                        trade.transact_time_ms,
+                    )
+                )
+            previous = trade
+        same_day_keys[day] = keys
+
+    proofs: list[AggregateGapCorroboration] = []
+    for gap in extraction.aggregate_gaps:
+        start_day = _utc_day(gap.previous_transact_time_ms)
+        end_day = _utc_day(gap.next_transact_time_ms)
+        days = _inclusive_days(start_day, end_day)
+        if start_day == end_day:
+            corroborated = _gap_key(gap) in same_day_keys[start_day]
+        else:
+            first = archives[start_day].manifest
+            last = archives[end_day].manifest
+            corroborated = (
+                len(days) == 2
+                and first.last_aggregate_trade_id == gap.previous_aggregate_trade_id
+                and first.last_transact_time_ms == gap.previous_transact_time_ms
+                and last.first_aggregate_trade_id == gap.next_aggregate_trade_id
+                and last.first_transact_time_ms == gap.next_transact_time_ms
+            )
+        if not corroborated:
+            raise AggTradeIntegrityError(
+                "monthly aggregate-ID gap is not reproduced by official daily archives: "
+                f"{extraction.manifest.symbol} {extraction.manifest.period} "
+                f"{gap.previous_aggregate_trade_id}->{gap.next_aggregate_trade_id}"
+            )
+        proofs.append(
+            AggregateGapCorroboration(
+                gap=gap,
+                daily_manifests=tuple(archives[day].manifest for day in days),
+            )
+        )
+    return replace(extraction, gap_corroborations=tuple(proofs))
 
 
 def completed_days(start: date, end_exclusive: date) -> tuple[date, ...]:

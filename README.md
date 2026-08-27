@@ -279,39 +279,51 @@ do not qualify a strategy.
 
 ### Preregistered quarter-hour lag replication
 
-The immutable
-[replication plan](reports/quarter-hour-lag-replication/plan.json) fixes the
-2021-01 through 2026-07 sample, five-symbol Kairos universe, four paper-overlap
-assets, BNB extension, causal target, twelve lags, rolling six-month training,
-monthly refits, chronological tuning, 21-value LASSO grid and phase offsets
-`0/2/5/7` before opening the historical outcome.
+The immutable [v1 plan](reports/quarter-hour-lag-replication/plan.json) fixed
+the 2021-01 through 2026-07 sample, five-symbol Kairos universe, four
+paper-overlap assets, BNB extension, causal target, twelve lags, rolling
+six-month training, monthly refits, chronological tuning, 21-value LASSO grid
+and phase offsets `0/2/5/7` before opening the historical outcome. It stopped
+as [INCOMPLETE_DATA](reports/quarter-hour-lag-replication/result.json) before
+model fitting: checksum-valid official monthly and daily BTC archives contain
+the same source-native aggregate-ID gaps.
+
+Before any model metric was evaluated, the immutable
+[v2 amendment](reports/quarter-hour-lag-replication-v2/plan.json) fixed a
+gap-aware clean-primary policy. Missing trades are never imputed. Every monthly
+aggregate-ID gap must be reproduced by exact IDs and timestamps in independent,
+checksum-verified official daily archives; otherwise collection stops. Affected
+targets and every twelve-lag row that crosses an excluded target are removed
+from authoritative metrics. All-target metrics remain diagnostic only.
 
 Feature collection verifies official monthly archive SHA-256, parses each CSV
-once through ZIP CRC, extracts all four phases in that pass, and appends batches
-to a synchronous SQLite hash chain. Different symbols in one month may be
-scanned concurrently, but batches are committed only in the preregistered
-month/symbol order. It is safe to interrupt and resume:
+once through ZIP CRC, extracts all four phases in that pass, corroborates every
+gap against official daily evidence, and appends both features and proofs to a
+synchronous SQLite hash chain. Different symbols in one month may be scanned
+concurrently, but batches are committed only in the preregistered month/symbol
+order. It is safe to interrupt and resume:
 
 ```sh
 uv run --locked python -m kairos_backtest.quarter_hour_features \
-  --ledger runtime/quarter-hour-lag-features.sqlite3 \
+  --ledger runtime/quarter-hour-lag-features-v2.sqlite3 \
   --cache-dir data/aggtrades-monthly \
   --workers 4
 
 uv run --locked python -m kairos_backtest.quarter_hour_features \
-  --ledger runtime/quarter-hour-lag-features.sqlite3 \
+  --ledger runtime/quarter-hour-lag-features-v2.sqlite3 \
   --cache-dir data/aggtrades-monthly \
   --verify --deep
 ```
 
-Only after all 335 batches pass deep verification may the fixed rolling model
-run. It evaluates paper-sample replication, post-sample robustness, three
-placebo phases and a second pass excluding raw-ID-gap-affected targets:
+Only after all 335 batches and daily proofs pass deep verification may the
+fixed rolling model run. It evaluates clean-target paper-sample replication,
+post-sample robustness and three placebo phases, while retaining an all-target
+diagnostic comparison:
 
 ```sh
 uv run --locked python -m kairos_backtest.quarter_hour_lag_replication \
-  --ledger runtime/quarter-hour-lag-features.sqlite3 \
-  --result reports/quarter-hour-lag-replication/result.json
+  --ledger runtime/quarter-hour-lag-features-v2.sqlite3 \
+  --result reports/quarter-hour-lag-replication-v2/result.json
 ```
 
 Success means only `STATISTICAL_COMPONENT_CONFIRMED`. The source paper reports

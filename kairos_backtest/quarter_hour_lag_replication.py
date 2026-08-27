@@ -42,12 +42,13 @@ from .quarter_hour_lag_model import (
 )
 from .scenarios import SYMBOLS
 
-SCHEMA_VERSION = "kairos.quarter-hour-lag-replication-result.v1"
+SCHEMA_VERSION = "kairos.quarter-hour-lag-replication-result.v2"
 OOS_START = date(2021, 7, 1)
 PAPER_END_EXCLUSIVE = date(2024, 11, 1)
 POST_SAMPLE_START = PAPER_END_EXCLUSIVE
 PAPER_OVERLAP_ASSETS = ("BTCUSDT", "ETHUSDT", "SOLUSDT", "XRPUSDT")
-RESULT_FILENAME = "reports/quarter-hour-lag-replication/result.json"
+PRIMARY_QUALITY = "clean_targets"
+RESULT_FILENAME = "reports/quarter-hour-lag-replication-v2/result.json"
 
 
 def _utc_ms(value: date) -> int:
@@ -107,6 +108,8 @@ def _validate_model_plan(plan: Mapping[str, object]) -> None:
         raise QuarterHourFeatureIntegrityError(
             "executable lag-model grid or tuning tie-break differs from the committed plan"
         )
+    if PRIMARY_QUALITY != "clean_targets":
+        raise QuarterHourFeatureIntegrityError("authoritative replication gates must use clean targets")
 
 
 def _slice_forecast(
@@ -247,7 +250,7 @@ def gate_failures(evaluations: Mapping[str, object]) -> tuple[str, ...]:
     for symbol in PAPER_OVERLAP_ASSETS:
         r2 = _metric(
             evaluations,
-            "all_targets",
+            PRIMARY_QUALITY,
             "paper_replication",
             0,
             symbol,
@@ -260,7 +263,7 @@ def gate_failures(evaluations: Mapping[str, object]) -> tuple[str, ...]:
             (
                 p_value := _metric(
                     evaluations,
-                    "all_targets",
+                    PRIMARY_QUALITY,
                     "paper_replication",
                     0,
                     symbol,
@@ -279,7 +282,7 @@ def gate_failures(evaluations: Mapping[str, object]) -> tuple[str, ...]:
         (
             r2 := _metric(
                 evaluations,
-                "all_targets",
+                PRIMARY_QUALITY,
                 "post_sample_robustness",
                 0,
                 symbol,
@@ -294,7 +297,7 @@ def gate_failures(evaluations: Mapping[str, object]) -> tuple[str, ...]:
         failures.append("post_sample_robustness.positive_assets_below_three")
     pooled_post = _metric(
         evaluations,
-        "all_targets",
+        PRIMARY_QUALITY,
         "post_sample_robustness",
         0,
         None,
@@ -306,7 +309,7 @@ def gate_failures(evaluations: Mapping[str, object]) -> tuple[str, ...]:
     for window in ("paper_replication", "post_sample_robustness"):
         primary = _metric(
             evaluations,
-            "all_targets",
+            PRIMARY_QUALITY,
             window,
             0,
             None,
@@ -315,7 +318,7 @@ def gate_failures(evaluations: Mapping[str, object]) -> tuple[str, ...]:
         for placebo in PHASE_OFFSETS_MINUTES[1:]:
             placebo_r2 = _metric(
                 evaluations,
-                "all_targets",
+                PRIMARY_QUALITY,
                 window,
                 placebo,
                 None,
@@ -324,42 +327,6 @@ def gate_failures(evaluations: Mapping[str, object]) -> tuple[str, ...]:
             if primary is None or placebo_r2 is None or primary <= placebo_r2:
                 failures.append(f"{window}.primary_phase_not_above_placebo_{placebo}")
 
-    for symbol in PAPER_OVERLAP_ASSETS:
-        clean_r2 = _metric(
-            evaluations,
-            "clean_targets",
-            "paper_replication",
-            0,
-            symbol,
-            "oos_r2_vs_zero",
-        )
-        if clean_r2 is None or clean_r2 <= 0:
-            failures.append(f"raw_gap_sensitivity.paper.{symbol}.sign_not_preserved")
-    clean_post_positive = sum(
-        (
-            r2 := _metric(
-                evaluations,
-                "clean_targets",
-                "post_sample_robustness",
-                0,
-                symbol,
-                "oos_r2_vs_zero",
-            )
-        )
-        is not None
-        and r2 > 0
-        for symbol in SYMBOLS
-    )
-    clean_pooled_post = _metric(
-        evaluations,
-        "clean_targets",
-        "post_sample_robustness",
-        0,
-        None,
-        "oos_r2_vs_zero",
-    )
-    if clean_post_positive < 3 or clean_pooled_post is None or clean_pooled_post <= 0:
-        failures.append("raw_gap_sensitivity.post_sample_sign_not_preserved")
     return tuple(failures)
 
 
@@ -435,7 +402,7 @@ def run_replication(
         },
         "result_schema_version": SCHEMA_VERSION,
         "trading_interpretation": (
-            "forecast evidence only; no entry, exit, sizing, cost, PnL, or trading permission"
+            "clean-target forecast evidence only; no entry, exit, sizing, cost, PnL, or trading permission"
         ),
     }
     result["result_sha256"] = _logical_sha256(result)

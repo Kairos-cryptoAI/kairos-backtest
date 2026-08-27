@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from kairos_backtest.quarter_hour_features import (
+    PLAN_FILENAME,
     QuarterHourFeatureIntegrityError,
     load_plan,
 )
@@ -59,7 +60,7 @@ def test_preregistered_gates_require_replication_robustness_phase_and_clean_sign
     assert gate_failures(evaluations) == ()
 
     failing = deepcopy(evaluations)
-    primary = failing["all_targets"]["paper_replication"]["phases"]["0"]
+    primary = failing["clean_targets"]["paper_replication"]["phases"]["0"]
     primary["per_symbol"]["BTCUSDT"]["oos_r2_vs_zero"] = -0.01
     primary["pooled"]["oos_r2_vs_zero"] = 0.0
     failures = gate_failures(failing)
@@ -73,7 +74,7 @@ def test_preregistered_gates_cover_every_failure_class() -> None:
         "clean_targets": _quality(),
     }
     for symbol in ("BTCUSDT", "ETHUSDT"):
-        insufficient_dm["all_targets"]["paper_replication"]["phases"]["0"]["per_symbol"][symbol][
+        insufficient_dm["clean_targets"]["paper_replication"]["phases"]["0"]["per_symbol"][symbol][
             "dm_one_sided_p_value"
         ] = 0.5
     assert "paper_replication.dm_significant_assets_below_three" in gate_failures(insufficient_dm)
@@ -82,7 +83,7 @@ def test_preregistered_gates_cover_every_failure_class() -> None:
         "all_targets": _quality(),
         "clean_targets": _quality(),
     }
-    post_primary = weak_post_sample["all_targets"]["post_sample_robustness"]["phases"]["0"]
+    post_primary = weak_post_sample["clean_targets"]["post_sample_robustness"]["phases"]["0"]
     for symbol in ("BTCUSDT", "ETHUSDT", "SOLUSDT"):
         post_primary["per_symbol"][symbol]["oos_r2_vs_zero"] = -0.01
     post_primary["pooled"]["oos_r2_vs_zero"] = -0.01
@@ -91,19 +92,12 @@ def test_preregistered_gates_cover_every_failure_class() -> None:
     assert "post_sample_robustness.pooled_oos_r2_not_positive" in post_failures
     assert "post_sample_robustness.primary_phase_not_above_placebo_2" in post_failures
 
-    raw_gap_failure = {
+    diagnostic_only = {
         "all_targets": _quality(),
         "clean_targets": _quality(),
     }
-    clean_paper = raw_gap_failure["clean_targets"]["paper_replication"]["phases"]["0"]
-    clean_paper["per_symbol"]["XRPUSDT"]["oos_r2_vs_zero"] = 0.0
-    clean_post = raw_gap_failure["clean_targets"]["post_sample_robustness"]["phases"]["0"]
-    for symbol in ("BTCUSDT", "ETHUSDT", "SOLUSDT"):
-        clean_post["per_symbol"][symbol]["oos_r2_vs_zero"] = -0.01
-    clean_post["pooled"]["oos_r2_vs_zero"] = 0.0
-    raw_gap_failures = gate_failures(raw_gap_failure)
-    assert "raw_gap_sensitivity.paper.XRPUSDT.sign_not_preserved" in raw_gap_failures
-    assert "raw_gap_sensitivity.post_sample_sign_not_preserved" in raw_gap_failures
+    diagnostic_only["all_targets"]["paper_replication"]["phases"]["0"]["pooled"]["oos_r2_vs_zero"] = -10.0
+    assert gate_failures(diagnostic_only) == ()
 
 
 def test_forecast_slice_uses_exact_half_open_calendar_window() -> None:
@@ -145,7 +139,7 @@ def test_replication_result_writer_is_create_only(tmp_path: Path) -> None:
 
 def test_executable_model_contract_is_bound_to_plan_fields() -> None:
     root = Path(__file__).resolve().parents[1]
-    plan = load_plan(root / "reports" / "quarter-hour-lag-replication" / "plan.json")
+    plan = load_plan(root / PLAN_FILENAME)
     _validate_model_plan(plan)
 
     mutated = deepcopy(plan)

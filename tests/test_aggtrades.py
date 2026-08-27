@@ -185,6 +185,62 @@ def test_monthly_transport_and_phase_extraction_scan_rows_once(tmp_path: Path) -
     assert window.missing_raw_trade_ids == 1
 
 
+def test_monthly_aggregate_gap_requires_exact_official_daily_corroboration(
+    tmp_path: Path,
+) -> None:
+    symbol = "BTCUSDT"
+    month = date(2026, 7, 1)
+    start_ms = aggtrades._date_ms(month)
+    monthly_rows = [
+        f"10,100,1,100,100,{start_ms},false\n",
+        f"12,101,1,102,102,{start_ms + 1},false\n",
+    ]
+    monthly_loader = _monthly_loader(
+        tmp_path,
+        symbol,
+        month,
+        _monthly_archive(symbol, month, monthly_rows),
+    )
+    transport = monthly_loader.load(symbol, month)
+    extraction = aggtrades.extract_phase_peak_windows(
+        transport,
+        monthly_loader.iter_trades(transport),
+        phase_offsets_minutes=(0,),
+    )
+
+    assert extraction.manifest.missing_aggregate_trade_ids == 1
+    assert len(extraction.aggregate_gaps) == 1
+    assert extraction.windows[0].missing_aggregate_trade_ids == 1
+
+    daily_loader = _loader(
+        tmp_path,
+        symbol,
+        month,
+        _archive(symbol, month, monthly_rows),
+    )
+    corroborated = aggtrades.corroborate_aggregate_gaps(extraction, daily_loader)
+
+    assert tuple(proof.gap for proof in corroborated.gap_corroborations) == (corroborated.aggregate_gaps)
+    proof = corroborated.gap_corroborations[0]
+    assert len(proof.daily_manifests) == 1
+    assert proof.daily_manifests[0].day == month.isoformat()
+    assert proof.daily_manifests[0].missing_aggregate_trade_ids == 1
+
+    conflicting_daily_rows = [
+        f"10,100,1,100,100,{start_ms},false\n",
+        f"11,100,1,101,101,{start_ms + 1},false\n",
+        f"12,101,1,102,102,{start_ms + 2},false\n",
+    ]
+    conflicting_loader = _loader(
+        tmp_path / "conflict",
+        symbol,
+        month,
+        _archive(symbol, month, conflicting_daily_rows),
+    )
+    with pytest.raises(aggtrades.AggTradeIntegrityError, match="not reproduced"):
+        aggtrades.corroborate_aggregate_gaps(extraction, conflicting_loader)
+
+
 def test_multi_phase_extraction_is_causal_sorted_and_cross_month_gap_aware() -> None:
     month = date(2026, 7, 1)
     start_ms = aggtrades._date_ms(month)
