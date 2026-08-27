@@ -10,6 +10,25 @@ Deterministic event replay, historical evaluation and execution-cost simulation
 for Kairos. The package is strictly offline during tests; downloading Binance
 archives is an explicit CLI/runtime operation.
 
+Historical consumers must declare a field profile and pass an exact-slice,
+performance-blind preflight before consuming a research attempt. The rationale,
+quarantine semantics and mandatory order are in
+[`DATA_QUALITY_POLICY.md`](DATA_QUALITY_POLICY.md).
+
+The committed five-asset price/volume preflight can be verified without
+opening the archive cache, then executed as a data-only qualification:
+
+```sh
+uv run --locked kairos-data-preflight \
+  --plan reports/data-field-preflight/plan.json \
+  --verify-plan
+
+uv run --locked kairos-data-preflight \
+  --cache data/historical \
+  --plan reports/data-field-preflight/plan.json \
+  --result reports/data-field-preflight/result.json
+```
+
 The current multi-sleeve research design, risk contract and no-peeking rules are
 documented in [`STRATEGY_V2.md`](STRATEGY_V2.md). No backtest or LLM response is
 treated as authorization for real orders.

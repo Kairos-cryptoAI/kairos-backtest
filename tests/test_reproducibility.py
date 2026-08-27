@@ -13,7 +13,7 @@ import pytest
 from kairos_core.enums import Side
 from kairos_strategy.candles import Candle
 
-from kairos_backtest.data import BinanceArchiveLoader, audit_cached_archives
+from kairos_backtest.data import ArchiveFieldProfile, BinanceArchiveLoader, audit_cached_archives
 from kairos_backtest.evaluation import evaluate
 from kairos_backtest.execution import ExecutionConfig
 from kairos_backtest.provenance import runtime_manifest, source_fingerprint
@@ -446,7 +446,7 @@ def test_offline_archive_inventory_audit_is_strict_and_fingerprinted(tmp_path):
 
 def test_inventory_records_but_loader_rejects_source_domain_anomalies(tmp_path):
     valid = "1735689600000,100,101,99,100,1,1735689659999,100,1,0.5,50,0"
-    invalid = "1735689660000,100,101,99,100,1,1735689719999,200,1,2,200,0"
+    invalid = "1735689660000,100,101,99,100,1,1735689719999,100,1,2,100,0"
     payload = _raw_archive([valid, invalid])
     target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
     target.parent.mkdir(parents=True)
@@ -476,6 +476,43 @@ def test_inventory_records_but_loader_rejects_source_domain_anomalies(tmp_path):
         "dataset_gaps",
         "dataset_incomplete_coverage",
     }
+
+    profiled, manifest = BinanceArchiveLoader(
+        tmp_path,
+        allow_download=False,
+        field_profile=ArchiveFieldProfile.PRICE_VOLUME,
+    ).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+    assert len(profiled) == 2
+    assert profiled[1].volume == 1
+    assert profiled[1].quote_volume == 100
+    assert profiled[1].taker_buy_volume == 0
+    assert profiled[1].taker_buy_quote_volume == 0
+    assert manifest.field_profile == "price_volume"
+    assert manifest.transport_verification == "zip_crc_and_profiled_rows_sha256"
+    assert manifest.quarantined_optional_rows == 1
+    assert manifest.quarantined_optional_samples == (
+        "BTCUSDT-1m-2025-01.zip:line 2:taker-buy volume exceeds total volume",
+    )
+
+
+def test_price_volume_profile_still_rejects_price_or_volume_domain_corruption(tmp_path):
+    invalid = "1735689600000,100,101,99,100,1,1735689659999,200,1,0.5,50,0"
+    payload = _raw_archive([invalid])
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(payload)
+    target.with_name(f"{target.name}.CHECKSUM").write_text(
+        f"{hashlib.sha256(payload).hexdigest()}  {target.name}\n",
+        encoding="ascii",
+    )
+
+    with pytest.raises(ValueError, match="quote volume is inconsistent"):
+        BinanceArchiveLoader(
+            tmp_path,
+            allow_download=False,
+            field_profile=ArchiveFieldProfile.PRICE_VOLUME,
+        ).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
 
 
 def test_archive_audit_rejects_cross_archive_duplicate_timestamps(tmp_path):

@@ -1,5 +1,5 @@
 from .clock import ReplayClock
-from .data import ArchiveInventoryAudit, SymbolArchiveAudit, audit_cached_archives
+from .data import ArchiveFieldProfile, ArchiveInventoryAudit, SymbolArchiveAudit, audit_cached_archives
 from .engine import BacktestReport, RunManifest, run_backtest
 from .execution import (
     ExecutionConfig,
@@ -27,6 +27,7 @@ from .walk_forward import WalkForwardFold, split_walk_forward
 
 __all__ = [
     "BacktestReport",
+    "ArchiveFieldProfile",
     "ArchiveInventoryAudit",
     "ExecutionConfig",
     "EvaluationScenario",

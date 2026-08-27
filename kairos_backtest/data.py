@@ -9,6 +9,7 @@ import time
 import zipfile
 from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime
+from enum import StrEnum
 from pathlib import Path
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
@@ -34,6 +35,13 @@ BINANCE_KLINE_COLUMNS = (
 )
 
 
+class ArchiveFieldProfile(StrEnum):
+    """Fields a consumer is allowed to trust from an official kline row."""
+
+    FULL_KLINE = "full_kline"
+    PRICE_VOLUME = "price_volume"
+
+
 @dataclass(frozen=True, slots=True)
 class DatasetManifest:
     symbol: str
@@ -51,6 +59,9 @@ class DatasetManifest:
     checksum_files_verified: int
     expected_files: int
     csv_schema: str
+    field_profile: str = ArchiveFieldProfile.FULL_KLINE.value
+    quarantined_optional_rows: int = 0
+    quarantined_optional_samples: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -106,7 +117,11 @@ def _parse_csv(
     interval: str,
     *,
     domain_issues: list[tuple[int, str]] | None = None,
+    field_profile: ArchiveFieldProfile = ArchiveFieldProfile.FULL_KLINE,
+    quarantined_issues: list[tuple[int, str]] | None = None,
 ) -> list[Candle]:
+    if not isinstance(field_profile, ArchiveFieldProfile):
+        raise ValueError("field_profile must be an ArchiveFieldProfile")
     try:
         with zipfile.ZipFile(io.BytesIO(payload)) as archive:
             corrupt_member = archive.testzip()
@@ -144,12 +159,21 @@ def _parse_csv(
             numeric = tuple(float(row[index]) for index in (1, 2, 3, 4, 5, 7, 9, 10, 11))
             if not all(math.isfinite(value) for value in numeric):
                 raise ValueError(f"malformed Binance CSV row at line {line_number}: non-finite value")
-            domain_reason = _row_domain_issue(numeric, int(row[8]))
+            source_reason = _row_domain_issue(
+                numeric,
+                int(row[8]),
+                ArchiveFieldProfile.FULL_KLINE,
+            )
+            domain_reason = _row_domain_issue(numeric, int(row[8]), field_profile)
             if domain_reason is not None:
                 if domain_issues is not None:
                     domain_issues.append((line_number, domain_reason))
                     continue
                 raise ValueError(f"malformed Binance CSV row at line {line_number}: {domain_reason}")
+            if source_reason is not None and quarantined_issues is not None:
+                quarantined_issues.append((line_number, source_reason))
+            taker_buy_volume = numeric[6] if field_profile is ArchiveFieldProfile.FULL_KLINE else 0.0
+            taker_buy_quote_volume = numeric[7] if field_profile is ArchiveFieldProfile.FULL_KLINE else 0.0
             try:
                 candles.append(
                     Candle(
@@ -163,8 +187,8 @@ def _parse_csv(
                         close=numeric[3],
                         volume=numeric[4],
                         quote_volume=numeric[5],
-                        taker_buy_volume=numeric[6],
-                        taker_buy_quote_volume=numeric[7],
+                        taker_buy_volume=taker_buy_volume,
+                        taker_buy_quote_volume=taker_buy_quote_volume,
                     )
                 )
             except ValueError as exc:
@@ -183,23 +207,33 @@ def _parse_csv(
     return candles
 
 
-def _row_domain_issue(numeric: tuple[float, ...], trade_count: int) -> str | None:
+def _row_domain_issue(
+    numeric: tuple[float, ...],
+    trade_count: int,
+    field_profile: ArchiveFieldProfile = ArchiveFieldProfile.FULL_KLINE,
+) -> str | None:
     open_price, high, low, close, volume, quote, taker_volume, taker_quote, ignored = numeric
-    if trade_count < 0 or min(volume, quote, taker_volume, taker_quote) < 0 or ignored != 0:
+    if trade_count < 0 or min(volume, quote) < 0 or ignored != 0:
         return "invalid non-negative/count/ignore domain value"
-    if taker_volume > volume:
-        return "taker-buy volume exceeds total volume"
     tolerance = max(1e-8, abs(quote) * 1e-10)
     if quote < volume * low - tolerance or quote > volume * high + tolerance:
         return "quote volume is inconsistent with OHLC and base volume"
+    if high < max(open_price, close) or low > min(open_price, close):
+        return "OHLC bounds are inconsistent"
+    if field_profile is ArchiveFieldProfile.PRICE_VOLUME:
+        return None
+    if min(taker_volume, taker_quote) < 0:
+        return "invalid non-negative taker-volume domain value"
+    if taker_volume > volume:
+        return "taker-buy volume exceeds total volume"
+    if taker_quote > quote:
+        return "taker-buy quote volume exceeds total quote volume"
     taker_tolerance = max(1e-8, abs(taker_quote) * 1e-10)
     if (
         taker_quote < taker_volume * low - taker_tolerance
         or taker_quote > taker_volume * high + taker_tolerance
     ):
         return "taker-buy quote volume is inconsistent with OHLC and base volume"
-    if high < max(open_price, close) or low > min(open_price, close):
-        return "OHLC bounds are inconsistent"
     return None
 
 
@@ -210,12 +244,16 @@ class BinanceArchiveLoader:
         *,
         retries: int = 3,
         allow_download: bool = True,
+        field_profile: ArchiveFieldProfile = ArchiveFieldProfile.FULL_KLINE,
     ) -> None:
         if retries < 1:
             raise ValueError("retries must be positive")
+        if not isinstance(field_profile, ArchiveFieldProfile):
+            raise ValueError("field_profile must be an ArchiveFieldProfile")
         self.cache_dir = cache_dir
         self.retries = retries
         self.allow_download = allow_download
+        self.field_profile = field_profile
 
     def _download(self, url: str, target: Path) -> bytes | None:
         if not url.startswith(f"{ARCHIVE_ROOT}/"):
@@ -273,6 +311,8 @@ class BinanceArchiveLoader:
         files: list[str] = []
         missing_files: list[str] = []
         checksum_statuses: list[str] = []
+        quarantined_optional_samples: list[str] = []
+        quarantined_optional_rows = 0
         for month in month_starts(start, end):
             filename = f"{symbol}-{interval}-{month:%Y-%m}.zip"
             url = f"{ARCHIVE_ROOT}/{symbol}/{interval}/{filename}"
@@ -283,7 +323,20 @@ class BinanceArchiveLoader:
                 continue
             checksum_statuses.append(self._verify_checksum(payload, target))
             files.append(filename)
-            candles.extend(_parse_csv(payload, symbol, interval))
+            quarantined: list[tuple[int, str]] = []
+            candles.extend(
+                _parse_csv(
+                    payload,
+                    symbol,
+                    interval,
+                    field_profile=self.field_profile,
+                    quarantined_issues=quarantined,
+                )
+            )
+            quarantined_optional_rows += len(quarantined)
+            for line_number, reason in quarantined:
+                if len(quarantined_optional_samples) < 25:
+                    quarantined_optional_samples.append(f"{filename}:line {line_number}:{reason}")
         if missing_files:
             raise FileNotFoundError(
                 f"missing required Binance archives for {symbol}: {', '.join(missing_files)}"
@@ -310,9 +363,13 @@ class BinanceArchiveLoader:
         gaps = sum(
             b.open_time_ms - a.open_time_ms != 60_000 for a, b in zip(candles, candles[1:], strict=False)
         )
-        digest = hashlib.sha256(
-            json.dumps([asdict(c) for c in candles], separators=(",", ":")).encode()
-        ).hexdigest()
+        serialized_candles: object = [asdict(c) for c in candles]
+        if self.field_profile is not ArchiveFieldProfile.FULL_KLINE:
+            serialized_candles = {
+                "candles": serialized_candles,
+                "field_profile": self.field_profile.value,
+            }
+        digest = hashlib.sha256(json.dumps(serialized_candles, separators=(",", ":")).encode()).hexdigest()
         manifest = DatasetManifest(
             symbol,
             interval,
@@ -324,7 +381,11 @@ class BinanceArchiveLoader:
             digest,
             tuple(files),
             gaps,
-            "zip_crc_and_parsed_rows_sha256",
+            (
+                "zip_crc_and_parsed_rows_sha256"
+                if self.field_profile is ArchiveFieldProfile.FULL_KLINE
+                else "zip_crc_and_profiled_rows_sha256"
+            ),
             (
                 "official_sha256_verified"
                 if checksum_statuses
@@ -336,6 +397,9 @@ class BinanceArchiveLoader:
             sum(status == "official_sha256_verified" for status in checksum_statuses),
             len(month_starts(start, end)),
             "binance_futures_kline_v1_12_columns",
+            self.field_profile.value,
+            quarantined_optional_rows,
+            tuple(quarantined_optional_samples),
         )
         return candles, manifest
 

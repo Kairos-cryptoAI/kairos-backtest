@@ -32,6 +32,12 @@ This is not a floating-point tolerance issue. The downloaded archive hashes to
 exactly matching Binance's official `.CHECKSUM` sidecar. The local file is
 intact; the contradictory fields are present in the official archive.
 
+The anomaly itself was not new: earlier inventory artifacts already recorded
+this exact archive and line. The process failure was that trial 13 validated
+inventory presence and checksums but did not preflight loader compatibility for
+its exact 365-day warm-up before consuming the attempt. This is now treated as
+a research-control defect, not as evidence against the strategy.
+
 The immutable machine-readable evidence is in [`failure.json`](failure.json).
 The raw row itself is not duplicated in that artifact; its UTF-8 SHA-256 is
 recorded so the observation can be reproduced without making an editable copy
