@@ -36,6 +36,8 @@ from .forward_observation import (
 DAILY_ARCHIVE_ROOT = "https://data.binance.vision/data/futures/um/daily/klines"
 _ONE_MINUTE_MS = 60_000
 _ROWS_PER_DAY = 24 * 60
+_DAY_MS = _ROWS_PER_DAY * _ONE_MINUTE_MS
+_PUBLICATION_GRACE_DAYS = 2
 
 
 @dataclass(frozen=True, slots=True)
@@ -53,6 +55,17 @@ class DailyArchiveManifest:
 class DailyCollectionSummary:
     start: str
     end_exclusive: str
+    inserted_bars: int
+    duplicate_bars: int
+    emitted_intents: int
+    manifests: tuple[DailyArchiveManifest, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class DailySyncSummary:
+    start: str
+    latest_published_end_exclusive: str
+    stopped_at_unpublished_day: str | None
     inserted_bars: int
     duplicate_bars: int
     emitted_intents: int
@@ -235,6 +248,80 @@ def collect_daily_archives(
     )
 
 
+def _common_watermark_date(ledger: ForwardLedger) -> date:
+    status = ledger.status()
+    watermark_ms = status.get("watermark_ms")
+    if isinstance(watermark_ms, bool) or not isinstance(watermark_ms, int):
+        raise ForwardIntegrityError("forward ledger has no complete-universe watermark")
+    if watermark_ms % _DAY_MS:
+        raise ForwardIntegrityError("daily sync requires a common UTC-midnight watermark")
+    symbols = status.get("symbols")
+    if not isinstance(symbols, list) or len(symbols) != len(SYMBOLS):
+        raise ForwardIntegrityError("forward ledger status has an incomplete universe")
+    if any(not isinstance(item, dict) or item.get("blocked_reason") is not None for item in symbols):
+        raise ForwardIntegrityError("daily sync refuses a blocked symbol")
+    return datetime.fromtimestamp(watermark_ms / 1_000, UTC).date()
+
+
+def sync_latest_daily_archives(
+    ledger: ForwardLedger,
+    cache_dir: Path,
+    *,
+    today: date | None = None,
+    loader_factory: Callable[[Path], BinanceDailyArchiveLoader] = BinanceDailyArchiveLoader,
+) -> DailySyncSummary:
+    """Resume at the common watermark and stop only at normal publication lag."""
+
+    effective_today = datetime.now(UTC).date() if today is None else today
+    if not isinstance(effective_today, date):
+        raise TypeError("today must be a date")
+    start = _common_watermark_date(ledger)
+    if start > effective_today:
+        raise ForwardIntegrityError("forward watermark lies in the future")
+    loader = loader_factory(cache_dir)
+    inserted = duplicates = intents = 0
+    manifests: list[DailyArchiveManifest] = []
+    latest_end = start
+    stopped_at: date | None = None
+    for day in _days(start, effective_today) if start < effective_today else ():
+        staged: dict[str, list[Candle]] = {}
+        day_manifests: list[DailyArchiveManifest] = []
+        try:
+            for symbol in SYMBOLS:
+                rows, manifest = loader.load(symbol, day)
+                staged[symbol] = rows
+                day_manifests.append(manifest)
+        except FileNotFoundError:
+            publication_age_days = (effective_today - day).days
+            if publication_age_days >= _PUBLICATION_GRACE_DAYS:
+                raise ForwardIntegrityError(
+                    f"unpublished daily archive exceeds publication grace: {day.isoformat()}"
+                ) from None
+            stopped_at = day
+            break
+        day_end = day + timedelta(days=1)
+        for symbol in SYMBOLS:
+            summary = ledger.ingest_atomic(
+                (candle_to_closed_bar(row) for row in staged[symbol]),
+                as_of_ms=_date_ms(day_end) - 1,
+            )
+            inserted += summary.inserted_bars
+            duplicates += summary.duplicate_bars
+            intents += summary.emitted_intents
+        ledger.verify_integrity()
+        manifests.extend(day_manifests)
+        latest_end = day_end
+    return DailySyncSummary(
+        start=start.isoformat(),
+        latest_published_end_exclusive=latest_end.isoformat(),
+        stopped_at_unpublished_day=None if stopped_at is None else stopped_at.isoformat(),
+        inserted_bars=inserted,
+        duplicate_bars=duplicates,
+        emitted_intents=intents,
+        manifests=tuple(manifests),
+    )
+
+
 def _print_json(value: object) -> None:
     print(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True))
 
@@ -244,18 +331,27 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--plan", type=Path, default=Path(PLAN_FILENAME))
     parser.add_argument("--ledger", type=Path, required=True)
     parser.add_argument("--cache-dir", type=Path, required=True)
-    parser.add_argument("--start", type=date.fromisoformat, required=True)
-    parser.add_argument("--end-exclusive", type=date.fromisoformat, required=True)
+    parser.add_argument("--sync-latest", action="store_true")
+    parser.add_argument("--start", type=date.fromisoformat)
+    parser.add_argument("--end-exclusive", type=date.fromisoformat)
     arguments = parser.parse_args(argv)
+    if arguments.sync_latest and (arguments.start is not None or arguments.end_exclusive is not None):
+        parser.error("--sync-latest cannot be combined with explicit dates")
+    if not arguments.sync_latest and (arguments.start is None or arguments.end_exclusive is None):
+        parser.error("explicit collection requires --start and --end-exclusive")
     plan = load_plan(arguments.plan)
     with ForwardLedger(arguments.ledger, plan) as ledger:
-        summary = collect_daily_archives(
-            ledger,
-            arguments.cache_dir,
-            arguments.start,
-            arguments.end_exclusive,
-        )
-        _print_json({"daily_archive_ingest": asdict(summary), "status": ledger.status()})
+        if arguments.sync_latest:
+            sync = sync_latest_daily_archives(ledger, arguments.cache_dir)
+            _print_json({"daily_archive_sync": asdict(sync), "status": ledger.status()})
+        else:
+            summary = collect_daily_archives(
+                ledger,
+                arguments.cache_dir,
+                arguments.start,
+                arguments.end_exclusive,
+            )
+            _print_json({"daily_archive_ingest": asdict(summary), "status": ledger.status()})
 
 
 if __name__ == "__main__":  # pragma: no cover

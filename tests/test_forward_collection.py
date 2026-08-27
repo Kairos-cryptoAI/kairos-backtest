@@ -183,3 +183,129 @@ def test_collection_download_failure_advances_no_symbol(tmp_path: Path) -> None:
             date(2026, 8, 2),
             loader_factory=Loader,  # type: ignore[arg-type]
         )
+
+
+class _SyncLedger:
+    def __init__(self, watermark: date) -> None:
+        self.watermark_ms = _date_ms(watermark)
+        self.ingested: list[tuple[str, int]] = []
+        self.verify_calls = 0
+
+    def status(self) -> dict[str, object]:
+        return {
+            "watermark_ms": self.watermark_ms,
+            "symbols": [
+                {"symbol": symbol, "blocked_reason": None, "last_open_time_ms": self.watermark_ms - 60_000}
+                for symbol in SYMBOLS
+            ],
+        }
+
+    def ingest_atomic(self, bars, *, as_of_ms):
+        materialized = list(bars)
+        assert materialized
+        self.ingested.append((materialized[0].symbol, as_of_ms))
+        return IngestSummary(inserted_bars=len(materialized))
+
+    def verify_integrity(self) -> None:
+        self.verify_calls += 1
+
+
+def _sync_manifest(symbol: str, day: date) -> collection.DailyArchiveManifest:
+    return collection.DailyArchiveManifest(
+        symbol=symbol,
+        day=day.isoformat(),
+        filename=f"{symbol}-{day.isoformat()}.zip",
+        archive_sha256="a" * 64,
+        normalized_rows_sha256="b" * 64,
+        rows=1,
+        quarantined_optional_rows=0,
+    )
+
+
+def test_sync_latest_resumes_from_common_watermark_and_advances_complete_days(tmp_path: Path) -> None:
+    start = date(2026, 8, 24)
+    today = date(2026, 8, 26)
+    loaded: list[tuple[str, date]] = []
+
+    class Loader:
+        def __init__(self, cache_dir: Path) -> None:
+            assert cache_dir == tmp_path
+
+        def load(self, symbol: str, day: date):
+            loaded.append((symbol, day))
+            return [_candle(symbol, day, 0)], _sync_manifest(symbol, day)
+
+    ledger = _SyncLedger(start)
+    summary = collection.sync_latest_daily_archives(
+        ledger,  # type: ignore[arg-type]
+        tmp_path,
+        today=today,
+        loader_factory=Loader,  # type: ignore[arg-type]
+    )
+
+    assert loaded == [(symbol, day) for day in (date(2026, 8, 24), date(2026, 8, 25)) for symbol in SYMBOLS]
+    assert summary.start == "2026-08-24"
+    assert summary.latest_published_end_exclusive == "2026-08-26"
+    assert summary.stopped_at_unpublished_day is None
+    assert summary.inserted_bars == 2 * len(SYMBOLS)
+    assert ledger.verify_calls == 2
+
+
+def test_sync_latest_treats_yesterday_404_as_publication_lag_without_mutation(tmp_path: Path) -> None:
+    yesterday = date(2026, 8, 26)
+
+    class Loader:
+        def __init__(self, cache_dir: Path) -> None:
+            pass
+
+        def load(self, symbol: str, day: date):
+            if symbol == SYMBOLS[1]:
+                raise FileNotFoundError("not published")
+            return [_candle(symbol, day, 0)], _sync_manifest(symbol, day)
+
+    ledger = _SyncLedger(yesterday)
+    summary = collection.sync_latest_daily_archives(
+        ledger,  # type: ignore[arg-type]
+        tmp_path,
+        today=date(2026, 8, 27),
+        loader_factory=Loader,  # type: ignore[arg-type]
+    )
+
+    assert summary.latest_published_end_exclusive == yesterday.isoformat()
+    assert summary.stopped_at_unpublished_day == yesterday.isoformat()
+    assert summary.inserted_bars == 0
+    assert ledger.ingested == []
+    assert ledger.verify_calls == 0
+
+
+def test_sync_latest_rejects_an_unpublished_day_outside_grace(tmp_path: Path) -> None:
+    missing = date(2026, 8, 24)
+
+    class Loader:
+        def __init__(self, cache_dir: Path) -> None:
+            pass
+
+        def load(self, symbol: str, day: date):
+            raise FileNotFoundError("not published")
+
+    ledger = _SyncLedger(missing)
+    with pytest.raises(collection.ForwardIntegrityError, match="exceeds publication grace"):
+        collection.sync_latest_daily_archives(
+            ledger,  # type: ignore[arg-type]
+            tmp_path,
+            today=date(2026, 8, 27),
+            loader_factory=Loader,  # type: ignore[arg-type]
+        )
+    assert ledger.ingested == []
+
+
+def test_sync_latest_requires_a_utc_midnight_common_watermark(tmp_path: Path) -> None:
+    ledger = _SyncLedger(date(2026, 8, 26))
+    ledger.watermark_ms += 60_000
+
+    with pytest.raises(collection.ForwardIntegrityError, match="UTC-midnight"):
+        collection.sync_latest_daily_archives(
+            ledger,  # type: ignore[arg-type]
+            tmp_path,
+            today=date(2026, 8, 27),
+        )

@@ -355,6 +355,23 @@ be rerun daily with the next completed date. The collector contains no exchange
 mutation, LLM, strategy decision or performance path. A conflicting official
 bar is still a permanent ledger integrity failure.
 
+For routine operation, resume directly from the ledger's common UTC-midnight
+watermark and stop cleanly when yesterday's archive is still within Binance's
+normal publication delay:
+
+```sh
+uv run --locked python -m kairos_backtest.forward_collection \
+  --ledger runtime/regime-aligned-forward.sqlite3 \
+  --cache-dir data/forward-daily \
+  --sync-latest
+```
+
+`sync-latest` never skips a day. A missing archive two or more UTC dates behind
+the current date is an integrity failure rather than publication lag. Each day
+is staged for all five symbols before any symbol advances, and a partially
+advanced interrupted day is repaired by exact idempotent replay from the common
+watermark.
+
 The final evaluator is frozen before the blind start by
 [its semantic-source lock](reports/regime-aligned-forward/evaluator-lock.json).
 The lock covers the simulator, cost/risk model, portfolio metrics, scenario
