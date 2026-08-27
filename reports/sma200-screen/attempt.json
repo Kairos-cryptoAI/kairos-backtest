@@ -1,0 +1,17 @@
+{
+  "attempt_sha256": "2597d48786056cf6c85fc541471e78c425b27840a4d7b54d9ef7e1e34eb6071e",
+  "classification": "external_open_code_reproduction_reused_data_only",
+  "consumed_at": "2026-08-27T04:13:02.263408+00:00",
+  "consumption_point": "after_preflight_receipt_before_first_price_or_funding_archive_access",
+  "crash_or_failure_releases_attempt": false,
+  "lineage_trial_number": 14,
+  "plan_file": {
+    "bytes": 3846,
+    "sha256": "92431101691694dbaa02c9a1e495ba4dfe9accae778e48e2e68252299394d985"
+  },
+  "plan_sha256": "15446c0f1bcb9edc94bf6032831c9d9880d9c9881b81846196c220f682d0584a",
+  "rerun_allowed": false,
+  "schema_version": "kairos.four-hour-sma200-external-reproduction.v1",
+  "status": "consumed",
+  "strategy_id": "four_hour_sma200_long_v1"
+}

@@ -191,3 +191,30 @@ def test_committed_plan_has_stable_canonical_hash():
 
     assert _sha256(loaded) == "15446c0f1bcb9edc94bf6032831c9d9880d9c9881b81846196c220f682d0584a"
     assert _sha256(loaded) == _sha256(expected_plan())
+
+
+def test_consumed_trial_is_rejected_with_immutable_result():
+    root = Path(__file__).resolve().parents[1]
+    attempt = json.loads((root / "reports" / "sma200-screen" / "attempt.json").read_text())
+    summary = json.loads((root / "reports" / "sma200-screen" / "summary.json").read_text())
+
+    assert attempt["rerun_allowed"] is False
+    assert attempt["lineage_trial_number"] == 14
+    assert summary["classification"] == "REJECT_REUSED_DATA_SCREEN"
+    assert summary["permissions"] == {
+        "alpha_ready": False,
+        "live_allowed": False,
+        "paper_allowed": False,
+        "promotion_eligible": False,
+    }
+    assert summary["windows"]["selection"]["published_spot"]["strategy"]["total_return"] == pytest.approx(
+        0.376098221630392
+    )
+    assert summary["windows"]["robustness"]["published_spot"]["strategy"]["total_return"] == pytest.approx(
+        -0.177510430142935
+    )
+    assert summary["windows"]["source_unseen"]["published_spot"]["strategy"]["total_return"] == pytest.approx(
+        -0.0187542484031187
+    )
+    assert _sha256(attempt) == "44f95f5a5a9879916b2b4224b6c4f6b3f1703b3598ef856001692fd5b1d6accf"
+    assert _sha256(summary) == "1c2ecaeb2a961c9c858583878f5169dc000222b81342d80e79ab62a39841d83d"
