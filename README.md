@@ -288,6 +288,37 @@ margin is not production alpha. The immutable result and interpretation are in
 the [crowded-trend report](reports/crowded-trend-screen/REPORT.md); the exact
 attempt must not be rerun or repaired post-hoc.
 
+## Published Donchian ensemble reused-data screen
+
+Trial 13 transcribes the independent long-only model in
+[Catching Crypto Trends](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5209907):
+nine daily close-based Donchian horizons, monotonic mid-channel stops, 90-day
+volatility targeting at 25%, a 2x cap and a relative 20% volatility-resize
+deadband. The five Kairos assets are equal-capital sleeves, rebalanced monthly.
+
+The paper models spot execution; Kairos must use perpetuals. Therefore the
+screen additionally charges official historical Binance funding, 10 bps per
+baseline allocation change and, under stress, 25 bps plus 5 bps adverse funding
+per settlement. Targets decided at one daily close become effective on the next
+UTC day. These adaptations and the fixed-universe limitation are explicit in
+the immutable plan.
+
+```sh
+uv run --locked kairos-donchian-screen --verify-plan
+
+uv run --locked kairos-donchian-screen \
+  --price-cache data/historical \
+  --factor-cache data/historical-factors \
+  --plan reports/donchian-screen/plan.json \
+  --attempt reports/donchian-screen/attempt.json \
+  --result reports/donchian-screen/summary.json
+```
+
+The allocation contract is deliberately outside the current static SL/TP order
+route. This reused-data screen can only reject or forward-freeze the exact model;
+it cannot enable PAPER until both future evidence and a dynamic execution
+lifecycle exist.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps
