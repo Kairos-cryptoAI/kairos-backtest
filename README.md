@@ -232,6 +232,29 @@ overwrite its result. It can only return `REJECT_REUSED_DATA_SCREEN` or
 permissions false. Any later alpha claim still requires a candidate frozen
 before new blind data and at least eight months plus 500 forward trades.
 
+### Exact aggregate-trade research surface
+
+The rejected one-minute proxy does not reject the source mechanism. The
+[quarter-hour paper](https://arxiv.org/abs/2607.09426) measures the first
+10 seconds from transaction data, so `kairos_backtest.aggtrades` now provides a
+separate performance-blind input layer for a future exact replication. It:
+
+- downloads only official Binance USD-M daily `aggTrades` archives and their
+  adjacent `.CHECKSUM` files;
+- verifies SHA-256, ZIP CRC, the sole CSV member and the seven-field futures
+  schema described by
+  [Binance public data](https://github.com/binance/binance-public-data);
+- streams large archives, preserves missing aggregate/raw trade ID counts and
+  rejects reorders, overlaps, malformed values and out-of-day timestamps;
+- constructs the causal paper interval `(T, T+10s]` using the latest
+  transaction price at or before `T`, with buyer/seller taker flow derived from
+  the official maker flag.
+
+This module contains no signal, fitted model, PnL or permission path. A new
+quarter-hour candidate must receive its own preregistered lineage and pass
+execution costs; the paper's forecast accuracy is not a Kairos profitability
+claim.
+
 ## Right-tail trend reused-data screen
 
 `right_tail_trend_v1` is an independently motivated, single-candidate test of
