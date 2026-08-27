@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import json
 import zipfile
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -17,16 +18,22 @@ from kairos_backtest.data_preflight import (
 )
 
 
-def _day_archive(*, anomalous_taker_row: int | None = None, missing_row: int | None = None) -> bytes:
+def _day_archive(
+    *,
+    anomalous_quote_row: int | None = None,
+    anomalous_taker_row: int | None = None,
+    missing_row: int | None = None,
+) -> bytes:
     opened = int(datetime(2025, 1, 1, tzinfo=UTC).timestamp() * 1_000)
     lines: list[str] = []
     for index in range(1_440):
         if index == missing_row:
             continue
         taker_volume = 2 if index == anomalous_taker_row else 0.5
+        quote_volume = 200 if index == anomalous_quote_row else 100
         lines.append(
             f"{opened + index * 60_000},100,101,99,100,1,"
-            f"{opened + index * 60_000 + 59_999},100,1,{taker_volume},50,0"
+            f"{opened + index * 60_000 + 59_999},{quote_volume},1,{taker_volume},50,0"
         )
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
@@ -69,6 +76,17 @@ def test_committed_plan_is_data_only_and_has_stable_identity():
     }
     assert _sha256(plan) == "61f99ec85b4a2f1f4fb7f4cc2903228197532919148db126b638a82a471dd013"
 
+    v2, v2_requirements = load_preflight_plan(root / "reports" / "data-field-preflight" / "plan-v2.json")
+    failure = json.loads(
+        (root / "reports" / "data-field-preflight" / "failure-v1.json").read_text(encoding="utf-8")
+    )
+
+    assert len(v2_requirements) == 10
+    assert {item.field_profile for item in v2_requirements} == {ArchiveFieldProfile.PRICE_ONLY}
+    assert _sha256(v2) == "217195a5c940e9fbc6da6fe8d4a8aebb23bfa9f30d5792e3c70148aa02cb977b"
+    assert failure["observability"]["research_attempt_consumed"] is False
+    assert _sha256(failure) == "b3cb95fd6bb977c08d64cb4d698d4b558031a802682294f0ffe45a63d2b6f43b"
+
 
 def test_price_volume_preflight_quarantines_unused_taker_fields_with_evidence(tmp_path):
     _cache_archive(tmp_path, _day_archive(anomalous_taker_row=100))
@@ -84,6 +102,21 @@ def test_price_volume_preflight_quarantines_unused_taker_fields_with_evidence(tm
     assert evidence[0].field_profile == "price_volume"
     assert evidence[0].quarantined_optional_rows == 1
     assert "taker-buy volume exceeds total volume" in evidence[0].quarantined_optional_samples[0]
+
+
+def test_price_only_preflight_quarantines_all_volume_semantics(tmp_path):
+    _cache_archive(tmp_path, _day_archive(anomalous_quote_row=100))
+
+    evidence = preflight_cached_slices(
+        tmp_path,
+        (_requirement(ArchiveFieldProfile.PRICE_ONLY),),
+    )
+
+    assert len(evidence) == 1
+    assert evidence[0].rows == 1_440
+    assert evidence[0].field_profile == "price_only"
+    assert evidence[0].quarantined_optional_rows == 1
+    assert "quote volume is inconsistent" in evidence[0].quarantined_optional_samples[0]
 
 
 def test_full_kline_preflight_fails_on_the_same_optional_field_anomaly(tmp_path):

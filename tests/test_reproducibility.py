@@ -514,6 +514,41 @@ def test_price_volume_profile_still_rejects_price_or_volume_domain_corruption(tm
             field_profile=ArchiveFieldProfile.PRICE_VOLUME,
         ).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
 
+    profiled, manifest = BinanceArchiveLoader(
+        tmp_path,
+        allow_download=False,
+        field_profile=ArchiveFieldProfile.PRICE_ONLY,
+    ).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
+    assert len(profiled) == 1
+    assert profiled[0].close == 100
+    assert profiled[0].volume == 0
+    assert profiled[0].quote_volume == 0
+    assert profiled[0].taker_buy_volume == 0
+    assert profiled[0].taker_buy_quote_volume == 0
+    assert manifest.field_profile == "price_only"
+    assert manifest.quarantined_optional_rows == 1
+    assert "quote volume is inconsistent" in manifest.quarantined_optional_samples[0]
+
+
+def test_price_only_profile_still_rejects_ohlc_corruption(tmp_path):
+    invalid = "1735689600000,100,99,98,100,1,1735689659999,100,1,0.5,50,0"
+    payload = _raw_archive([invalid])
+    target = tmp_path / "BTCUSDT" / "1m" / "BTCUSDT-1m-2025-01.zip"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(payload)
+    target.with_name(f"{target.name}.CHECKSUM").write_text(
+        f"{hashlib.sha256(payload).hexdigest()}  {target.name}\n",
+        encoding="ascii",
+    )
+
+    with pytest.raises(ValueError, match="OHLC bounds are inconsistent"):
+        BinanceArchiveLoader(
+            tmp_path,
+            allow_download=False,
+            field_profile=ArchiveFieldProfile.PRICE_ONLY,
+        ).load("BTCUSDT", date(2025, 1, 1), date(2025, 2, 1))
+
 
 def test_archive_audit_rejects_cross_archive_duplicate_timestamps(tmp_path):
     opened = int(datetime(2025, 1, 31, 23, 59, tzinfo=UTC).timestamp() * 1000)

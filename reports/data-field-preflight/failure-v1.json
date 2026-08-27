@@ -1,0 +1,26 @@
+{
+  "classification": "DATA_PREFLIGHT_FAILED",
+  "environment": {
+    "git_head_sha": "a8d3fc675dc730d12e4c2ba2fa671ff0e0cce2de"
+  },
+  "failure": {
+    "archive": "data/historical/XRPUSDT/1m/XRPUSDT-1m-2023-11.zip",
+    "line": 42517,
+    "message": "malformed Binance CSV row at line 42517: quote volume is inconsistent with OHLC and base volume",
+    "open_time_ms": 1701347700000,
+    "stage": "price_volume_exact_slice_preflight"
+  },
+  "observability": {
+    "performance_metrics_computed": false,
+    "research_attempt_consumed": false,
+    "result_file_written": false
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "61f99ec85b4a2f1f4fb7f4cc2903228197532919148db126b638a82a471dd013",
+  "result_schema_version": "kairos.archive-slice-preflight-failure.v1"
+}

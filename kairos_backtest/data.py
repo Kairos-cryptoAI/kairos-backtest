@@ -39,6 +39,7 @@ class ArchiveFieldProfile(StrEnum):
     """Fields a consumer is allowed to trust from an official kline row."""
 
     FULL_KLINE = "full_kline"
+    PRICE_ONLY = "price_only"
     PRICE_VOLUME = "price_volume"
 
 
@@ -172,8 +173,12 @@ def _parse_csv(
                 raise ValueError(f"malformed Binance CSV row at line {line_number}: {domain_reason}")
             if source_reason is not None and quarantined_issues is not None:
                 quarantined_issues.append((line_number, source_reason))
-            taker_buy_volume = numeric[6] if field_profile is ArchiveFieldProfile.FULL_KLINE else 0.0
-            taker_buy_quote_volume = numeric[7] if field_profile is ArchiveFieldProfile.FULL_KLINE else 0.0
+            preserves_volume = field_profile is not ArchiveFieldProfile.PRICE_ONLY
+            volume = numeric[4] if preserves_volume else 0.0
+            quote_volume = numeric[5] if preserves_volume else 0.0
+            preserves_taker = field_profile is ArchiveFieldProfile.FULL_KLINE
+            taker_buy_volume = numeric[6] if preserves_taker else 0.0
+            taker_buy_quote_volume = numeric[7] if preserves_taker else 0.0
             try:
                 candles.append(
                     Candle(
@@ -185,8 +190,8 @@ def _parse_csv(
                         high=numeric[1],
                         low=numeric[2],
                         close=numeric[3],
-                        volume=numeric[4],
-                        quote_volume=numeric[5],
+                        volume=volume,
+                        quote_volume=quote_volume,
                         taker_buy_volume=taker_buy_volume,
                         taker_buy_quote_volume=taker_buy_quote_volume,
                     )
@@ -213,13 +218,17 @@ def _row_domain_issue(
     field_profile: ArchiveFieldProfile = ArchiveFieldProfile.FULL_KLINE,
 ) -> str | None:
     open_price, high, low, close, volume, quote, taker_volume, taker_quote, ignored = numeric
-    if trade_count < 0 or min(volume, quote) < 0 or ignored != 0:
-        return "invalid non-negative/count/ignore domain value"
+    if trade_count < 0 or ignored != 0:
+        return "invalid count/ignore domain value"
+    if high < max(open_price, close) or low > min(open_price, close):
+        return "OHLC bounds are inconsistent"
+    if field_profile is ArchiveFieldProfile.PRICE_ONLY:
+        return None
+    if min(volume, quote) < 0:
+        return "invalid non-negative price-volume domain value"
     tolerance = max(1e-8, abs(quote) * 1e-10)
     if quote < volume * low - tolerance or quote > volume * high + tolerance:
         return "quote volume is inconsistent with OHLC and base volume"
-    if high < max(open_price, close) or low > min(open_price, close):
-        return "OHLC bounds are inconsistent"
     if field_profile is ArchiveFieldProfile.PRICE_VOLUME:
         return None
     if min(taker_volume, taker_quote) < 0:

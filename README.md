@@ -15,18 +15,22 @@ performance-blind preflight before consuming a research attempt. The rationale,
 quarantine semantics and mandatory order are in
 [`DATA_QUALITY_POLICY.md`](DATA_QUALITY_POLICY.md).
 
-The committed five-asset price/volume preflight can be verified without
-opening the archive cache, then executed as a data-only qualification:
+The first five-asset `PRICE_VOLUME` preflight failed without consuming a
+research attempt because the known XRP row also has inconsistent quote volume;
+its immutable evidence is in
+[`failure-v1.json`](reports/data-field-preflight/failure-v1.json). The narrower
+`PRICE_ONLY` v2 plan can be verified without opening the archive cache, then
+executed as a data-only qualification:
 
 ```sh
 uv run --locked kairos-data-preflight \
-  --plan reports/data-field-preflight/plan.json \
+  --plan reports/data-field-preflight/plan-v2.json \
   --verify-plan
 
 uv run --locked kairos-data-preflight \
   --cache data/historical \
-  --plan reports/data-field-preflight/plan.json \
-  --result reports/data-field-preflight/result.json
+  --plan reports/data-field-preflight/plan-v2.json \
+  --result reports/data-field-preflight/result-v2.json
 ```
 
 The current multi-sleeve research design, risk contract and no-peeking rules are

@@ -1,0 +1,22 @@
+{
+  "classification": "performance_blind_data_only",
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "requirements": [
+    {"end": "2025-07-01", "field_profile": "price_only", "purpose": "selection_with_365d_warmup", "start": "2023-07-02", "symbol": "BTCUSDT"},
+    {"end": "2025-07-01", "field_profile": "price_only", "purpose": "selection_with_365d_warmup", "start": "2023-07-02", "symbol": "ETHUSDT"},
+    {"end": "2025-07-01", "field_profile": "price_only", "purpose": "selection_with_365d_warmup", "start": "2023-07-02", "symbol": "SOLUSDT"},
+    {"end": "2025-07-01", "field_profile": "price_only", "purpose": "selection_with_365d_warmup", "start": "2023-07-02", "symbol": "BNBUSDT"},
+    {"end": "2025-07-01", "field_profile": "price_only", "purpose": "selection_with_365d_warmup", "start": "2023-07-02", "symbol": "XRPUSDT"},
+    {"end": "2026-08-01", "field_profile": "price_only", "purpose": "robustness_with_365d_warmup", "start": "2024-07-01", "symbol": "BTCUSDT"},
+    {"end": "2026-08-01", "field_profile": "price_only", "purpose": "robustness_with_365d_warmup", "start": "2024-07-01", "symbol": "ETHUSDT"},
+    {"end": "2026-08-01", "field_profile": "price_only", "purpose": "robustness_with_365d_warmup", "start": "2024-07-01", "symbol": "SOLUSDT"},
+    {"end": "2026-08-01", "field_profile": "price_only", "purpose": "robustness_with_365d_warmup", "start": "2024-07-01", "symbol": "BNBUSDT"},
+    {"end": "2026-08-01", "field_profile": "price_only", "purpose": "robustness_with_365d_warmup", "start": "2024-07-01", "symbol": "XRPUSDT"}
+  ],
+  "schema_version": "kairos.archive-slice-preflight.v1"
+}
