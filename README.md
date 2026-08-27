@@ -310,6 +310,15 @@ uv run --locked kairos-forward-observer ingest-monthly-archives \
 
 uv run --locked kairos-forward-observer verify \
   --ledger runtime/regime-aligned-forward.sqlite3
+
+uv run --locked kairos-forward-observer backup \
+  --ledger runtime/regime-aligned-forward.sqlite3 \
+  --output runtime/backups/regime-aligned-forward.sqlite3
+
+uv run --locked kairos-forward-observer recovery-drill \
+  --ledger runtime/regime-aligned-forward.sqlite3 \
+  --backup runtime/backups/regime-aligned-forward.sqlite3 \
+  --recovered runtime/recovery/regime-aligned-forward.sqlite3
 ```
 
 A gap, reorder or conflicting final bar permanently quarantines that symbol.
@@ -319,6 +328,11 @@ disabled inside the observer.
 Restart first verifies the immutable campaign identity; a different plan cannot
 reuse the same ledger. No status or future evaluator may change the frozen
 parameters, five-symbol universe, baseline/stress costs or blind boundary.
+Backup uses SQLite's online backup API, refuses to overwrite any existing file,
+and verifies the complete hash chain before returning. The recovery drill
+restores only to a new path, compares a sealed evidence fingerprint across the
+primary, backup and restored databases, and proves the primary remained
+unchanged.
 
 ## Crowded-trend continuation reused-data screen
 

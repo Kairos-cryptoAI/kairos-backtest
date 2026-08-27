@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from dataclasses import replace
 from pathlib import Path
 
@@ -174,6 +175,57 @@ def test_full_chain_verification_detects_database_mutation(tmp_path: Path):
         )
         with pytest.raises(ForwardIntegrityError, match="hash chain"):
             ledger.verify_integrity()
+
+
+def test_backup_and_recovery_drill_are_exclusive_and_preserve_primary(tmp_path: Path):
+    primary_path = tmp_path / "forward.sqlite3"
+    backup_path = tmp_path / "backups" / "forward.backup.sqlite3"
+    recovered_path = tmp_path / "recovery" / "forward.recovered.sqlite3"
+    first = _bar(forward.WARMUP_START_MS)
+    second = _bar(forward.WARMUP_START_MS + 60_000)
+
+    with ForwardLedger(primary_path, expected_plan()) as ledger:
+        ledger.ingest_atomic((first, second), as_of_ms=second.close_time_ms)
+        primary_evidence = ledger.evidence_sha256()
+        backup = ledger.backup_to(backup_path)
+        assert backup.evidence_sha256 == primary_evidence
+        assert len(backup.backup_sha256) == 64
+        with pytest.raises(FileExistsError):
+            ledger.backup_to(backup_path)
+
+        drill = ledger.recovery_drill(backup_path, recovered_path)
+        assert drill.evidence_sha256 == primary_evidence
+        assert drill.primary_unchanged is True
+        assert ledger.evidence_sha256() == primary_evidence
+
+    with ForwardLedger(recovered_path, expected_plan()) as recovered:
+        assert recovered.evidence_sha256() == primary_evidence
+
+
+def test_recovery_drill_rejects_a_tampered_backup(tmp_path: Path):
+    primary_path = tmp_path / "forward.sqlite3"
+    backup_path = tmp_path / "forward.backup.sqlite3"
+    recovered_path = tmp_path / "forward.recovered.sqlite3"
+    first = _bar(forward.WARMUP_START_MS)
+    with ForwardLedger(primary_path, expected_plan()) as ledger:
+        ledger.ingest_bar(first, as_of_ms=first.close_time_ms)
+        ledger.backup_to(backup_path)
+        with sqlite3.connect(backup_path) as connection:
+            connection.execute("UPDATE bars SET record_sha256=?", ("f" * 64,))
+        with pytest.raises(ForwardIntegrityError, match="hash chain"):
+            ledger.recovery_drill(backup_path, recovered_path)
+        assert not recovered_path.exists()
+
+
+def test_recovery_drill_does_not_create_a_missing_backup(tmp_path: Path):
+    primary_path = tmp_path / "forward.sqlite3"
+    missing_backup = tmp_path / "missing.sqlite3"
+    recovered_path = tmp_path / "forward.recovered.sqlite3"
+    with ForwardLedger(primary_path, expected_plan()) as ledger:
+        with pytest.raises(FileNotFoundError, match="backup does not exist"):
+            ledger.recovery_drill(missing_backup, recovered_path)
+    assert not missing_backup.exists()
+    assert not recovered_path.exists()
 
 
 def test_archive_batch_commits_once_and_rolls_back_the_whole_bad_block(tmp_path: Path):

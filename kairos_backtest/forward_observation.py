@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sqlite3
 import sys
 import time
@@ -92,8 +93,46 @@ class ArchiveIngestSummary:
     manifests: tuple[dict[str, object], ...]
 
 
+@dataclass(frozen=True, slots=True)
+class BackupSummary:
+    backup_path: str
+    backup_sha256: str
+    campaign_id: str
+    evidence_sha256: str
+
+
+@dataclass(frozen=True, slots=True)
+class RecoveryDrillSummary:
+    backup_path: str
+    backup_sha256: str
+    campaign_id: str
+    evidence_sha256: str
+    primary_unchanged: bool
+    recovered_path: str
+    recovered_sha256: str
+
+
 def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _create_empty_exclusive(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    os.close(descriptor)
+
+
+def _remove_new_sqlite_files(path: Path) -> None:
+    for candidate in (path, Path(f"{path}-wal"), Path(f"{path}-shm"), Path(f"{path}-journal")):
+        candidate.unlink(missing_ok=True)
 
 
 def _canonical_document(value: Mapping[str, Any]) -> bytes:
@@ -612,6 +651,98 @@ class ForwardLedger:
             if intent_count != state["intent_count"]:
                 raise ForwardIntegrityError(f"{symbol} intent counter is invalid")
 
+    def evidence_sha256(self) -> str:
+        """Fingerprint verified campaign state without disclosing performance."""
+
+        self.verify_integrity()
+        digest = hashlib.sha256(b"kairos-forward-evidence-v1\0")
+        digest.update(self.plan_sha256.encode("ascii"))
+        for row in self.connection.execute(
+            """SELECT symbol, last_open_time_ms, last_record_sha256,
+                      bar_count, intent_count, blocked_reason
+                 FROM symbol_state ORDER BY symbol"""
+        ):
+            digest.update(_canonical_document(dict(row)))
+        for row in self.connection.execute(
+            """SELECT intent_id, symbol, decision_ts_ms, decision_bar_sha256,
+                      payload_sha256
+                 FROM intents ORDER BY symbol, decision_ts_ms, intent_id"""
+        ):
+            digest.update(_canonical_document(dict(row)))
+        return digest.hexdigest()
+
+    @staticmethod
+    def _require_distinct_paths(*paths: Path) -> None:
+        resolved = [path.resolve() for path in paths]
+        if len(set(resolved)) != len(resolved):
+            raise ValueError("ledger, backup and recovery paths must be distinct")
+
+    def _copy_to_new_database(self, destination: Path) -> None:
+        self._require_distinct_paths(self.path, destination)
+        _create_empty_exclusive(destination)
+        try:
+            target = sqlite3.connect(destination, timeout=30, isolation_level=None)
+            try:
+                self.connection.backup(target)
+            finally:
+                target.close()
+        except Exception:
+            _remove_new_sqlite_files(destination)
+            raise
+
+    def backup_to(self, destination: Path) -> BackupSummary:
+        """Create and verify an exclusive online backup of the current ledger."""
+
+        source_evidence = self.evidence_sha256()
+        self._copy_to_new_database(destination)
+        try:
+            with ForwardLedger(destination, self.plan) as backup:
+                backup_evidence = backup.evidence_sha256()
+            if backup_evidence != source_evidence:
+                raise ForwardIntegrityError("backup evidence differs from the primary ledger")
+            return BackupSummary(
+                backup_path=str(destination.resolve()),
+                backup_sha256=_file_sha256(destination),
+                campaign_id=self.plan_sha256,
+                evidence_sha256=backup_evidence,
+            )
+        except Exception:
+            _remove_new_sqlite_files(destination)
+            raise
+
+    def recovery_drill(self, backup_path: Path, recovered_path: Path) -> RecoveryDrillSummary:
+        """Restore an existing backup to a new path and compare all sealed evidence."""
+
+        self._require_distinct_paths(self.path, backup_path, recovered_path)
+        if not backup_path.is_file():
+            raise FileNotFoundError(f"backup does not exist or is not a file: {backup_path}")
+        primary_before = self.evidence_sha256()
+        with ForwardLedger(backup_path, self.plan) as backup:
+            backup_evidence = backup.evidence_sha256()
+            if backup_evidence != primary_before:
+                raise ForwardIntegrityError("backup evidence differs from the primary ledger")
+            backup._copy_to_new_database(recovered_path)
+        try:
+            with ForwardLedger(recovered_path, self.plan) as recovered:
+                recovered_evidence = recovered.evidence_sha256()
+            if recovered_evidence != primary_before:
+                raise ForwardIntegrityError("recovered evidence differs from the primary ledger")
+            primary_after = self.evidence_sha256()
+            if primary_after != primary_before:
+                raise ForwardIntegrityError("primary ledger changed during the recovery drill")
+            return RecoveryDrillSummary(
+                backup_path=str(backup_path.resolve()),
+                backup_sha256=_file_sha256(backup_path),
+                campaign_id=self.plan_sha256,
+                evidence_sha256=recovered_evidence,
+                primary_unchanged=True,
+                recovered_path=str(recovered_path.resolve()),
+                recovered_sha256=_file_sha256(recovered_path),
+            )
+        except Exception:
+            _remove_new_sqlite_files(recovered_path)
+            raise
+
     def status(self) -> dict[str, object]:
         states = self.connection.execute("SELECT * FROM symbol_state ORDER BY symbol").fetchall()
         last_closes = [
@@ -745,6 +876,13 @@ def _parser() -> argparse.ArgumentParser:
     for command in ("init", "status", "verify"):
         child = subparsers.add_parser(command)
         child.add_argument("--ledger", type=Path, required=True)
+    backup = subparsers.add_parser("backup")
+    backup.add_argument("--ledger", type=Path, required=True)
+    backup.add_argument("--output", type=Path, required=True)
+    recovery = subparsers.add_parser("recovery-drill")
+    recovery.add_argument("--ledger", type=Path, required=True)
+    recovery.add_argument("--backup", type=Path, required=True)
+    recovery.add_argument("--recovered", type=Path, required=True)
     ingest = subparsers.add_parser("ingest")
     ingest.add_argument("--ledger", type=Path, required=True)
     ingest.add_argument("--input", type=Path)
@@ -770,7 +908,17 @@ def main(argv: list[str] | None = None) -> None:
             _print_json(ledger.status())
         elif args.command == "verify":
             ledger.verify_integrity()
-            _print_json({"integrity": "valid", **ledger.status()})
+            _print_json(
+                {
+                    "evidence_sha256": ledger.evidence_sha256(),
+                    "integrity": "valid",
+                    **ledger.status(),
+                }
+            )
+        elif args.command == "backup":
+            _print_json({"backup": asdict(ledger.backup_to(args.output))})
+        elif args.command == "recovery-drill":
+            _print_json({"recovery_drill": asdict(ledger.recovery_drill(args.backup, args.recovered))})
         elif args.command == "ingest":
             if args.input is None:
                 summary = ledger.ingest(_load_json_lines(sys.stdin), as_of_ms=args.as_of_ms)
