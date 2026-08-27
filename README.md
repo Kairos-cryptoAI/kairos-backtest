@@ -33,6 +33,10 @@ uv run --locked kairos-data-preflight \
   --result reports/data-field-preflight/result-v2.json
 ```
 
+V2 passed all ten slices: 10,735,200 profiled minute rows, 245 official
+checksum verifications, no in-slice gaps and one explicitly quarantined source
+row. See the [preflight report](reports/data-field-preflight/REPORT.md).
+
 The current multi-sleeve research design, risk contract and no-peeking rules are
 documented in [`STRATEGY_V2.md`](STRATEGY_V2.md). No backtest or LLM response is
 treated as authorization for real orders.

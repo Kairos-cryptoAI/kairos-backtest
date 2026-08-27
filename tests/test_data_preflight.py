@@ -80,12 +80,22 @@ def test_committed_plan_is_data_only_and_has_stable_identity():
     failure = json.loads(
         (root / "reports" / "data-field-preflight" / "failure-v1.json").read_text(encoding="utf-8")
     )
+    result = json.loads(
+        (root / "reports" / "data-field-preflight" / "result-v2.json").read_text(encoding="utf-8")
+    )
 
     assert len(v2_requirements) == 10
     assert {item.field_profile for item in v2_requirements} == {ArchiveFieldProfile.PRICE_ONLY}
     assert _sha256(v2) == "217195a5c940e9fbc6da6fe8d4a8aebb23bfa9f30d5792e3c70148aa02cb977b"
     assert failure["observability"]["research_attempt_consumed"] is False
     assert _sha256(failure) == "b3cb95fd6bb977c08d64cb4d698d4b558031a802682294f0ffe45a63d2b6f43b"
+    recorded_result_sha = result.pop("result_sha256")
+    assert recorded_result_sha == "908ba2b469bb5c2811e4763d07c34bde9e97fda4b64d5e277496af637400ea62"
+    assert _sha256(result) == recorded_result_sha
+    assert result["classification"] == "DATA_PREFLIGHT_PASSED"
+    assert len(result["evidence"]) == 10
+    assert sum(item["rows"] for item in result["evidence"]) == 10_735_200
+    assert sum(item["quarantined_optional_rows"] for item in result["evidence"]) == 1
 
 
 def test_price_volume_preflight_quarantines_unused_taker_fields_with_evidence(tmp_path):

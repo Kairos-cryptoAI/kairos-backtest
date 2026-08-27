@@ -1,0 +1,152 @@
+{
+  "classification": "DATA_PREFLIGHT_PASSED",
+  "environment": {
+    "data_loader_sha256": "a32dd255484ee301e6e458a4b290696219f4c1d52587fda4412296c0c7a92a0e",
+    "git_head_sha": "3375de02731bb5e80be23be6184c2611693f6768",
+    "git_tree_sha": "3290456976a695d12379038ef21f2a685d00d81c",
+    "preflight_source_sha256": "1e88080980be9ab6f4780f009958ff3a333966f66864cf5cc1f16b4ea539b043"
+  },
+  "evidence": [
+    {
+      "checksum_files_verified": 24,
+      "end": "2025-07-01",
+      "field_profile": "price_only",
+      "files": 24,
+      "normalized_rows_sha256": "4564942728ff10731cb4fafe9851fb61c6bf7cd1127621ab0a1c736d6aeceaa8",
+      "purpose": "selection_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1051200,
+      "start": "2023-07-02",
+      "symbol": "BTCUSDT"
+    },
+    {
+      "checksum_files_verified": 24,
+      "end": "2025-07-01",
+      "field_profile": "price_only",
+      "files": 24,
+      "normalized_rows_sha256": "e6fe48d6d1f8cd9a1154ec8a574e06a988f380546b3ac24c81c7e56d7875a9ce",
+      "purpose": "selection_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1051200,
+      "start": "2023-07-02",
+      "symbol": "ETHUSDT"
+    },
+    {
+      "checksum_files_verified": 24,
+      "end": "2025-07-01",
+      "field_profile": "price_only",
+      "files": 24,
+      "normalized_rows_sha256": "234e6c252fe8d8729033022f9531dcd2c9d1b4b21a39f84de7e7ff5c54c02374",
+      "purpose": "selection_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1051200,
+      "start": "2023-07-02",
+      "symbol": "SOLUSDT"
+    },
+    {
+      "checksum_files_verified": 24,
+      "end": "2025-07-01",
+      "field_profile": "price_only",
+      "files": 24,
+      "normalized_rows_sha256": "6c1513ebe0a82074a8ec5716f5be826791bc9963575ec5f24ed0f07ff2f8b069",
+      "purpose": "selection_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1051200,
+      "start": "2023-07-02",
+      "symbol": "BNBUSDT"
+    },
+    {
+      "checksum_files_verified": 24,
+      "end": "2025-07-01",
+      "field_profile": "price_only",
+      "files": 24,
+      "normalized_rows_sha256": "d968b352ba941689167136a0edeedd27c01bc6bb975049e6923fe0baec588456",
+      "purpose": "selection_with_365d_warmup",
+      "quarantined_optional_rows": 1,
+      "quarantined_optional_samples": [
+        "XRPUSDT-1m-2023-11.zip:line 42517:quote volume is inconsistent with OHLC and base volume"
+      ],
+      "rows": 1051200,
+      "start": "2023-07-02",
+      "symbol": "XRPUSDT"
+    },
+    {
+      "checksum_files_verified": 25,
+      "end": "2026-08-01",
+      "field_profile": "price_only",
+      "files": 25,
+      "normalized_rows_sha256": "155cfd224502163ce5aebd3a2218d16790389d8b0dde48b2e8b15fae882ce8a2",
+      "purpose": "robustness_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1095840,
+      "start": "2024-07-01",
+      "symbol": "BTCUSDT"
+    },
+    {
+      "checksum_files_verified": 25,
+      "end": "2026-08-01",
+      "field_profile": "price_only",
+      "files": 25,
+      "normalized_rows_sha256": "226ec92f217d594b9b4de74c433fb9895025a871a91d61e1e8aae8b7133ab874",
+      "purpose": "robustness_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1095840,
+      "start": "2024-07-01",
+      "symbol": "ETHUSDT"
+    },
+    {
+      "checksum_files_verified": 25,
+      "end": "2026-08-01",
+      "field_profile": "price_only",
+      "files": 25,
+      "normalized_rows_sha256": "9b3254aa74b81a6a0a6b6a3442d45ad824d36ecd06aa6b3071d4e4a5616588c2",
+      "purpose": "robustness_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1095840,
+      "start": "2024-07-01",
+      "symbol": "SOLUSDT"
+    },
+    {
+      "checksum_files_verified": 25,
+      "end": "2026-08-01",
+      "field_profile": "price_only",
+      "files": 25,
+      "normalized_rows_sha256": "282d3f5dcc5ec0d4648f8969c7e9b16704d74dd30d9b574205ef62ed1475c474",
+      "purpose": "robustness_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1095840,
+      "start": "2024-07-01",
+      "symbol": "BNBUSDT"
+    },
+    {
+      "checksum_files_verified": 25,
+      "end": "2026-08-01",
+      "field_profile": "price_only",
+      "files": 25,
+      "normalized_rows_sha256": "289e5f44835797a6e13ed5898bc94c416fdd556dfa0b93f9795d47c6477a76a2",
+      "purpose": "robustness_with_365d_warmup",
+      "quarantined_optional_rows": 0,
+      "quarantined_optional_samples": [],
+      "rows": 1095840,
+      "start": "2024-07-01",
+      "symbol": "XRPUSDT"
+    }
+  ],
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "217195a5c940e9fbc6da6fe8d4a8aebb23bfa9f30d5792e3c70148aa02cb977b",
+  "result_schema_version": "kairos.archive-slice-preflight.v1",
+  "result_sha256": "908ba2b469bb5c2811e4763d07c34bde9e97fda4b64d5e277496af637400ea62"
+}
