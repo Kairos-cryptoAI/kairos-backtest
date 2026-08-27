@@ -280,6 +280,14 @@ Because the direction came from already observed data, even a passing reused
 screen only freezes this exact candidate for at least 365 future days and 500
 trades. It never sets alpha, PAPER or LIVE permission.
 
+The consumed attempt returned `REJECT_REUSED_DATA_SCREEN`. All four aggregate
+cells were positive, but selection/robustness stress PF was only `1.0499` and
+`1.0458` versus the strict `>1.05` gate, and short activity was below the fixed
+minimum. This is the strongest tested candidate so far, but the thin stress
+margin is not production alpha. The immutable result and interpretation are in
+the [crowded-trend report](reports/crowded-trend-screen/REPORT.md); the exact
+attempt must not be rerun or repaired post-hoc.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps

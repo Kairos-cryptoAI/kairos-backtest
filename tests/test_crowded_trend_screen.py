@@ -114,3 +114,31 @@ def test_preregistered_stress_cost_covers_maximum_holding_plus_grace():
             Path(__file__).resolve().parents[1] / "reports" / "crowded-trend-screen" / "plan.json"
         )
     )
+
+
+def test_committed_attempt_and_result_are_immutable_rejection_evidence():
+    root = Path(__file__).resolve().parents[1]
+    attempt = json.loads(
+        (root / "reports" / "crowded-trend-screen" / "attempt.json").read_text(encoding="utf-8")
+    )
+    result = json.loads(
+        (root / "reports" / "crowded-trend-screen" / "summary.json").read_text(encoding="utf-8")
+    )
+
+    assert _sha256(attempt) == "74568812836b9577f6a826031984fafd66ec06caa27360d7dea41c9737bbac22"
+    assert _sha256(result) == "f47a685563d6031ad71e0417646e9562e60db58baa808d6015744d3c5c2f7888"
+    assert result["classification"] == "REJECT_REUSED_DATA_SCREEN"
+    assert result["gate_failures"] == [
+        "selection.baseline.short_trades_below_minimum",
+        "selection.stress.profit_factor_below_minimum",
+        "selection.stress.short_trades_below_minimum",
+        "robustness.baseline.short_trades_below_minimum",
+        "robustness.stress.profit_factor_below_minimum",
+        "robustness.stress.short_trades_below_minimum",
+    ]
+    assert result["permissions"] == {
+        "alpha_ready": False,
+        "live_allowed": False,
+        "paper_allowed": False,
+        "promotion_eligible": False,
+    }
