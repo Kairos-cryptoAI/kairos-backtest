@@ -9,6 +9,7 @@ import math
 import sqlite3
 import subprocess  # nosec B404
 from collections.abc import Mapping, Sequence
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import asdict
 from datetime import date, datetime
 from decimal import Decimal
@@ -551,14 +552,22 @@ def collect_features(
     ledger_path: Path,
     cache_dir: Path,
     max_new_batches: int | None = None,
+    workers: int = 1,
     loader_factory=BinanceMonthlyAggTradeArchiveLoader,
     require_clean: bool = True,
 ) -> dict[str, object]:
+    if isinstance(workers, bool) or not isinstance(workers, int) or not 1 <= workers <= 8:
+        raise ValueError("feature workers must be an integer in [1, 8]")
+    if max_new_batches is not None and (
+        isinstance(max_new_batches, bool) or not isinstance(max_new_batches, int) or max_new_batches < 1
+    ):
+        raise ValueError("maximum new feature batches must be a positive integer")
+    if workers > 1 and loader_factory is not BinanceMonthlyAggTradeArchiveLoader:
+        raise ValueError("parallel feature collection requires the official monthly loader")
     plan = load_plan(plan_path)
     plan_sha = _logical_sha256(plan)
     head = _assert_clean(project_root) if require_clean else "0" * 40
     source_sha = source_sha256()
-    loader = loader_factory(cache_dir)
     appended = 0
     sequence_plan = expected_sequence()
     with QuarterHourFeatureLedger(
@@ -568,27 +577,46 @@ def collect_features(
     ) as ledger:
         ledger.verify(require_complete=False)
         completed_before = ledger.completed_batches()
-        for sequence, (symbol, period) in enumerate(sequence_plan):
-            if sequence < completed_before:
-                continue
-            if max_new_batches is not None and appended >= max_new_batches:
-                break
-            month = date.fromisoformat(f"{period}-01")
-            prior_trade = ledger.last_trade(symbol)
-            transport = loader.load(symbol, month)
-            extraction = extract_phase_peak_windows(
-                transport,
-                loader.iter_trades(transport),
-                phase_offsets_minutes=PHASE_OFFSETS_MINUTES,
-                prior_trade=prior_trade,
-            )
-            ledger.append(sequence, extraction)
-            appended += 1
-            print(
-                f"feature_batch={sequence + 1}/{len(sequence_plan)} "
-                f"symbol={symbol} period={period} rows={extraction.manifest.rows} "
-                f"windows={len(extraction.windows)}"
-            )
+        pending = list(enumerate(sequence_plan))[completed_before:]
+        if max_new_batches is not None:
+            pending = pending[:max_new_batches]
+        grouped: list[list[tuple[int, tuple[str, str]]]] = []
+        for item in pending:
+            if not grouped or grouped[-1][0][1][1] != item[1][1]:
+                grouped.append([])
+            grouped[-1].append(item)
+        if workers == 1:
+            loader = loader_factory(cache_dir)
+            for group in grouped:
+                for sequence, (symbol, period) in group:
+                    extraction = _extract_one(
+                        cache_dir=cache_dir,
+                        symbol=symbol,
+                        period=period,
+                        prior_trade=ledger.last_trade(symbol),
+                        loader=loader,
+                    )
+                    ledger.append(sequence, extraction)
+                    appended += 1
+                    _print_progress(sequence, sequence_plan, extraction)
+        else:
+            with ProcessPoolExecutor(max_workers=workers) as executor:
+                for group in grouped:
+                    futures = {
+                        sequence: executor.submit(
+                            _extract_worker,
+                            cache_dir,
+                            symbol,
+                            period,
+                            ledger.last_trade(symbol),
+                        )
+                        for sequence, (symbol, period) in group
+                    }
+                    for sequence, _ in group:
+                        extraction = futures[sequence].result()
+                        ledger.append(sequence, extraction)
+                        appended += 1
+                        _print_progress(sequence, sequence_plan, extraction)
         chain = ledger.verify(require_complete=False)
         completed_after = ledger.completed_batches()
     return {
@@ -603,12 +631,59 @@ def collect_features(
     }
 
 
+def _extract_one(
+    *,
+    cache_dir: Path,
+    symbol: str,
+    period: str,
+    prior_trade: AggTrade | None,
+    loader: BinanceMonthlyAggTradeArchiveLoader,
+) -> PhasePeakExtraction:
+    month = date.fromisoformat(f"{period}-01")
+    transport = loader.load(symbol, month)
+    return extract_phase_peak_windows(
+        transport,
+        loader.iter_trades(transport),
+        phase_offsets_minutes=PHASE_OFFSETS_MINUTES,
+        prior_trade=prior_trade,
+    )
+
+
+def _extract_worker(
+    cache_dir: Path,
+    symbol: str,
+    period: str,
+    prior_trade: AggTrade | None,
+) -> PhasePeakExtraction:
+    return _extract_one(
+        cache_dir=cache_dir,
+        symbol=symbol,
+        period=period,
+        prior_trade=prior_trade,
+        loader=BinanceMonthlyAggTradeArchiveLoader(cache_dir),
+    )
+
+
+def _print_progress(
+    sequence: int,
+    sequence_plan: Sequence[tuple[str, str]],
+    extraction: PhasePeakExtraction,
+) -> None:
+    symbol, period = sequence_plan[sequence]
+    print(
+        f"feature_batch={sequence + 1}/{len(sequence_plan)} "
+        f"symbol={symbol} period={period} rows={extraction.manifest.rows} "
+        f"windows={len(extraction.windows)}"
+    )
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Collect or verify preregistered quarter-hour features")
     parser.add_argument("--plan", type=Path, default=Path(PLAN_FILENAME))
     parser.add_argument("--ledger", type=Path, required=True)
     parser.add_argument("--cache-dir", type=Path, required=True)
     parser.add_argument("--max-new-batches", type=int)
+    parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--verify", action="store_true")
     parser.add_argument("--deep", action="store_true")
     arguments = parser.parse_args(argv)
@@ -633,6 +708,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             ledger_path=arguments.ledger,
             cache_dir=arguments.cache_dir,
             max_new_batches=arguments.max_new_batches,
+            workers=arguments.workers,
         )
     print(json.dumps(_json_value(payload), separators=(",", ":"), sort_keys=True))
     return 0

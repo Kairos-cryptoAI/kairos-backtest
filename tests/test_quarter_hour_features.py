@@ -20,6 +20,7 @@ from kairos_backtest.quarter_hour_features import (
     QuarterHourFeatureLedger,
     _expected_windows,
     _logical_sha256,
+    collect_features,
     expected_sequence,
     load_plan,
     months,
@@ -175,3 +176,17 @@ def test_ledger_detects_cross_period_aggregate_id_gap(tmp_path: Path) -> None:
         )
         with pytest.raises(QuarterHourFeatureIntegrityError, match="cross-period gap"):
             ledger.append(5, february)
+
+
+def test_collection_rejects_invalid_parallelism_before_opening_data(tmp_path: Path) -> None:
+    arguments = {
+        "project_root": tmp_path,
+        "plan_path": tmp_path / "plan.json",
+        "ledger_path": tmp_path / "features.sqlite3",
+        "cache_dir": tmp_path / "cache",
+        "require_clean": False,
+    }
+    with pytest.raises(ValueError, match="workers"):
+        collect_features(**arguments, workers=0)
+    with pytest.raises(ValueError, match="positive integer"):
+        collect_features(**arguments, max_new_batches=0)
