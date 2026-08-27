@@ -334,6 +334,27 @@ restores only to a new path, compares a sealed evidence fingerprint across the
 primary, backup and restored databases, and proves the primary remained
 unchanged.
 
+Monthly archives are not published early enough to bridge the last warmup month
+into the blind start. The isolated daily collector therefore downloads every
+completed UTC day from Binance's official public archive, requires the matching
+official `.CHECKSUM`, ZIP CRC, exactly 1,440 contiguous minutes and the frozen
+`PRICE_VOLUME` profile, then submits strict bars to the same ledger. It stages
+the complete five-symbol request before advancing any symbol and is safely
+idempotent after interruption:
+
+```sh
+uv run --locked python -m kairos_backtest.forward_collection \
+  --ledger runtime/regime-aligned-forward.sqlite3 \
+  --cache-dir data/forward-daily \
+  --start 2026-08-01 \
+  --end-exclusive 2026-09-01
+```
+
+The end is exclusive and cannot exceed the current UTC date, so the command can
+be rerun daily with the next completed date. The collector contains no exchange
+mutation, LLM, strategy decision or performance path. A conflicting official
+bar is still a permanent ledger integrity failure.
+
 The final evaluator is frozen before the blind start by
 [its semantic-source lock](reports/regime-aligned-forward/evaluator-lock.json).
 The lock covers the simulator, cost/risk model, portfolio metrics, scenario
