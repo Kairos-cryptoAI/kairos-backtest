@@ -1,0 +1,115 @@
+{
+  "classification": "external_open_code_reproduction_reused_data_only",
+  "data": {
+    "field_profile": "price_only",
+    "funding_source": "official_binance_usdm_fundingRate",
+    "preflight_file_sha256": "6dc49bbef93ce2c3cbd6091a49925a952410ce526d3c698efc604db3a0ad3c28",
+    "preflight_result_sha256": "908ba2b469bb5c2811e4763d07c34bde9e97fda4b64d5e277496af637400ea62",
+    "reused_data": true,
+    "source_data_end_exclusive": "2026-04-01",
+    "source_overlap_limitation": "the external author observed data through 2026-03-31; only 2026-04-01 onward is source-unseen, and no interval is Kairos-blind",
+    "source_unseen_subwindow": {
+      "end_exclusive": "2026-08-01",
+      "start": "2026-04-01"
+    },
+    "symbol": "BTCUSDT",
+    "warmup_days": 365,
+    "windows": [
+      {
+        "end_exclusive": "2025-07-01",
+        "name": "selection",
+        "role": "selection",
+        "start": "2024-07-01"
+      },
+      {
+        "end_exclusive": "2026-08-01",
+        "name": "robustness",
+        "role": "robustness",
+        "start": "2025-07-01"
+      }
+    ]
+  },
+  "decision_rule": {
+    "forward_candidate_only_if_all_gates_pass": true,
+    "maximum_drawdown": 0.25,
+    "minimum_active_days": 60,
+    "minimum_allocation_changes": 8,
+    "minimum_annualized_sharpe": 0.5,
+    "minimum_profit_factor_strictly_greater_than": 1.05,
+    "minimum_total_return_strictly_greater_than": 0.0,
+    "must_beat_buy_and_hold_drawdown": true,
+    "must_beat_buy_and_hold_sharpe": true,
+    "required_scenarios": [
+      "published_spot",
+      "futures_baseline",
+      "futures_stress"
+    ],
+    "required_windows": [
+      "selection",
+      "robustness"
+    ],
+    "source_unseen": {
+      "maximum_drawdown": 0.15,
+      "minimum_allocation_changes": 1,
+      "minimum_total_return_strictly_greater_than": -0.05
+    }
+  },
+  "forward_gate": {
+    "blind_start_not_before": "2026-09-01",
+    "minimum_allocation_changes": 25,
+    "minimum_days": 365
+  },
+  "hypothesis": {
+    "action_timing": "signal_on_closed_4h_bar_target_effective_next_4h_bar",
+    "economic_premise": "low_turnover_crash_avoidance_improves_btc_risk_adjusted_return",
+    "entry_rule": "close_strictly_greater_than_simple_moving_average_200",
+    "exit_rule": "close_less_than_or_equal_to_simple_moving_average_200",
+    "external_parameter_search_disclosed": true,
+    "kairos_parameter_search_allowed": false,
+    "no_fixed_stop_target_or_timeout": true,
+    "research_lineage_trial_number": 14,
+    "source_commit": "5acae6b7a4ff53bacb47a348233060f6a7090b24",
+    "source_url": "https://github.com/iolufemi/crypto-trend-research/tree/5acae6b7a4ff53bacb47a348233060f6a7090b24",
+    "trial_count": 1
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "protocol": {
+    "fingerprint": "c22b2745b9d9f017bf593cddc8daa9ab4bda263b831096a0d4de2f7edb71f311",
+    "max_trials": 1,
+    "seed": 61
+  },
+  "scenarios": {
+    "futures_baseline": {
+      "additional_funding_per_settlement": 0.0,
+      "transaction_cost_bps": 10.0,
+      "use_actual_funding": true
+    },
+    "futures_stress": {
+      "additional_funding_per_settlement": 0.0005,
+      "transaction_cost_bps": 25.0,
+      "use_actual_funding": true
+    },
+    "published_spot": {
+      "additional_funding_per_settlement": 0.0,
+      "transaction_cost_bps": 10.0,
+      "use_actual_funding": false
+    }
+  },
+  "schema_version": "kairos.four-hour-sma200-external-reproduction.v1",
+  "strategy": {
+    "config": {
+      "sma_bars": 200,
+      "target_weight": 1.0
+    },
+    "config_sha256": "dbbcc98d0b8d40df9e0504a1837ab6ca54669559679802fd9291511b1c3e89c5",
+    "id": "four_hour_sma200_long_v1",
+    "revision": "1",
+    "source_commit": "c7a9c7e296e3e6ad530706320d503b7e989d2da6",
+    "status": "research"
+  }
+}
