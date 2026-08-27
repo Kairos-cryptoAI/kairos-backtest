@@ -275,6 +275,40 @@ immutable evidence and interpretation are retained in the
 [right-tail report](reports/right-tail-screen/REPORT.md). The exact candidate
 must not be rerun or tuned into a passing result.
 
+## Regime-aligned right-tail forward observation
+
+Trial 15 preserves that right-tail lifecycle and admits it only when the last
+complete four-hour close is on the matching side of its SMA200. Its one-shot
+reused-data screen passed every preregistered absolute and base-improvement
+gate, so the exact candidate is `FORWARD_FROZEN`, not alpha or PAPER-approved.
+The independent period starts no earlier than `2026-09-01T00:00:00Z` and must
+contain both 365 complete days and at least 500 simulated closed trades.
+
+The committed [forward plan](reports/regime-aligned-forward/plan.json) has
+SHA-256 `15cc52c1356cce349c623dd4753c1ca6b91de386041b132b016949add43f2528`.
+The observer accepts only strict `ClosedBarEventV1` JSONL, starts with the
+feature-only warmup boundary, and writes a per-symbol append-only SHA-256 chain
+to SQLite. It has no exchange, model, bus-publish or order code. Status exposes
+coverage and intent counts but deliberately withholds PnL and performance until
+the sealed gate is eligible.
+
+```sh
+uv run --locked kairos-forward-observer init \
+  --ledger runtime/regime-aligned-forward.sqlite3
+
+uv run --locked kairos-forward-observer ingest \
+  --ledger runtime/regime-aligned-forward.sqlite3 \
+  --input closed-bars.jsonl
+
+uv run --locked kairos-forward-observer verify \
+  --ledger runtime/regime-aligned-forward.sqlite3
+```
+
+A gap, reorder or conflicting final bar permanently quarantines that symbol.
+Restart first verifies the immutable campaign identity; a different plan cannot
+reuse the same ledger. No status or future evaluator may change the frozen
+parameters, five-symbol universe, baseline/stress costs or blind boundary.
+
 ## Crowded-trend continuation reused-data screen
 
 `crowded_trend_continuation_v1` tests the one disclosed post-hoc observation
