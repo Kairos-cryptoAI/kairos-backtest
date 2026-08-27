@@ -241,3 +241,12 @@ causal four-hour SMA200 direction gate. Since both components and all available
 archives have been observed, a reused-data pass can at most freeze code for
 future evidence beginning no earlier than 2026-09-01; it cannot establish alpha
 or authorize PAPER.
+
+Trial 15 returned `FORWARD_FREEZE_CANDIDATE`. The regime gate preserved about
+68–69% of stress trades, raised stress profit factor in both annual windows and
+reduced stress drawdown in both. The robustness stress cell improved from PF
+1.0382 and 0.50% return to PF 1.1071 and 0.98% return. This is the first Kairos
+candidate to pass its complete reused-data screen, but all data were already
+observed and only three symbols had positive robustness-stress expectancy.
+Consequently the exact code may enter a read-only forward gate no earlier than
+2026-09-01; `ALPHA_READY`, PAPER and LIVE remain false.

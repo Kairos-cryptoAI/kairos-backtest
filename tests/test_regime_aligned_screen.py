@@ -131,3 +131,26 @@ def test_gate_requires_absolute_quality_and_improvement_over_base():
     assert "robustness.stress.base_trade_retention_below_minimum" in failures
     assert "robustness.stress.profit_factor_not_above_base" in failures
     assert "robustness.stress.drawdown_above_base" in failures
+
+
+def test_committed_attempt_and_result_are_immutable_forward_freeze_evidence():
+    root = Path(__file__).resolve().parents[1]
+    attempt = json.loads(
+        (root / "reports" / "regime-aligned-screen" / "attempt.json").read_text(encoding="utf-8")
+    )
+    result = json.loads(
+        (root / "reports" / "regime-aligned-screen" / "summary.json").read_text(encoding="utf-8")
+    )
+
+    assert screen._sha256(attempt) == "e7c16126287f4adab5c63d76f63df82e6f03596ee7dd4bde9c262bf71259dbff"
+    assert screen._sha256(result) == "bc31c3134b296a80a234ed2d87a3851a5e6f409666f87ffe4fb8646a5367fd53"
+    assert attempt["attempt_sha256"] == "4d5f0f83f8e5c12c2e026058f9f303e9152638e7b00770ef3925abff44289e5f"
+    assert result["classification"] == "FORWARD_FREEZE_CANDIDATE"
+    assert result["gate_failures"] == []
+    assert result["windows"]["robustness"]["stress"]["profit_factor"] > 1.05
+    assert result["permissions"] == {
+        "alpha_ready": False,
+        "live_allowed": False,
+        "paper_allowed": False,
+        "promotion_eligible": False,
+    }

@@ -1,0 +1,1019 @@
+{
+  "attempt": {
+    "attempt_sha256": "4d5f0f83f8e5c12c2e026058f9f303e9152638e7b00770ef3925abff44289e5f",
+    "classification": "post_hoc_synthesis_reused_data_only",
+    "consumed_at": "2026-08-27T04:57:24.532766+00:00",
+    "consumption_point": "after_preflight_receipt_before_first_market_archive_access",
+    "crash_or_failure_releases_attempt": false,
+    "lineage_trial_number": 15,
+    "plan_file": {
+      "bytes": 5479,
+      "sha256": "9487584839009b7b23c6bbf3ec564808499a6320c33944ed3d92b063bb4f76ea"
+    },
+    "plan_sha256": "aae0730019cb5f78099b0b3e89afbe21fe1d4bb9ef8f247c74e53f349fc31730",
+    "rerun_allowed": false,
+    "schema_version": "kairos.regime-aligned-right-tail-reused-screen.v1",
+    "status": "consumed",
+    "strategy_id": "regime_aligned_right_tail_v1"
+  },
+  "base_benchmark": {
+    "strategy_id": "right_tail_trend_v1",
+    "windows": {
+      "robustness": {
+        "baseline": {
+          "active_symbols": 5,
+          "carry_cost_usd": 0.0,
+          "direction_trades": {
+            "LONG": 245,
+            "SHORT": 249
+          },
+          "dispositions": {
+            "entered": 494,
+            "insufficient_terminal_horizon": 2,
+            "overlapping_position": 96,
+            "stop_too_wide": 9
+          },
+          "distinct_utc_exit_days": 238,
+          "expectancy_usd_per_trade": 8.26246663060666,
+          "fees_usd": 1262.4671323110097,
+          "hac_sharpe": 1.2045895408876464,
+          "implementation_shortfall_usd": 841.6453115932974,
+          "maximum_drawdown": 0.014779598134091276,
+          "maximum_one_symbol_trade_share": 0.20850202429149797,
+          "per_symbol": [
+            {
+              "expectancy_usd_per_trade": 6.113904455274273,
+              "replay_evidence_sha256": "1f65f0570e9946a403937ad1e7b5ea12d6ebe27cb2c28970b13cfbce8deab818",
+              "symbol": "BTCUSDT",
+              "total_return": 0.03148660794466296,
+              "trades": 103
+            },
+            {
+              "expectancy_usd_per_trade": 11.906317996376451,
+              "replay_evidence_sha256": "691f105e7c5ad16b60b89ea96f97828449ea410ec5040222695d15893c1322ab",
+              "symbol": "ETHUSDT",
+              "total_return": 0.05655501048278633,
+              "trades": 95
+            },
+            {
+              "expectancy_usd_per_trade": 1.2764194147724703,
+              "replay_evidence_sha256": "c61f1e59e4cd82350d72c9942f46b470ac43199a1264ebcecf537964540457f3",
+              "symbol": "SOLUSDT",
+              "total_return": 0.006382097073863502,
+              "trades": 100
+            },
+            {
+              "expectancy_usd_per_trade": 8.605623500500325,
+              "replay_evidence_sha256": "bc001806aa20445b5b0cd148cfa3b1023db3a87f52424109b907687a7a632774",
+              "symbol": "BNBUSDT",
+              "total_return": 0.04173727397742666,
+              "trades": 97
+            },
+            {
+              "expectancy_usd_per_trade": 13.721603292372714,
+              "replay_evidence_sha256": "a14dc714030086f124cfdb335a5864f9eb3267e9c65ef76f0d4919a891dac4aa",
+              "symbol": "XRPUSDT",
+              "total_return": 0.0679219362972443,
+              "trades": 99
+            }
+          ],
+          "positive_expectancy_symbols": 5,
+          "profit_factor": 1.2623961156920636,
+          "r_multiple_distribution": {
+            "maximum": 4.523935293948901,
+            "p10": -1.1090050148760957,
+            "p50": -1.0517532851781648,
+            "p90": 3.7027791611932885
+          },
+          "total_return": 0.040816585155196705,
+          "trades": 494,
+          "win_rate": 0.3441295546558704
+        },
+        "stress": {
+          "active_symbols": 5,
+          "carry_cost_usd": 2043.440730267121,
+          "direction_trades": {
+            "LONG": 241,
+            "SHORT": 248
+          },
+          "dispositions": {
+            "entered": 489,
+            "insufficient_terminal_horizon": 2,
+            "overlapping_position": 96,
+            "reward_risk_too_low": 4,
+            "stop_too_wide": 10
+          },
+          "distinct_utc_exit_days": 238,
+          "expectancy_usd_per_trade": 1.0159252638771623,
+          "fees_usd": 920.770047674143,
+          "hac_sharpe": 0.20241170676632794,
+          "implementation_shortfall_usd": 1227.6950848284307,
+          "maximum_drawdown": 0.01765222537125178,
+          "maximum_one_symbol_trade_share": 0.2065439672801636,
+          "per_symbol": [
+            {
+              "expectancy_usd_per_trade": -2.604399822124741,
+              "replay_evidence_sha256": "5ca5b65710f814156a2b2a7c7866e593884de97c07cadb41e1d58c164b18f20b",
+              "symbol": "BTCUSDT",
+              "total_return": -0.013152219101734586,
+              "trades": 101
+            },
+            {
+              "expectancy_usd_per_trade": 3.6689137477715383,
+              "replay_evidence_sha256": "290204373da45bd834885418b0360602dce6437b56452f10b6fd883cc2689d86",
+              "symbol": "ETHUSDT",
+              "total_return": 0.017427340301914507,
+              "trades": 95
+            },
+            {
+              "expectancy_usd_per_trade": -3.536282780955492,
+              "replay_evidence_sha256": "b20343bdb099f6314606a4090e297bd0c8e4b3f1fd6c2ceee5009e015f87c72e",
+              "symbol": "SOLUSDT",
+              "total_return": -0.017681413904781618,
+              "trades": 100
+            },
+            {
+              "expectancy_usd_per_trade": 2.151269833789199,
+              "replay_evidence_sha256": "380e32933c5210670b137e367f58f6610fe6481dc3e6243455ccbba47dbed771",
+              "symbol": "BNBUSDT",
+              "total_return": 0.010110968218809191,
+              "trades": 94
+            },
+            {
+              "expectancy_usd_per_trade": 5.683777209612117,
+              "replay_evidence_sha256": "5e4b5668cf76252f7f297eac6df0a37f692c49ad803348d7f19fac888d00a155",
+              "symbol": "XRPUSDT",
+              "total_return": 0.028134697187578883,
+              "trades": 99
+            }
+          ],
+          "positive_expectancy_symbols": 3,
+          "profit_factor": 1.038226156503482,
+          "r_multiple_distribution": {
+            "maximum": 4.170796331092767,
+            "p10": -1.250107785333908,
+            "p50": -1.0998581128823306,
+            "p90": 3.4787830852197885
+          },
+          "total_return": 0.004967874540357187,
+          "trades": 489,
+          "win_rate": 0.32719836400818
+        }
+      },
+      "selection": {
+        "baseline": {
+          "active_symbols": 5,
+          "carry_cost_usd": 0.0,
+          "direction_trades": {
+            "LONG": 245,
+            "SHORT": 214
+          },
+          "dispositions": {
+            "entered": 459,
+            "insufficient_terminal_horizon": 4,
+            "overlapping_position": 65,
+            "stop_too_wide": 18
+          },
+          "distinct_utc_exit_days": 223,
+          "expectancy_usd_per_trade": 12.13330418470343,
+          "fees_usd": 1050.976984612415,
+          "hac_sharpe": 1.7831878620491945,
+          "implementation_shortfall_usd": 700.651981948273,
+          "maximum_drawdown": 0.012307845928493164,
+          "maximum_one_symbol_trade_share": 0.2178649237472767,
+          "per_symbol": [
+            {
+              "expectancy_usd_per_trade": 7.577364563258953,
+              "replay_evidence_sha256": "aa0cf3eb6c7ea88d964afb8d2b873cfbed3a7bb67db31258f5a1ba82659d469e",
+              "symbol": "BTCUSDT",
+              "total_return": 0.03788682281629607,
+              "trades": 100
+            },
+            {
+              "expectancy_usd_per_trade": 7.846599666882617,
+              "replay_evidence_sha256": "4f93925cb93e652a370e29b32cb2c537235901059a2044f9556b7e38d4300a28",
+              "symbol": "ETHUSDT",
+              "total_return": 0.03766367840103668,
+              "trades": 96
+            },
+            {
+              "expectancy_usd_per_trade": 17.597516902711853,
+              "replay_evidence_sha256": "bdc26c67174cc5652ca93ac0b527caabffc19fa8d95191345b2be9c32a21a3ef",
+              "symbol": "SOLUSDT",
+              "total_return": 0.08006870190733806,
+              "trades": 91
+            },
+            {
+              "expectancy_usd_per_trade": 6.857125586239888,
+              "replay_evidence_sha256": "c7f78ceb124335960e060b769368d09b5a41f4e7261fc35b6e0719319d03ebd0",
+              "symbol": "BNBUSDT",
+              "total_return": 0.032571346534639556,
+              "trades": 95
+            },
+            {
+              "expectancy_usd_per_trade": 23.446436721982852,
+              "replay_evidence_sha256": "9bd06f3c9e295f4a7041a36f8c6a5e72b3bd123a677f31bedd0d93cc252f2559",
+              "symbol": "XRPUSDT",
+              "total_return": 0.09026878137963368,
+              "trades": 77
+            }
+          ],
+          "positive_expectancy_symbols": 5,
+          "profit_factor": 1.375587814083203,
+          "r_multiple_distribution": {
+            "maximum": 5.2410504739049,
+            "p10": -1.0908479331270833,
+            "p50": -1.0438193862687586,
+            "p90": 3.8224944211765357
+          },
+          "total_return": 0.055691866207788765,
+          "trades": 459,
+          "win_rate": 0.3442265795206972
+        },
+        "stress": {
+          "active_symbols": 5,
+          "carry_cost_usd": 1571.9954373428227,
+          "direction_trades": {
+            "LONG": 245,
+            "SHORT": 214
+          },
+          "dispositions": {
+            "entered": 459,
+            "insufficient_terminal_horizon": 4,
+            "overlapping_position": 65,
+            "stop_too_wide": 18
+          },
+          "distinct_utc_exit_days": 223,
+          "expectancy_usd_per_trade": 5.028020951907604,
+          "fees_usd": 797.2236150866065,
+          "hac_sharpe": 0.9568048032809975,
+          "implementation_shortfall_usd": 1062.9668865325782,
+          "maximum_drawdown": 0.012800742757437854,
+          "maximum_one_symbol_trade_share": 0.2178649237472767,
+          "per_symbol": [
+            {
+              "expectancy_usd_per_trade": -0.07880988488687703,
+              "replay_evidence_sha256": "0958fcf15c92449896b698f9b4c1cb43331a3a3561531d1092616d013d71751e",
+              "symbol": "BTCUSDT",
+              "total_return": -0.0003940494244331072,
+              "trades": 100
+            },
+            {
+              "expectancy_usd_per_trade": 2.0587943811679366,
+              "replay_evidence_sha256": "6c85a8d735340784d1edabe1973665860cdb386b342d384998b170f3fbddb082",
+              "symbol": "ETHUSDT",
+              "total_return": 0.009882213029602127,
+              "trades": 96
+            },
+            {
+              "expectancy_usd_per_trade": 9.700681603996943,
+              "replay_evidence_sha256": "db83f8abb3778d7e70985399bcc63d2c54ff699e6c55f303ff2f12eb7b36a2cb",
+              "symbol": "SOLUSDT",
+              "total_return": 0.04413810129818074,
+              "trades": 91
+            },
+            {
+              "expectancy_usd_per_trade": 0.524104229972013,
+              "replay_evidence_sha256": "5a9d81756f82f0f453b3d94c7f56b50bd45ec57557b6e9bb38337cc5ed65055b",
+              "symbol": "BNBUSDT",
+              "total_return": 0.0024894950923652903,
+              "trades": 95
+            },
+            {
+              "expectancy_usd_per_trade": 15.396706714429776,
+              "replay_evidence_sha256": "3baf799d430d9c5ff1c3e7b4208042404dfe3b9947b5abf17187fe575c90cce8",
+              "symbol": "XRPUSDT",
+              "total_return": 0.05927732085055215,
+              "trades": 77
+            }
+          ],
+          "positive_expectancy_symbols": 4,
+          "profit_factor": 1.183311260070884,
+          "r_multiple_distribution": {
+            "maximum": 5.15192795936229,
+            "p10": -1.2040793775710676,
+            "p50": -1.0768518800738318,
+            "p90": 3.5757121817820425
+          },
+          "total_return": 0.02307861616925333,
+          "trades": 459,
+          "win_rate": 0.32679738562091504
+        }
+      }
+    }
+  },
+  "classification": "FORWARD_FREEZE_CANDIDATE",
+  "data_quality": {
+    "evaluated_slices": [
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1716336000000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "field_profile": "price_volume",
+        "files": [
+          "BTCUSDT-1m-2024-05.zip",
+          "BTCUSDT-1m-2024-06.zip",
+          "BTCUSDT-1m-2024-07.zip",
+          "BTCUSDT-1m-2024-08.zip",
+          "BTCUSDT-1m-2024-09.zip",
+          "BTCUSDT-1m-2024-10.zip",
+          "BTCUSDT-1m-2024-11.zip",
+          "BTCUSDT-1m-2024-12.zip",
+          "BTCUSDT-1m-2025-01.zip",
+          "BTCUSDT-1m-2025-02.zip",
+          "BTCUSDT-1m-2025-03.zip",
+          "BTCUSDT-1m-2025-04.zip",
+          "BTCUSDT-1m-2025-05.zip",
+          "BTCUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-05-22",
+        "rows": 583200,
+        "sha256": "c2939f7e3a05c4c44e85eb0cf022ee4ebb5362021d9fd2af2e56f051eb877529",
+        "symbol": "BTCUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1716336000000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "field_profile": "price_volume",
+        "files": [
+          "ETHUSDT-1m-2024-05.zip",
+          "ETHUSDT-1m-2024-06.zip",
+          "ETHUSDT-1m-2024-07.zip",
+          "ETHUSDT-1m-2024-08.zip",
+          "ETHUSDT-1m-2024-09.zip",
+          "ETHUSDT-1m-2024-10.zip",
+          "ETHUSDT-1m-2024-11.zip",
+          "ETHUSDT-1m-2024-12.zip",
+          "ETHUSDT-1m-2025-01.zip",
+          "ETHUSDT-1m-2025-02.zip",
+          "ETHUSDT-1m-2025-03.zip",
+          "ETHUSDT-1m-2025-04.zip",
+          "ETHUSDT-1m-2025-05.zip",
+          "ETHUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-05-22",
+        "rows": 583200,
+        "sha256": "59a84154b8dfbda524144d5c02c800679c2a659b594143fa28ae22d90671b1fd",
+        "symbol": "ETHUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1716336000000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "field_profile": "price_volume",
+        "files": [
+          "SOLUSDT-1m-2024-05.zip",
+          "SOLUSDT-1m-2024-06.zip",
+          "SOLUSDT-1m-2024-07.zip",
+          "SOLUSDT-1m-2024-08.zip",
+          "SOLUSDT-1m-2024-09.zip",
+          "SOLUSDT-1m-2024-10.zip",
+          "SOLUSDT-1m-2024-11.zip",
+          "SOLUSDT-1m-2024-12.zip",
+          "SOLUSDT-1m-2025-01.zip",
+          "SOLUSDT-1m-2025-02.zip",
+          "SOLUSDT-1m-2025-03.zip",
+          "SOLUSDT-1m-2025-04.zip",
+          "SOLUSDT-1m-2025-05.zip",
+          "SOLUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-05-22",
+        "rows": 583200,
+        "sha256": "5bbc312f6fdc86ec14486aacf2fb1ff8885b09ff52cf1e4aa929c2bf6bd35245",
+        "symbol": "SOLUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1716336000000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "field_profile": "price_volume",
+        "files": [
+          "BNBUSDT-1m-2024-05.zip",
+          "BNBUSDT-1m-2024-06.zip",
+          "BNBUSDT-1m-2024-07.zip",
+          "BNBUSDT-1m-2024-08.zip",
+          "BNBUSDT-1m-2024-09.zip",
+          "BNBUSDT-1m-2024-10.zip",
+          "BNBUSDT-1m-2024-11.zip",
+          "BNBUSDT-1m-2024-12.zip",
+          "BNBUSDT-1m-2025-01.zip",
+          "BNBUSDT-1m-2025-02.zip",
+          "BNBUSDT-1m-2025-03.zip",
+          "BNBUSDT-1m-2025-04.zip",
+          "BNBUSDT-1m-2025-05.zip",
+          "BNBUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-05-22",
+        "rows": 583200,
+        "sha256": "1049b3f712f7d99b16333bde21ed09105ec14aa234ef550552464abfa597bf1a",
+        "symbol": "BNBUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1716336000000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "field_profile": "price_volume",
+        "files": [
+          "XRPUSDT-1m-2024-05.zip",
+          "XRPUSDT-1m-2024-06.zip",
+          "XRPUSDT-1m-2024-07.zip",
+          "XRPUSDT-1m-2024-08.zip",
+          "XRPUSDT-1m-2024-09.zip",
+          "XRPUSDT-1m-2024-10.zip",
+          "XRPUSDT-1m-2024-11.zip",
+          "XRPUSDT-1m-2024-12.zip",
+          "XRPUSDT-1m-2025-01.zip",
+          "XRPUSDT-1m-2025-02.zip",
+          "XRPUSDT-1m-2025-03.zip",
+          "XRPUSDT-1m-2025-04.zip",
+          "XRPUSDT-1m-2025-05.zip",
+          "XRPUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-05-22",
+        "rows": 583200,
+        "sha256": "135095633b77734d718299de1638fa54e14d811a1f38ab8616e116d637bc795e",
+        "symbol": "XRPUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1747872000000,
+        "checksum_files_verified": 15,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 15,
+        "field_profile": "price_volume",
+        "files": [
+          "BTCUSDT-1m-2025-05.zip",
+          "BTCUSDT-1m-2025-06.zip",
+          "BTCUSDT-1m-2025-07.zip",
+          "BTCUSDT-1m-2025-08.zip",
+          "BTCUSDT-1m-2025-09.zip",
+          "BTCUSDT-1m-2025-10.zip",
+          "BTCUSDT-1m-2025-11.zip",
+          "BTCUSDT-1m-2025-12.zip",
+          "BTCUSDT-1m-2026-01.zip",
+          "BTCUSDT-1m-2026-02.zip",
+          "BTCUSDT-1m-2026-03.zip",
+          "BTCUSDT-1m-2026-04.zip",
+          "BTCUSDT-1m-2026-05.zip",
+          "BTCUSDT-1m-2026-06.zip",
+          "BTCUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-05-22",
+        "rows": 627840,
+        "sha256": "f028487b2807bf1b669ee9fade009f4a317d8c8e0de380ae365f990b029ade13",
+        "symbol": "BTCUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1747872000000,
+        "checksum_files_verified": 15,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 15,
+        "field_profile": "price_volume",
+        "files": [
+          "ETHUSDT-1m-2025-05.zip",
+          "ETHUSDT-1m-2025-06.zip",
+          "ETHUSDT-1m-2025-07.zip",
+          "ETHUSDT-1m-2025-08.zip",
+          "ETHUSDT-1m-2025-09.zip",
+          "ETHUSDT-1m-2025-10.zip",
+          "ETHUSDT-1m-2025-11.zip",
+          "ETHUSDT-1m-2025-12.zip",
+          "ETHUSDT-1m-2026-01.zip",
+          "ETHUSDT-1m-2026-02.zip",
+          "ETHUSDT-1m-2026-03.zip",
+          "ETHUSDT-1m-2026-04.zip",
+          "ETHUSDT-1m-2026-05.zip",
+          "ETHUSDT-1m-2026-06.zip",
+          "ETHUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-05-22",
+        "rows": 627840,
+        "sha256": "b1ebbedd15d8c55ec48471fa46baa3469a8bbeea57a858f2a53164231a53d35b",
+        "symbol": "ETHUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1747872000000,
+        "checksum_files_verified": 15,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 15,
+        "field_profile": "price_volume",
+        "files": [
+          "SOLUSDT-1m-2025-05.zip",
+          "SOLUSDT-1m-2025-06.zip",
+          "SOLUSDT-1m-2025-07.zip",
+          "SOLUSDT-1m-2025-08.zip",
+          "SOLUSDT-1m-2025-09.zip",
+          "SOLUSDT-1m-2025-10.zip",
+          "SOLUSDT-1m-2025-11.zip",
+          "SOLUSDT-1m-2025-12.zip",
+          "SOLUSDT-1m-2026-01.zip",
+          "SOLUSDT-1m-2026-02.zip",
+          "SOLUSDT-1m-2026-03.zip",
+          "SOLUSDT-1m-2026-04.zip",
+          "SOLUSDT-1m-2026-05.zip",
+          "SOLUSDT-1m-2026-06.zip",
+          "SOLUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-05-22",
+        "rows": 627840,
+        "sha256": "331db4d8f43e8c77a93ee304a83bcfcc7614e4e90e5947eb81117aa75da9ec47",
+        "symbol": "SOLUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1747872000000,
+        "checksum_files_verified": 15,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 15,
+        "field_profile": "price_volume",
+        "files": [
+          "BNBUSDT-1m-2025-05.zip",
+          "BNBUSDT-1m-2025-06.zip",
+          "BNBUSDT-1m-2025-07.zip",
+          "BNBUSDT-1m-2025-08.zip",
+          "BNBUSDT-1m-2025-09.zip",
+          "BNBUSDT-1m-2025-10.zip",
+          "BNBUSDT-1m-2025-11.zip",
+          "BNBUSDT-1m-2025-12.zip",
+          "BNBUSDT-1m-2026-01.zip",
+          "BNBUSDT-1m-2026-02.zip",
+          "BNBUSDT-1m-2026-03.zip",
+          "BNBUSDT-1m-2026-04.zip",
+          "BNBUSDT-1m-2026-05.zip",
+          "BNBUSDT-1m-2026-06.zip",
+          "BNBUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-05-22",
+        "rows": 627840,
+        "sha256": "797e88a69d6c6a2525e1607cffcd9acb871f30fa0ffb106ac407a0cdf118c079",
+        "symbol": "BNBUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1747872000000,
+        "checksum_files_verified": 15,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 15,
+        "field_profile": "price_volume",
+        "files": [
+          "XRPUSDT-1m-2025-05.zip",
+          "XRPUSDT-1m-2025-06.zip",
+          "XRPUSDT-1m-2025-07.zip",
+          "XRPUSDT-1m-2025-08.zip",
+          "XRPUSDT-1m-2025-09.zip",
+          "XRPUSDT-1m-2025-10.zip",
+          "XRPUSDT-1m-2025-11.zip",
+          "XRPUSDT-1m-2025-12.zip",
+          "XRPUSDT-1m-2026-01.zip",
+          "XRPUSDT-1m-2026-02.zip",
+          "XRPUSDT-1m-2026-03.zip",
+          "XRPUSDT-1m-2026-04.zip",
+          "XRPUSDT-1m-2026-05.zip",
+          "XRPUSDT-1m-2026-06.zip",
+          "XRPUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "quarantined_optional_rows": 0,
+        "quarantined_optional_samples": [],
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-05-22",
+        "rows": 627840,
+        "sha256": "96cef145c020289d68938f20b994d7eccb981391613f2f0252c143d7f3165b20",
+        "symbol": "XRPUSDT",
+        "transport_verification": "zip_crc_and_profiled_rows_sha256",
+        "window": "robustness"
+      }
+    ],
+    "preflight_file_sha256": "db99d1cdf42b5e7f98ba3e4b758138e849a6a281ae9e32afd409132fdb857386",
+    "preflight_result_sha256": "91b1331fead7a7392b7a21f406f67e95e57c3ad1fd370f2c0a472c71d276a4dd"
+  },
+  "environment": {
+    "git_head_sha": "aba92a3145484bde89fd7580a5193f994e6d70e6",
+    "git_tree_sha": "38e8c8ec267982031cf37a27a7f7a18b1b81ea61",
+    "pyproject_sha256": "55be3f909465f526b1fbb3f0c4f6ddfa9baa74446fb3a0195b80ca1bb6d6e45c",
+    "runtime": {
+      "implementation": "CPython",
+      "packages": {
+        "kairos-backtest": "0.1.0",
+        "kairos-core": "0.3.0",
+        "kairos-quant-scouts": "0.1.0",
+        "kairos-strategy-engine": "0.2.8",
+        "numpy": "2.4.6"
+      },
+      "platform": "win32",
+      "python": "3.11.15"
+    },
+    "source_sha256": "ea865fa699a1cbe8e8e6f3a64dc3f1d8c7b85d5ee3af935f55a0c8e358cbe037",
+    "strategy_source_sha256": "c9400511e2d6a065c9fa8f85b96346c216b854a8ad01af1f633acf1f0f6eb3cf",
+    "uv_lock_sha256": "fdc025c7a08f1396bb9a5140872ba996b864ef2baa7c40aeb920b50670b6808b"
+  },
+  "gate_failures": [],
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "aae0730019cb5f78099b0b3e89afbe21fe1d4bb9ef8f247c74e53f349fc31730",
+  "result_schema_version": "kairos.regime-aligned-right-tail-reused-screen.v1",
+  "strategy": {
+    "base_config": {
+      "atr_period_hours": 24,
+      "decision_interval_hours": 24,
+      "intent_valid_hours": 1,
+      "max_hold_hours": 72,
+      "minimum_trend_score": 1.0,
+      "stop_atr_multiple": 2.0,
+      "target_reward_to_risk": 4.0,
+      "trend_lookback_hours": 24
+    },
+    "base_config_sha256": "c36879cc052ccad8f126be29eb6cc8bd70c8274598e8a98fbae2e3ed69805253",
+    "base_id": "right_tail_trend_v1",
+    "config": {
+      "atr_period_hours": 24,
+      "decision_interval_hours": 24,
+      "intent_valid_hours": 1,
+      "max_hold_hours": 72,
+      "minimum_trend_score": 1.0,
+      "regime_sma_bars": 200,
+      "stop_atr_multiple": 2.0,
+      "target_reward_to_risk": 4.0,
+      "trend_lookback_hours": 24
+    },
+    "config_sha256": "ae4ff7d7c54353a544be045903b64d5c0be9d6ca8d22ec6158e4942a36a59efe",
+    "id": "regime_aligned_right_tail_v1",
+    "revision": "1",
+    "source_commit": "8b00b82ed5d5dd5149532c596bed5ec8a825aadd",
+    "status": "research"
+  },
+  "windows": {
+    "robustness": {
+      "baseline": {
+        "active_symbols": 5,
+        "carry_cost_usd": 0.0,
+        "direction_trades": {
+          "LONG": 163,
+          "SHORT": 179
+        },
+        "dispositions": {
+          "entered": 342,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 47,
+          "stop_too_wide": 6
+        },
+        "distinct_utc_exit_days": 185,
+        "expectancy_usd_per_trade": 9.66251993127734,
+        "fees_usd": 871.1385525019324,
+        "hac_sharpe": 1.079810901842473,
+        "implementation_shortfall_usd": 580.7594630844085,
+        "maximum_drawdown": 0.017651177596782527,
+        "maximum_one_symbol_trade_share": 0.21052631578947367,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": 6.326736417335697,
+            "replay_evidence_sha256": "e3cd35245c2876e2cacebf90a8868678d771b22c5b6c21b64743d7dcb8162f1c",
+            "symbol": "BTCUSDT",
+            "total_return": 0.021827240639807455,
+            "trades": 69
+          },
+          {
+            "expectancy_usd_per_trade": 15.174663098174907,
+            "replay_evidence_sha256": "f8acdcd6caaeab1a9a7e4f44147b66fac5d7c6d237157f16ff9a78408f263514",
+            "symbol": "ETHUSDT",
+            "total_return": 0.05159385453379395,
+            "trades": 68
+          },
+          {
+            "expectancy_usd_per_trade": 2.1433798780127122,
+            "replay_evidence_sha256": "6b2ed45cfa85d19965dc8e546075744acd564e8744747399ea81ae19c39b149c",
+            "symbol": "SOLUSDT",
+            "total_return": 0.0070731535974422055,
+            "trades": 66
+          },
+          {
+            "expectancy_usd_per_trade": 11.091044119199019,
+            "replay_evidence_sha256": "17f648b9064713f6178a13ac4477fc57423aeff92dd9fe42675ea7ef76ca4ea7",
+            "symbol": "BNBUSDT",
+            "total_return": 0.03992775882911603,
+            "trades": 72
+          },
+          {
+            "expectancy_usd_per_trade": 13.375248723785445,
+            "replay_evidence_sha256": "5be482915d4e76e0bae7db4fde44f0fddcaab73f80f5d3d8b4fb45a56a217b39",
+            "symbol": "XRPUSDT",
+            "total_return": 0.044807083224680744,
+            "trades": 67
+          }
+        ],
+        "positive_expectancy_symbols": 5,
+        "profit_factor": 1.30106450772328,
+        "r_multiple_distribution": {
+          "maximum": 4.5239352939489015,
+          "p10": -1.108976815831899,
+          "p50": -1.0534314032399914,
+          "p90": 3.7902977960664694
+        },
+        "total_return": 0.03304581816496799,
+        "trades": 342,
+        "win_rate": 0.3333333333333333
+      },
+      "stress": {
+        "active_symbols": 5,
+        "carry_cost_usd": 1303.8305500623478,
+        "direction_trades": {
+          "LONG": 161,
+          "SHORT": 178
+        },
+        "dispositions": {
+          "entered": 339,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 47,
+          "reward_risk_too_low": 2,
+          "stop_too_wide": 7
+        },
+        "distinct_utc_exit_days": 185,
+        "expectancy_usd_per_trade": 2.8943949849540465,
+        "fees_usd": 641.424773931933,
+        "hac_sharpe": 0.4239436634635074,
+        "implementation_shortfall_usd": 855.2343933174928,
+        "maximum_drawdown": 0.01623288582238187,
+        "maximum_one_symbol_trade_share": 0.20648967551622419,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": -0.8285934033565207,
+            "replay_evidence_sha256": "19efcce8dffef5e50c8bb3bc62caa13829b2cd3eacf19ce185909437cde4cb75",
+            "symbol": "BTCUSDT",
+            "total_return": -0.00281721757141129,
+            "trades": 68
+          },
+          {
+            "expectancy_usd_per_trade": 6.438978108835734,
+            "replay_evidence_sha256": "8e770bb327ed3527feec7c8d8c49c62e2271a44326b09ce10dfab7912c9ec082",
+            "symbol": "ETHUSDT",
+            "total_return": 0.02189252557004484,
+            "trades": 68
+          },
+          {
+            "expectancy_usd_per_trade": -2.002838956516968,
+            "replay_evidence_sha256": "2690602692cc2ba23b9b300ba7bd3900166512e4f2b78b52fbf33b0606ca1152",
+            "symbol": "SOLUSDT",
+            "total_return": -0.006609368556508288,
+            "trades": 66
+          },
+          {
+            "expectancy_usd_per_trade": 4.744978483889739,
+            "replay_evidence_sha256": "9369383ddab837fad4116ab3b5df4569aa18b315d7362d7ed0cfefa1e38ff58d",
+            "symbol": "BNBUSDT",
+            "total_return": 0.01660742469361498,
+            "trades": 70
+          },
+          {
+            "expectancy_usd_per_trade": 5.966158465442886,
+            "replay_evidence_sha256": "9f06ac03f4d64409bfbf357496f6e4f66d95f2a5f8608c06a3cc2c706e143c31",
+            "symbol": "XRPUSDT",
+            "total_return": 0.019986630859230248,
+            "trades": 67
+          }
+        ],
+        "positive_expectancy_symbols": 3,
+        "profit_factor": 1.1071209746937498,
+        "r_multiple_distribution": {
+          "maximum": 4.170796331092767,
+          "p10": -1.2742595897859332,
+          "p50": -1.1036006507703213,
+          "p90": 3.548219212297014
+        },
+        "total_return": 0.009811998998994209,
+        "trades": 339,
+        "win_rate": 0.3274336283185841
+      }
+    },
+    "selection": {
+      "baseline": {
+        "active_symbols": 5,
+        "carry_cost_usd": 0.0,
+        "direction_trades": {
+          "LONG": 159,
+          "SHORT": 153
+        },
+        "dispositions": {
+          "entered": 312,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 28,
+          "stop_too_wide": 14
+        },
+        "distinct_utc_exit_days": 178,
+        "expectancy_usd_per_trade": 11.962273731646068,
+        "fees_usd": 701.8972099089394,
+        "hac_sharpe": 1.4231096352388548,
+        "implementation_shortfall_usd": 467.93191445784566,
+        "maximum_drawdown": 0.011568759375128764,
+        "maximum_one_symbol_trade_share": 0.21794871794871795,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": 7.587138399061574,
+            "replay_evidence_sha256": "f045f1ceb7c7859137d804c46933a8b89e248e2372d71527258b923857318703",
+            "symbol": "BTCUSDT",
+            "total_return": 0.023899485957045163,
+            "trades": 63
+          },
+          {
+            "expectancy_usd_per_trade": 14.723384986713118,
+            "replay_evidence_sha256": "be62fe0b13f073b54751d262de7b4714aa71a9fc5a6d6d539896cadc4262f43b",
+            "symbol": "ETHUSDT",
+            "total_return": 0.04711483195748234,
+            "trades": 64
+          },
+          {
+            "expectancy_usd_per_trade": 20.172388889011973,
+            "replay_evidence_sha256": "7b55b0ef61b9d99f104f7764298d605924a91b775416358ad9f0b045af09ec87",
+            "symbol": "SOLUSDT",
+            "total_return": 0.06858612222264093,
+            "trades": 68
+          },
+          {
+            "expectancy_usd_per_trade": 0.4065544029541591,
+            "replay_evidence_sha256": "3f826e4b56c0d462a2476a0bcccb968860066fd1af640470dfdb2e22b479d894",
+            "symbol": "BNBUSDT",
+            "total_return": 0.001361957249895518,
+            "trades": 67
+          },
+          {
+            "expectancy_usd_per_trade": 18.25962913064624,
+            "replay_evidence_sha256": "95b136681065545923977685730944737773b69dc6c41f320a50208353d90759",
+            "symbol": "XRPUSDT",
+            "total_return": 0.04564907282661612,
+            "trades": 50
+          }
+        ],
+        "positive_expectancy_symbols": 5,
+        "profit_factor": 1.3718821234498801,
+        "r_multiple_distribution": {
+          "maximum": 5.241050473904903,
+          "p10": -1.091033130689162,
+          "p50": -1.0440824452801554,
+          "p90": 3.845212041559861
+        },
+        "total_return": 0.03732229404273579,
+        "trades": 312,
+        "win_rate": 0.34294871794871795
+      },
+      "stress": {
+        "active_symbols": 5,
+        "carry_cost_usd": 968.8513286992428,
+        "direction_trades": {
+          "LONG": 159,
+          "SHORT": 153
+        },
+        "dispositions": {
+          "entered": 312,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 28,
+          "stop_too_wide": 14
+        },
+        "distinct_utc_exit_days": 178,
+        "expectancy_usd_per_trade": 5.56219538789093,
+        "fees_usd": 536.2035133888145,
+        "hac_sharpe": 0.854050260896221,
+        "implementation_shortfall_usd": 714.9394417954713,
+        "maximum_drawdown": 0.010891410753824268,
+        "maximum_one_symbol_trade_share": 0.21794871794871795,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": 0.44108914335191646,
+            "replay_evidence_sha256": "badcc15d2aa7c99e458964a73724d185fc7aa83c20d6b6446098185e4bb1aec2",
+            "symbol": "BTCUSDT",
+            "total_return": 0.0013894308015562906,
+            "trades": 63
+          },
+          {
+            "expectancy_usd_per_trade": 7.925054904373951,
+            "replay_evidence_sha256": "e01a900fb3f244218216111365602b81cb010a6bddc8be3610b5720d58bc290b",
+            "symbol": "ETHUSDT",
+            "total_return": 0.025360175693998066,
+            "trades": 64
+          },
+          {
+            "expectancy_usd_per_trade": 12.137170055600777,
+            "replay_evidence_sha256": "f5a0f3fc557677f7e136f294cdbca69ff562bbf1be7039513779839d414f5b22",
+            "symbol": "SOLUSDT",
+            "total_return": 0.041266378189043884,
+            "trades": 68
+          },
+          {
+            "expectancy_usd_per_trade": -3.1334533758030956,
+            "replay_evidence_sha256": "7baed7163e2c6b19de517bd6baf3533716e31f10ba23a13c52e638c261ca929d",
+            "symbol": "BNBUSDT",
+            "total_return": -0.010497068808937526,
+            "trades": 67
+          },
+          {
+            "expectancy_usd_per_trade": 11.70053287017642,
+            "replay_evidence_sha256": "87fcaf1728746eaf4ac46fb6ccb8b2442602c03799e8479549c1db26d33d54b5",
+            "symbol": "XRPUSDT",
+            "total_return": 0.02925133217543685,
+            "trades": 50
+          }
+        ],
+        "positive_expectancy_symbols": 4,
+        "profit_factor": 1.2039539358520581,
+        "r_multiple_distribution": {
+          "maximum": 5.151927959362289,
+          "p10": -1.1941884417730744,
+          "p50": -1.0771266182836619,
+          "p90": 3.63218844840697
+        },
+        "total_return": 0.01735404961021958,
+        "trades": 312,
+        "win_rate": 0.32371794871794873
+      }
+    }
+  }
+}

@@ -134,6 +134,19 @@ It can only freeze exact code for new observations beginning no earlier than
 2026-09-01. Qualification still requires the separately preregistered minimum
 forward duration, trade count, cost stress, breadth and drawdown gates.
 
+### Trial 15 outcome
+
+The single screen returned `FORWARD_FREEZE_CANDIDATE`. The slow state retained
+approximately 68–69% of stress trades and improved stress PF from 1.1833 to
+1.2040 in selection and from 1.0382 to 1.1071 in robustness while reducing
+stress drawdown in both windows. All frozen absolute and relative gates passed.
+
+The outcome does not amend the evidence boundary above. It is a successful
+reused-data synthesis, not alpha: robustness stress returned only 0.98%, and
+BTC and SOL expectancy remained negative. The exact candidate is frozen for
+future observation; PAPER and LIVE remain prohibited. Full evidence is in the
+[`trial 15 report`](../regime-aligned-screen/REPORT.md).
+
 ## Research controls for the next run
 
 - Commit strategy code, tests, exact data slices, costs and gates before market
@@ -160,4 +173,3 @@ forward duration, trade count, cost stress, breadth and drawdown gates.
 - [`sma200-screen`](../sma200-screen/REPORT.md)
 - [`market-anatomy`](../market-anatomy/REPORT.md)
 - [`derivatives-state`](../derivatives-state/REPORT.md)
-
