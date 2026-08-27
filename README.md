@@ -334,6 +334,32 @@ restores only to a new path, compares a sealed evidence fingerprint across the
 primary, backup and restored databases, and proves the primary remained
 unchanged.
 
+The final evaluator is frozen before the blind start by
+[its semantic-source lock](reports/regime-aligned-forward/evaluator-lock.json).
+The lock covers the simulator, cost/risk model, portfolio metrics, scenario
+definitions, observer, evaluator and dependency lock. `eligibility` remains
+performance-blind: before 365 complete days it does not run the simulator; after
+that boundary it may disclose only baseline/stress closed-trade counts. It does
+not create an attempt until both counts reach 500.
+
+```sh
+uv run --locked kairos-forward-evaluator eligibility \
+  --ledger runtime/regime-aligned-forward.sqlite3
+
+uv run --locked kairos-forward-evaluator evaluate \
+  --ledger runtime/regime-aligned-forward.sqlite3 \
+  --attempt reports/regime-aligned-forward/final-attempt.json \
+  --result reports/regime-aligned-forward/final-result.json
+```
+
+The final command regenerates every daily candidate from its exact rolling
+40-day runtime window, verifies the complete stored intent inventory, and
+evaluates the unchanged base under the same windows. Once eligible it fsyncs an
+exclusive attempt before calculating any final metric. A crash permanently
+consumes the attempt. A pass is only
+`ALPHA_CANDIDATE_REQUIRES_SEPARATE_PAPER_APPROVAL`; it does not set alpha,
+PAPER or LIVE permission. A failed gate returns `REJECT_FORWARD_EVIDENCE`.
+
 ## Crowded-trend continuation reused-data screen
 
 `crowded_trend_continuation_v1` tests the one disclosed post-hoc observation

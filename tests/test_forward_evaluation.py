@@ -243,3 +243,13 @@ def test_strict_to_raw_preserves_the_pure_candidate_identity() -> None:
     assert raw.sleeve_id == strict.strategy_id
     assert raw.metadata == strict.metadata
     assert raw.exit_plan.max_holding_ms == strict.exit_plan.max_holding_ms
+
+
+def test_committed_evaluator_lock_matches_every_semantic_source() -> None:
+    root = Path(__file__).resolve().parents[1]
+
+    lock = evaluation.load_evaluator_lock(root, root / evaluation.LOCK_FILENAME)
+
+    assert lock["evaluator_commit"] == "33b6a75a33a2159a2e7a48f681b1f8f5de2fd36f"
+    assert lock["plan_sha256"] == observation.plan_sha256(observation.expected_plan())
+    assert len(evaluation.evaluator_lock_sha256(lock)) == 64
