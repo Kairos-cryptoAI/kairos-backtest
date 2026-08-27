@@ -68,6 +68,27 @@ def test_preflight_receipt_is_bound_to_exact_qualified_price_only_slices():
     assert receipt["result_sha256"] == screen.PREFLIGHT_RESULT_SHA256
 
 
+def test_preflight_receipt_accepts_git_crlf_materialization(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    source = root / "reports" / "data-field-preflight" / "result-v2.json"
+    crlf_copy = tmp_path / "result-v2.json"
+    crlf_copy.write_bytes(source.read_bytes().replace(b"\n", b"\r\n"))
+
+    receipt = _validate_preflight_receipt(crlf_copy)
+
+    assert receipt["result_sha256"] == screen.PREFLIGHT_RESULT_SHA256
+
+
+def test_preflight_receipt_rejects_content_mutation_despite_line_normalization(tmp_path):
+    root = Path(__file__).resolve().parents[1]
+    source = root / "reports" / "data-field-preflight" / "result-v2.json"
+    mutated = tmp_path / "result-v2.json"
+    mutated.write_bytes(source.read_bytes().replace(b'"rows": 1051200', b'"rows": 1051201', 1))
+
+    with pytest.raises(ValueError, match="differs"):
+        _validate_preflight_receipt(mutated)
+
+
 def test_plan_mutation_is_rejected(tmp_path):
     plan = expected_plan()
     plan["classification"] = "promotion"

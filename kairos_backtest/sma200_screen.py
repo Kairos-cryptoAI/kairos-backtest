@@ -258,7 +258,11 @@ def _consume_attempt(plan: Mapping[str, object], *, plan_path: Path, attempt_pat
 
 def _validate_preflight_receipt(path: Path) -> dict[str, object]:
     raw = path.read_bytes()
-    if hashlib.sha256(raw).hexdigest() != PREFLIGHT_FILE_SHA256:
+    # Git may materialize the committed JSON with CRLF on Windows runners.  The
+    # preregistered digest is for the repository's LF-normalized content; the
+    # signed canonical JSON identity below remains the authoritative binding.
+    normalized = raw.replace(b"\r\n", b"\n")
+    if hashlib.sha256(normalized).hexdigest() != PREFLIGHT_FILE_SHA256:
         raise ValueError("data preflight receipt file differs from preregistration")
     payload = json.loads(raw)
     if not isinstance(payload, dict) or payload.get("result_sha256") != PREFLIGHT_RESULT_SHA256:
