@@ -332,6 +332,14 @@ ordinary round-trip fees, so this component cannot set ALPHA, PAPER, or LIVE.
 It would next require a separate preregistered execution/liquidity overlay with
 realistic venue costs.
 
+That conditional follow-up is frozen before the v2 metrics are opened. The
+[`quarter-hour execution overlay plan`](reports/quarter-hour-execution-overlay/README.md)
+binds one symmetric A/B test over the exact Trial 15 intent stream: an adverse
+clean phase-zero forecast delays entry by ten seconds, while an aligned, zero,
+missing or dirty forecast preserves the base entry clock. It cannot create a
+direction, add a trade, or change the stop, target, timeout or existing blind
+campaign. If the parent component is rejected, the overlay is not run.
+
 ## Right-tail trend reused-data screen
 
 `right_tail_trend_v1` is an independently motivated, single-candidate test of

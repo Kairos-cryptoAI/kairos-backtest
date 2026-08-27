@@ -1,0 +1,130 @@
+{
+  "classification": "CONDITIONAL_PERFORMANCE_BLIND_EXECUTION_OVERLAY_PREREGISTRATION",
+  "data": {
+    "aggregate_trade_source": "official Binance USD-M aggTrades archives with adjacent SHA-256 and ZIP CRC verification",
+    "bar_source": "the exact PRICE_VOLUME slices used by regime_aligned_right_tail_v1 trial 15",
+    "end_exclusive": "2026-08-01",
+    "gap_policy": "never impute; an unavailable or dirty timing forecast falls back to the base immediate-entry policy",
+    "reused_data": true,
+    "start": "2024-05-22",
+    "universe": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "windows": [
+      {
+        "end_exclusive": "2025-07-01",
+        "name": "selection",
+        "start": "2024-07-01"
+      },
+      {
+        "end_exclusive": "2026-08-01",
+        "name": "robustness",
+        "start": "2025-07-01"
+      }
+    ]
+  },
+  "decision_rule": {
+    "candidate_must_not_reduce_stress_log_growth_in_either_window": true,
+    "candidate_stress_drawdown_must_not_exceed_base_by_more_than_relative": 0.1,
+    "candidate_stress_profit_factor_must_not_be_below_base": true,
+    "minimum_active_symbols_with_positive_paired_improvement": 3,
+    "minimum_base_fill_retention": 0.95,
+    "minimum_paired_fills_per_window": 100,
+    "paired_direction_adjusted_entry_improvement_bps_must_be_positive": true,
+    "paired_hac_one_sided_p_value_must_be_below": 0.05,
+    "required_windows": [
+      "selection",
+      "robustness"
+    ]
+  },
+  "execution_overlay": {
+    "adverse_forecast_action": "submit at T plus 10000 ms plus scenario latency",
+    "aligned_or_zero_forecast_action": "submit at T plus scenario latency",
+    "base_intent_mutation": "forbidden",
+    "base_without_clean_forecast_action": "submit at T plus scenario latency",
+    "entry_price_proxy": "first validated aggregate trade price at or after submission time and no later than 1000 ms after submission",
+    "exit_plan_mutation": "forbidden",
+    "forecast_alignment": "LONG=+1 and SHORT=-1; a strictly negative side-times-forecast product is adverse",
+    "forecast_phase_offset_minutes": 0,
+    "intraminute_barrier_ambiguity": "protective stop wins",
+    "new_directional_intents": "forbidden",
+    "new_trades": "forbidden",
+    "position_sizing": "recompute the same loss-at-stop budget from actual entry and unchanged absolute exit prices",
+    "submission_timeout_ms": 1000,
+    "tca_primary_measure": "side times (base entry price minus candidate entry price) divided by base entry price in basis points"
+  },
+  "hypothesis": {
+    "economic_premise": "a confirmed causal first-ten-second boundary forecast can reduce adverse entry selection for an already-authorized daily trend intent without manufacturing direction",
+    "parameter_search_allowed": false,
+    "standalone_quarter_hour_trading_forbidden": true,
+    "trial_count": 1
+  },
+  "model": {
+    "clean_targets_only": true,
+    "forecast_available_before_boundary": true,
+    "lag_count": 12,
+    "monthly_refit": true,
+    "parent_plan_sha256": "2c5d91f76dcf5fd2f8c5bcc1ccec1032fb56b967e131d6136fb9b437c86f425f",
+    "phase_offset_minutes": 0,
+    "refit_training_window_calendar_months": 6,
+    "source": "exact quarter-hour lag model and feature ledger accepted by the parent v2 result"
+  },
+  "parent_precondition": {
+    "if_not_satisfied": "NOT_RUN_PARENT_COMPONENT_REJECTED",
+    "required_classification": "STATISTICAL_COMPONENT_CONFIRMED",
+    "result_path": "reports/quarter-hour-lag-replication-v2/result.json",
+    "result_sha256_policy": "read and persist the immutable parent result_sha256 before opening overlay performance",
+    "trading_interpretation_required": "forecast evidence only"
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "protocol": {
+    "allowed_results": [
+      "NOT_RUN_PARENT_COMPONENT_REJECTED",
+      "REJECT_EXECUTION_OVERLAY",
+      "FORWARD_FREEZE_EXECUTION_OVERLAY"
+    ],
+    "base_forward_campaign_must_remain_unchanged": true,
+    "paid_apis": false,
+    "result_may_not_change_this_plan": true,
+    "single_attempt": true
+  },
+  "scenarios": {
+    "baseline": {
+      "fee_bps_per_side": 4.5,
+      "funding": "unavailable",
+      "latency_ms": 250,
+      "slippage_bps_per_side": 2.0,
+      "spread_bps": 2.0,
+      "uncertainty_buffer_bps": 2.0
+    },
+    "stress": {
+      "adverse_funding_bps": 45.625,
+      "fee_bps_per_side": 4.5,
+      "latency_ms": 500,
+      "slippage_bps_per_side": 4.0,
+      "spread_bps": 4.0,
+      "uncertainty_buffer_bps": 2.0
+    }
+  },
+  "schema_version": "kairos.quarter-hour-execution-overlay-plan.v1",
+  "strategy": {
+    "base_candidate_result_sha256": "bc31c3134b296a80a234ed2d87a3851a5e6f409666f87ffe4fb8646a5367fd53",
+    "base_config_sha256": "ae4ff7d7c54353a544be045903b64d5c0be9d6ca8d22ec6158e4942a36a59efe",
+    "base_forward_plan_sha256": "38fe7512b4e4c318e5bc8dd6baa66b48eedd63112a4a447eaaf36c1175f623e8",
+    "base_id": "regime_aligned_right_tail_v1",
+    "base_source_commit": "8b00b82ed5d5dd5149532c596bed5ec8a825aadd",
+    "candidate_id": "regime_aligned_right_tail_qh_timing_v1",
+    "candidate_role": "execution_timing_challenger_only",
+    "one_active_idea_per_symbol": true,
+    "revision": "1"
+  }
+}
