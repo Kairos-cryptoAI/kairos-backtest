@@ -248,6 +248,38 @@ immutable evidence and interpretation are retained in the
 [right-tail report](reports/right-tail-screen/REPORT.md). The exact candidate
 must not be rerun or tuned into a passing result.
 
+## Crowded-trend continuation reused-data screen
+
+`crowded_trend_continuation_v1` tests the one disclosed post-hoc observation
+from `derivatives_state_v1`: an established 24-hour trend may continue while
+open interest expands by at least 5% and either premium or funding is aligned
+with that trend. The thresholds are copied unchanged, apply to all five symbols
+and both directions, and cannot be searched or selectively disabled. The
+generator accepts explicit timestamped factor observations; it owns no data or
+exchange client.
+
+Every complete UTC hour is eligible for a decision. Entry starts only on the
+next minute, with one managed position per symbol, the existing 2 ATR / 4R
+geometry and a 24-hour timeout matching the descriptive horizon. The screen
+evaluates the fixed selection and robustness years under baseline and stress
+execution, including fees, spread, slippage and adverse funding. Its attempt is
+consumed before either price or factor archives are opened.
+
+```sh
+uv run --locked kairos-crowded-trend-screen --verify-plan
+
+uv run --locked kairos-crowded-trend-screen \
+  --price-cache data/historical \
+  --factor-cache data/historical-factors \
+  --plan reports/crowded-trend-screen/plan.json \
+  --attempt reports/crowded-trend-screen/attempt.json \
+  --result reports/crowded-trend-screen/summary.json
+```
+
+Because the direction came from already observed data, even a passing reused
+screen only freezes this exact candidate for at least 365 future days and 500
+trades. It never sets alpha, PAPER or LIVE permission.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps
