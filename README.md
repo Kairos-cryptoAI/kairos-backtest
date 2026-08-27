@@ -239,8 +239,8 @@ The rejected one-minute proxy does not reject the source mechanism. The
 10 seconds from transaction data, so `kairos_backtest.aggtrades` now provides a
 separate performance-blind input layer for a future exact replication. It:
 
-- downloads only official Binance USD-M daily `aggTrades` archives and their
-  adjacent `.CHECKSUM` files;
+- downloads only official Binance USD-M daily or monthly `aggTrades` archives
+  and their adjacent `.CHECKSUM` files;
 - verifies SHA-256, ZIP CRC, the sole CSV member and the seven-field futures
   schema described by
   [Binance public data](https://github.com/binance/binance-public-data);
@@ -276,6 +276,49 @@ only archive, row, gap, hash-chain and provenance evidence. The completed
 [canary report](reports/aggtrades-preflight/REPORT.md) and immutable
 [receipt](reports/aggtrades-preflight/result.json) qualify this data path but
 do not qualify a strategy.
+
+### Preregistered quarter-hour lag replication
+
+The immutable
+[replication plan](reports/quarter-hour-lag-replication/plan.json) fixes the
+2021-01 through 2026-07 sample, five-symbol Kairos universe, four paper-overlap
+assets, BNB extension, causal target, twelve lags, rolling six-month training,
+monthly refits, chronological tuning, 21-value LASSO grid and phase offsets
+`0/2/5/7` before opening the historical outcome.
+
+Feature collection verifies official monthly archive SHA-256, parses each CSV
+once through ZIP CRC, extracts all four phases in that pass, and appends batches
+to a synchronous SQLite hash chain. Different symbols in one month may be
+scanned concurrently, but batches are committed only in the preregistered
+month/symbol order. It is safe to interrupt and resume:
+
+```sh
+uv run --locked python -m kairos_backtest.quarter_hour_features \
+  --ledger runtime/quarter-hour-lag-features.sqlite3 \
+  --cache-dir data/aggtrades-monthly \
+  --workers 4
+
+uv run --locked python -m kairos_backtest.quarter_hour_features \
+  --ledger runtime/quarter-hour-lag-features.sqlite3 \
+  --cache-dir data/aggtrades-monthly \
+  --verify --deep
+```
+
+Only after all 335 batches pass deep verification may the fixed rolling model
+run. It evaluates paper-sample replication, post-sample robustness, three
+placebo phases and a second pass excluding raw-ID-gap-affected targets:
+
+```sh
+uv run --locked python -m kairos_backtest.quarter_hour_lag_replication \
+  --ledger runtime/quarter-hour-lag-features.sqlite3 \
+  --result reports/quarter-hour-lag-replication/result.json
+```
+
+Success means only `STATISTICAL_COMPONENT_CONFIRMED`. The source paper reports
+roughly 0.5 basis points of gross predictable movement per boundary, below
+ordinary round-trip fees, so this component cannot set ALPHA, PAPER, or LIVE.
+It would next require a separate preregistered execution/liquidity overlay with
+realistic venue costs.
 
 ## Right-tail trend reused-data screen
 
