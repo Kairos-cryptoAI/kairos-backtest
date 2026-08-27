@@ -260,10 +260,10 @@ from any strategy experiment. Verify its exact plan before opening data, then
 run or resume the append-only manifest ledger:
 
 ```sh
-uv run --locked kairos-aggtrades-preflight verify-plan \
+uv run --locked python -m kairos_backtest.aggtrades_preflight verify-plan \
   --plan reports/aggtrades-preflight/plan.json
 
-uv run --locked kairos-aggtrades-preflight run \
+uv run --locked python -m kairos_backtest.aggtrades_preflight run \
   --plan reports/aggtrades-preflight/plan.json \
   --ledger runtime/aggtrades-preflight.sqlite3 \
   --cache-dir data/aggtrades \
@@ -272,7 +272,10 @@ uv run --locked kairos-aggtrades-preflight run \
 
 The run refuses a dirty worktree, binds every manifest to the plan in exact
 day/symbol order and can resume after interruption. The final receipt contains
-only archive, row, gap, hash-chain and provenance evidence.
+only archive, row, gap, hash-chain and provenance evidence. The completed
+[canary report](reports/aggtrades-preflight/REPORT.md) and immutable
+[receipt](reports/aggtrades-preflight/result.json) qualify this data path but
+do not qualify a strategy.
 
 ## Right-tail trend reused-data screen
 

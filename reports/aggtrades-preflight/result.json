@@ -1,0 +1,97 @@
+{
+  "archives": [
+    {
+      "archive_sha256": "608297cce521035ef06e6580d31b0f64bdca0fe068c5eeefabd931b3713f84d8",
+      "day": "2026-08-25",
+      "filename": "BTCUSDT-aggTrades-2026-08-25.zip",
+      "first_aggregate_trade_id": 3425433883,
+      "first_transact_time_ms": 1787616000010,
+      "last_aggregate_trade_id": 3427760762,
+      "last_transact_time_ms": 1787702399468,
+      "missing_aggregate_trade_ids": 0,
+      "missing_raw_trade_ids": 16292,
+      "normalized_rows_sha256": "99b4f248ee9809baf9ad1cb295b44803de6f72d3704e98043d139f23c87a88ac",
+      "rows": 2326880,
+      "symbol": "BTCUSDT"
+    },
+    {
+      "archive_sha256": "96435c18929fe5937d7412039dc11b67b8966eb8b6863e7bab86716e946d8fd9",
+      "day": "2026-08-25",
+      "filename": "ETHUSDT-aggTrades-2026-08-25.zip",
+      "first_aggregate_trade_id": 3061003758,
+      "first_transact_time_ms": 1787616000004,
+      "last_aggregate_trade_id": 3062772043,
+      "last_transact_time_ms": 1787702399992,
+      "missing_aggregate_trade_ids": 0,
+      "missing_raw_trade_ids": 20996,
+      "normalized_rows_sha256": "b65368009a6025a9f416e6ab656d2bb4b9b7758cbfced09e94c48820e9491259",
+      "rows": 1768286,
+      "symbol": "ETHUSDT"
+    },
+    {
+      "archive_sha256": "28399e6c28e6330d1f7ceea0eba2b765731f139e93bb17b0237d323c7226de22",
+      "day": "2026-08-25",
+      "filename": "SOLUSDT-aggTrades-2026-08-25.zip",
+      "first_aggregate_trade_id": 1090571461,
+      "first_transact_time_ms": 1787616000007,
+      "last_aggregate_trade_id": 1091040785,
+      "last_transact_time_ms": 1787702398764,
+      "missing_aggregate_trade_ids": 0,
+      "missing_raw_trade_ids": 19012,
+      "normalized_rows_sha256": "0eeb7062b6b0ce5cbc01d1f449b7ebe862f03b5ebd09daa000d26ffa21f80870",
+      "rows": 469325,
+      "symbol": "SOLUSDT"
+    },
+    {
+      "archive_sha256": "e3408084befbcdc0788a784d85b3f6de9aabe5b1ae281d7edade9b6d67f050c5",
+      "day": "2026-08-25",
+      "filename": "BNBUSDT-aggTrades-2026-08-25.zip",
+      "first_aggregate_trade_id": 861567000,
+      "first_transact_time_ms": 1787616000004,
+      "last_aggregate_trade_id": 861923443,
+      "last_transact_time_ms": 1787702399886,
+      "missing_aggregate_trade_ids": 0,
+      "missing_raw_trade_ids": 9846,
+      "normalized_rows_sha256": "71043e32c5bfdb90685ebaf581a773956518f414b904ae4550d0eec6d0497de0",
+      "rows": 356444,
+      "symbol": "BNBUSDT"
+    },
+    {
+      "archive_sha256": "84da88e326b95202b825649433f9d546e97c805b63d3cfa663c4956f8af17918",
+      "day": "2026-08-25",
+      "filename": "XRPUSDT-aggTrades-2026-08-25.zip",
+      "first_aggregate_trade_id": 774343714,
+      "first_transact_time_ms": 1787616000005,
+      "last_aggregate_trade_id": 774772882,
+      "last_transact_time_ms": 1787702398918,
+      "missing_aggregate_trade_ids": 0,
+      "missing_raw_trade_ids": 19650,
+      "normalized_rows_sha256": "d86416bad945c72bc1460e8a44b9268a5a1f7b44c9bc0722fa2972d4cb3cb523",
+      "rows": 429169,
+      "symbol": "XRPUSDT"
+    }
+  ],
+  "classification": "DATA_PREFLIGHT_PASSED",
+  "completed_at": "2026-08-27T09:58:37.198416+00:00",
+  "environment": {
+    "git_head_sha": "f6c35d2ee57c6f68eb05f417eacdf26d8ca49c6d",
+    "loader_source_sha256": "c1479b0143ad0b369fcd32fb47f3717c57452f019448208bf46d80355c38ec18",
+    "preflight_source_sha256": "ce3fc2363103fee527204cac68b00a64ad0be0d935fcc1adc4269a76cb624afc"
+  },
+  "evidence": {
+    "archive_count": 5,
+    "manifest_chain_sha256": "c2cfc5f4e0377fcd97fc747cec9964c553e153144e82d3920579499a1de55d87",
+    "missing_aggregate_trade_ids": 0,
+    "missing_raw_trade_ids": 85796,
+    "rows": 5350104
+  },
+  "permissions": {
+    "alpha": false,
+    "live": false,
+    "paper": false,
+    "promotion": false
+  },
+  "plan_sha256": "9593cd63db924a926df1a9bc1fa2344d1eeab93f79b8ba4f01c01f6b138202ff",
+  "result_schema_version": "kairos.aggtrades-data-preflight.v1",
+  "result_sha256": "1b6a6a61a13d7a0c3b899a93d2dad7ae5039bffc9f85e74565978ea3cb773229"
+}
