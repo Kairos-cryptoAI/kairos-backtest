@@ -214,3 +214,30 @@ preregistered strict threshold of `1.05`. BTC and SOL expectancy also turned
 negative in that scenario. The older research window was negative under both
 cost models, showing material regime dependence. No parameter was changed after
 this observation, and the exact candidate is not eligible for a forward freeze.
+
+## Trials 12–14 and consolidated decision
+
+`crowded_trend_continuation_v1` (trial 12) was positive in all selection and
+robustness cells, but failed its strict stress profit-factor and short-breadth
+gates. The result preserves derivatives crowding as a possible context or
+ranking feature; it does not promote the candidate.
+
+The published Donchian ensemble (trial 13) stopped before performance was
+observed because an exact warm-up row contained contradictory optional volume
+fields in an otherwise checksum-valid official archive. The attempt remains
+consumed and the result is `INCONCLUSIVE_DATA_INTEGRITY`. The later field-profile
+and exact-slice preflight work fixes the research process, not this attempt.
+
+The exact four-hour SMA200 BTC long/flat reproduction (trial 14) was rejected
+as a standalone strategy. It was negative in the robustness and source-unseen
+cells, but reduced losses relative to continuous exposure. Slow trend state is
+therefore retained only as defensive context.
+
+The complete lineage conclusion and the exact, pre-performance definition of
+the next candidate are recorded in the
+[`strategy research synthesis`](reports/strategy-synthesis-2026-08-27/REPORT.md).
+The next candidate combines the unchanged daily right-tail lifecycle with a
+causal four-hour SMA200 direction gate. Since both components and all available
+archives have been observed, a reused-data pass can at most freeze code for
+future evidence beginning no earlier than 2026-09-01; it cannot establish alpha
+or authorize PAPER.
