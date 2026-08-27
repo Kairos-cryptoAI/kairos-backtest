@@ -1,6 +1,6 @@
 # Quarter-hour lag replication
 
-Status: `HISTORICAL_FEATURE_COLLECTION_IN_PROGRESS`
+Status: `V1_INCOMPLETE_DATA`; performance-blind v2 amendment preregistered
 
 This is a performance-blind, partial replication of the lag-only forecasting
 result in *The Quarter-Hour Effect*.  It is not a strategy backtest and cannot
@@ -27,6 +27,28 @@ Primary source:
 
 - <https://arxiv.org/abs/2607.09426v2>
 - <https://github.com/binance/binance-public-data>
+
+## Immutable v1 outcome
+
+V1 stopped before fitting a model or evaluating any return metric. The first
+rejected batch, BTCUSDT 2021-02, contains 22,806 missing aggregate-trade IDs in
+three exact gaps. The largest gap covers 22,785 IDs and 27 minutes on
+2021-02-09. The official monthly ZIP passed its adjacent SHA-256 and ZIP CRC.
+
+This was not a monthly-archive packaging defect. Independently downloaded,
+checksum-verified official daily archives reproduce the same three endpoint
+IDs and timestamps: 22,793 missing IDs on 2021-02-09 and 13 on 2021-02-24.
+Consequently the original zero-gap requirement failed and the immutable
+[v1 result](result.json) is `INCOMPLETE_DATA`. It contains no R2, DM, accuracy,
+return, PnL, or trading claim.
+
+The failure exposed source-native gaps, not strategy performance. Before any
+model metric was opened, a separate [v2 plan](../quarter-hour-lag-replication-v2/plan.json)
+was therefore frozen. V2 never fills or guesses a missing trade. It requires
+every aggregate-ID gap to have an exact proof from official daily archives,
+excludes affected targets, and lets the twelve-lag builder remove every row
+whose causal predictor chain crosses an excluded target. All-target metrics
+become diagnostics; clean-target metrics are the authoritative gates.
 
 ## Performance-blind monthly canary
 

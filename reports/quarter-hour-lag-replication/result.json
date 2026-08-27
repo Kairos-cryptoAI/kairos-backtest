@@ -1,0 +1,73 @@
+{
+  "classification": "INCOMPLETE_DATA",
+  "completed_at": "2026-08-27T11:40:12.312652+00:00",
+  "data": {
+    "completed_archive_batches": 5,
+    "completed_feature_windows": 59456,
+    "first_rejected_batch": {
+      "archive_sha256": "6f8fe48bc9b634ab364163b321a456b71286d7816957de7d9aa38a0721335cd1",
+      "filename": "BTCUSDT-aggTrades-2021-02.zip",
+      "gap_signatures": [
+        {
+          "missing_aggregate_trade_ids": 22785,
+          "next_aggregate_trade_id": 308204627,
+          "next_transact_time_ms": 1612848935345,
+          "previous_aggregate_trade_id": 308181841,
+          "previous_transact_time_ms": 1612847308467
+        },
+        {
+          "missing_aggregate_trade_ids": 8,
+          "next_aggregate_trade_id": 308680652,
+          "next_transact_time_ms": 1612863575972,
+          "previous_aggregate_trade_id": 308680643,
+          "previous_transact_time_ms": 1612863575327
+        },
+        {
+          "missing_aggregate_trade_ids": 13,
+          "next_aggregate_trade_id": 338732083,
+          "next_transact_time_ms": 1614148135219,
+          "previous_aggregate_trade_id": 338732069,
+          "previous_transact_time_ms": 1614148134746
+        }
+      ],
+      "missing_aggregate_trade_ids": 22806,
+      "period": "2021-02",
+      "rows": 55186588,
+      "symbol": "BTCUSDT"
+    },
+    "independent_daily_corroboration": [
+      {
+        "archive_sha256": "ee32ac98f3366028f8ef3d36cb699868b5f2aeb02ecdfc69e821a77f52b0eb4a",
+        "day": "2021-02-09",
+        "gap_signatures_match_monthly": true,
+        "missing_aggregate_trade_ids": 22793,
+        "normalized_rows_sha256": "5c3f954ba3a1b755b37ca43e3f0c4d160ab54c3261181e3732b933bc4ea46ff0",
+        "rows": 2347876
+      },
+      {
+        "archive_sha256": "b24b0942c45649c89920b823a4f1ffd16ff68a5247dfa9a53b3372260081f977",
+        "day": "2021-02-24",
+        "gap_signatures_match_monthly": true,
+        "missing_aggregate_trade_ids": 13,
+        "normalized_rows_sha256": "5d1a4854ff0ab44784c9cdf7ae82416f40d4f1af284688430f8726372fe44e18",
+        "rows": 2286664
+      }
+    ],
+    "model_metrics_evaluated": false,
+    "partial_feature_ledger_chain_sha256": "92a62efbbaa5cf2d69894e2493ebf3f353eac720d1c8ef3b9d6863537457e942",
+    "rejection_reason": "The preregistered zero aggregate-ID-gap requirement was violated by the official source and independently corroborated by official daily archives."
+  },
+  "gate_failures": [
+    "data_quality.aggregate_trade_id_gaps_allowed_exceeded"
+  ],
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "f335b3eaf75ffd153b2f4d4341271280cb725de98b1a7584a8eaed076da9dc99",
+  "result_schema_version": "kairos.quarter-hour-lag-replication-result.v1",
+  "result_sha256": "a9f6b90b72431072af4c45416d0f4887d08553c498bf2153b98e88db66a586fb",
+  "trading_interpretation": "No forecast, entry, exit, sizing, cost, PnL, alpha, PAPER, or LIVE claim was evaluated or authorized."
+}

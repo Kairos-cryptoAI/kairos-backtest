@@ -1,0 +1,133 @@
+{
+  "classification": "PERFORMANCE_BLIND_STATISTICAL_REPLICATION_AMENDMENT",
+  "data": {
+    "archive_cadence": "monthly with independent daily corroboration of every aggregate-ID gap",
+    "checksum_policy": "official adjacent SHA-256 sidecar plus ZIP CRC",
+    "end_exclusive": "2026-08-01",
+    "kairos_extension_assets": [
+      "BNBUSDT"
+    ],
+    "market": "Binance USD-M perpetual futures",
+    "paper_assets_not_in_kairos_universe": [
+      "ADAUSDT",
+      "DOGEUSDT"
+    ],
+    "paper_overlap_assets": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT"
+    ],
+    "source": "official Binance public-data aggTrades monthly and daily archives",
+    "start": "2021-01-01",
+    "universe": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ]
+  },
+  "data_quality": {
+    "aggregate_trade_id_gaps": "never impute; accept only an exact gap signature corroborated by checksum-verified official daily archives",
+    "clean_primary_analysis": "exclude every affected target and every row whose twelve-lag chain crosses an excluded target",
+    "empty_forward_windows": "exclude and count",
+    "imputation": "forbidden",
+    "missing_raw_trade_ids": "count, mark affected targets, and apply the same clean-primary exclusion",
+    "month_boundary_reference": "last validated aggregate trade from the preceding archive",
+    "non_finite_values": "reject",
+    "ordering": "strict aggregate ID and nondecreasing timestamp",
+    "replay": "append-only SQLite feature ledger with canonical record hash chain",
+    "source_rewrites": "reject a manifest, daily corroboration proof, or feature replay that differs from recorded bytes",
+    "uncorroborated_aggregate_gap": "classify INCOMPLETE_DATA and stop before model evaluation"
+  },
+  "gates": {
+    "paper_replication": {
+      "minimum_assets_with_one_sided_dm_p_below_0_05": 3,
+      "positive_oos_r2_required_for_every_paper_overlap_asset": true
+    },
+    "phase_specificity": {
+      "primary_pooled_oos_r2_must_exceed_each_placebo_in_both_windows": true
+    },
+    "post_sample_robustness": {
+      "minimum_assets_with_positive_oos_r2": 3,
+      "pooled_oos_r2_must_be_positive": true
+    },
+    "raw_gap_sensitivity": {
+      "all_target_metrics_are_diagnostic_only": true,
+      "clean_primary_gates_are_authoritative": true
+    }
+  },
+  "measurement": {
+    "boundary_spacing_minutes": 15,
+    "forward_window": "(T,T+10s]",
+    "lag_count": 12,
+    "opening_reference": "latest transaction price at or before T",
+    "phase_offsets_minutes": [
+      0,
+      2,
+      5,
+      7
+    ],
+    "primary_phase_offset_minutes": 0,
+    "response": "forward quantity-weighted transaction price / opening reference price - 1"
+  },
+  "model": {
+    "constant_predictors": "standardize to zero and force coefficient to zero",
+    "estimator": "deterministic coordinate-descent L1 penalized least squares",
+    "fit_scope": "separate model for each asset and phase",
+    "lambda_grid": {
+      "count": 21,
+      "maximum": 0.1,
+      "minimum": 1e-05,
+      "spacing": "base-10 logarithmic inclusive"
+    },
+    "lasso_max_iterations": 10000,
+    "lasso_tolerance": 1e-10,
+    "monthly_refit": true,
+    "predictors": "12 preceding returns at the same 15-minute phase",
+    "refit_training_window_calendar_months": 6,
+    "standardization": "fit predictors and response only; inverse-transform forecasts to return units",
+    "tie_break": "largest lambda within an absolute tuning-MSE tolerance of 1e-15",
+    "tuning": "chronological first 80% fit and most recent 20% validation, then refit full window"
+  },
+  "outputs": {
+    "diagnostics": [
+      "all-target comparison",
+      "continuous-score AUC",
+      "direction accuracy",
+      "gross sign-weighted response bps",
+      "Mincer-Zarnowitz slope",
+      "phase placebo comparison"
+    ],
+    "primary_metrics": [
+      "clean-target OOS R2 against zero",
+      "clean-target one-sided Diebold-Mariano test against zero with HAC lag 6"
+    ],
+    "result_classifications": [
+      "STATISTICAL_COMPONENT_CONFIRMED",
+      "REJECT_STATISTICAL_COMPONENT",
+      "INCOMPLETE_DATA"
+    ],
+    "trading_interpretation": "forecast evidence only; no entry, exit, sizing, cost, or PnL claim"
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "protocol": {
+    "amendment_reason": "v1 stopped before model evaluation because source-native aggregate-ID gaps exist identically in official monthly and daily archives",
+    "amends_plan_sha256": "f335b3eaf75ffd153b2f4d4341271280cb725de98b1a7584a8eaed076da9dc99",
+    "model_metrics_examined_before_amendment": false,
+    "paid_apis": false,
+    "paper_replication_end_exclusive": "2024-11-01",
+    "paper_replication_oos_start": "2021-07-01",
+    "post_sample_end_exclusive": "2026-08-01",
+    "post_sample_start": "2024-11-01",
+    "prior_paper": "https://arxiv.org/abs/2607.09426v2",
+    "result_may_not_change_this_plan": true
+  },
+  "schema_version": "kairos.quarter-hour-lag-replication.v2"
+}
