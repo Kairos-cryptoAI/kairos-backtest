@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from dataclasses import replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -190,3 +191,36 @@ def test_collection_rejects_invalid_parallelism_before_opening_data(tmp_path: Pa
         collect_features(**arguments, workers=0)
     with pytest.raises(ValueError, match="positive integer"):
         collect_features(**arguments, max_new_batches=0)
+
+
+def test_deep_verification_binds_query_columns_and_last_trade_to_hash_chain(tmp_path: Path) -> None:
+    ledger_path = tmp_path / "features.sqlite3"
+    with QuarterHourFeatureLedger(
+        ledger_path,
+        plan_sha256=PLAN_LOGICAL_SHA256,
+        feature_source_sha256="c" * 64,
+    ) as ledger:
+        ledger.append(0, _extraction(symbol="BTCUSDT", period="2021-01"))
+
+    with sqlite3.connect(ledger_path) as connection:
+        connection.execute("UPDATE peak_window SET return_text = '99' WHERE ordinal = 0")
+        connection.commit()
+    with QuarterHourFeatureLedger(
+        ledger_path,
+        plan_sha256=PLAN_LOGICAL_SHA256,
+        feature_source_sha256="c" * 64,
+    ) as ledger:
+        with pytest.raises(QuarterHourFeatureIntegrityError, match="query columns"):
+            ledger.verify(require_complete=False, deep=True)
+
+    with sqlite3.connect(ledger_path) as connection:
+        connection.execute("UPDATE peak_window SET return_text = '0.001' WHERE ordinal = 0")
+        connection.execute("UPDATE archive_batch SET last_trade_json = '{}' WHERE sequence = 0")
+        connection.commit()
+    with QuarterHourFeatureLedger(
+        ledger_path,
+        plan_sha256=PLAN_LOGICAL_SHA256,
+        feature_source_sha256="c" * 64,
+    ) as ledger:
+        with pytest.raises(QuarterHourFeatureIntegrityError, match="columns differ"):
+            ledger.verify(require_complete=False)

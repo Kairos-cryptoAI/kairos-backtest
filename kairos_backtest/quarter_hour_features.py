@@ -383,6 +383,7 @@ class QuarterHourFeatureLedger:
             "cross_period_missing_raw_trade_ids": cross_raw_gap,
             "empty_windows": extraction.empty_windows,
             "expected_windows": extraction.expected_windows,
+            "last_trade": asdict(extraction.last_trade),
             "manifest": asdict(extraction.manifest),
             "missing_reference_windows": extraction.missing_reference_windows,
             "symbol": symbol,
@@ -451,8 +452,8 @@ class QuarterHourFeatureLedger:
         batches = self._connection.execute(
             """
             SELECT sequence, symbol, period, batch_json, batch_sha256,
-                   previous_chain_sha256, chain_sha256, window_count,
-                   windows_chain_sha256
+                   previous_chain_sha256, chain_sha256, last_trade_json,
+                   window_count, windows_chain_sha256
             FROM archive_batch ORDER BY sequence
             """
         ).fetchall()
@@ -468,6 +469,7 @@ class QuarterHourFeatureLedger:
                 batch_sha256,
                 stored_previous,
                 chain,
+                last_trade_json,
                 window_count,
                 stored_windows_chain,
             ) = row
@@ -478,13 +480,24 @@ class QuarterHourFeatureLedger:
                 raise QuarterHourFeatureIntegrityError("feature batch JSON is not canonical")
             if _logical_sha256(payload) != batch_sha256 or stored_previous != previous:
                 raise QuarterHourFeatureIntegrityError("feature batch hash chain is invalid")
+            if (
+                payload.get("symbol") != symbol
+                or payload.get("period") != period
+                or payload.get("window_count") != window_count
+                or payload.get("windows_chain_sha256") != stored_windows_chain
+                or _json_bytes(payload.get("last_trade")).decode("ascii") != last_trade_json
+            ):
+                raise QuarterHourFeatureIntegrityError("feature batch columns differ from evidence")
             actual_chain = hashlib.sha256(f"{previous}:{batch_sha256}".encode("ascii")).hexdigest()
             if actual_chain != chain:
                 raise QuarterHourFeatureIntegrityError("feature batch hash chain is invalid")
             if deep:
                 feature_rows = self._connection.execute(
                     """
-                    SELECT ordinal, feature_json, feature_sha256 FROM peak_window
+                    SELECT ordinal, symbol, period, phase_offset_minutes, start_ms,
+                           return_text, missing_aggregate_trade_ids,
+                           missing_raw_trade_ids, feature_json, feature_sha256
+                    FROM peak_window
                     WHERE batch_sequence = ? ORDER BY ordinal
                     """,
                     (sequence,),
@@ -492,7 +505,19 @@ class QuarterHourFeatureLedger:
                 if len(feature_rows) != window_count:
                     raise QuarterHourFeatureIntegrityError("feature row count differs from batch")
                 windows_chain = _ZERO_SHA256
-                for feature_ordinal, feature_json, feature_sha256 in feature_rows:
+                for feature_row in feature_rows:
+                    (
+                        feature_ordinal,
+                        feature_symbol,
+                        feature_period,
+                        feature_phase,
+                        feature_start_ms,
+                        return_text,
+                        missing_aggregate_ids,
+                        missing_raw_ids,
+                        feature_json,
+                        feature_sha256,
+                    ) = feature_row
                     if feature_ordinal < 0 or feature_ordinal >= window_count:
                         raise QuarterHourFeatureIntegrityError("feature ordinal is invalid")
                     feature = json.loads(cast(str, feature_json))
@@ -500,6 +525,18 @@ class QuarterHourFeatureLedger:
                         raise QuarterHourFeatureIntegrityError("feature JSON is not canonical")
                     if _logical_sha256(feature) != feature_sha256:
                         raise QuarterHourFeatureIntegrityError("feature SHA-256 is invalid")
+                    if (
+                        feature.get("symbol") != feature_symbol
+                        or feature.get("period") != feature_period
+                        or feature.get("phase_offset_minutes") != feature_phase
+                        or feature.get("start_ms") != feature_start_ms
+                        or feature.get("open_to_vwap_return") != return_text
+                        or feature.get("missing_aggregate_trade_ids") != missing_aggregate_ids
+                        or feature.get("missing_raw_trade_ids") != missing_raw_ids
+                    ):
+                        raise QuarterHourFeatureIntegrityError(
+                            "feature query columns differ from canonical evidence"
+                        )
                     windows_chain = hashlib.sha256(
                         f"{windows_chain}:{feature_sha256}".encode("ascii")
                     ).hexdigest()
