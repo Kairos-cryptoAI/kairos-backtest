@@ -15,7 +15,7 @@ import os
 import tempfile
 import time
 import zipfile
-from collections.abc import Callable, Iterable, Iterator
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
@@ -26,6 +26,7 @@ from urllib.request import Request, urlopen
 from .scenarios import SYMBOLS
 
 DAILY_AGGTRADES_ROOT = "https://data.binance.vision/data/futures/um/daily/aggTrades"
+MONTHLY_AGGTRADES_ROOT = "https://data.binance.vision/data/futures/um/monthly/aggTrades"
 _DAY_MS = 86_400_000
 _PEAK_WINDOW_MS = 10_000
 _QUARTER_HOUR_MS = 15 * 60_000
@@ -79,6 +80,35 @@ class AggTradeArchive:
 
 
 @dataclass(frozen=True, slots=True)
+class MonthlyAggTradeTransport:
+    """Checksum- and CRC-verified monthly archive before its one-pass row scan."""
+
+    symbol: str
+    month: str
+    start_ms: int
+    end_ms: int
+    path: Path
+    member_name: str
+    archive_sha256: str
+
+
+@dataclass(frozen=True, slots=True)
+class AggTradePeriodManifest:
+    symbol: str
+    period: str
+    filename: str
+    archive_sha256: str
+    normalized_rows_sha256: str
+    rows: int
+    first_aggregate_trade_id: int
+    last_aggregate_trade_id: int
+    first_transact_time_ms: int
+    last_transact_time_ms: int
+    missing_aggregate_trade_ids: int
+    missing_raw_trade_ids: int
+
+
+@dataclass(frozen=True, slots=True)
 class QuarterHourPeakWindow:
     start_ms: int
     end_ms: int
@@ -100,8 +130,53 @@ class QuarterHourPeakWindow:
         return (self.buyer_taker_quantity - self.seller_taker_quantity) / self.total_quantity
 
 
+@dataclass(frozen=True, slots=True)
+class PhasePeakWindow:
+    """A causal ten-second target at one fixed phase of the 15-minute grid."""
+
+    phase_offset_minutes: int
+    start_ms: int
+    end_ms: int
+    opening_reference_price: Decimal
+    vwap: Decimal
+    total_quantity: Decimal
+    buyer_taker_quantity: Decimal
+    seller_taker_quantity: Decimal
+    trade_count: int
+    first_aggregate_trade_id: int
+    last_aggregate_trade_id: int
+    missing_aggregate_trade_ids: int
+    missing_raw_trade_ids: int
+
+    @property
+    def open_to_vwap_return(self) -> Decimal:
+        return self.vwap / self.opening_reference_price - Decimal(1)
+
+    @property
+    def order_imbalance(self) -> Decimal:
+        return (self.buyer_taker_quantity - self.seller_taker_quantity) / self.total_quantity
+
+
+@dataclass(frozen=True, slots=True)
+class PhasePeakExtraction:
+    """One-pass archive scan containing both row and feature evidence."""
+
+    manifest: AggTradePeriodManifest
+    windows: tuple[PhasePeakWindow, ...]
+    last_trade: AggTrade
+    expected_windows: int
+    empty_windows: int
+    missing_reference_windows: int
+
+
 def _date_ms(value: date) -> int:
     return int(datetime(value.year, value.month, value.day, tzinfo=UTC).timestamp() * 1_000)
+
+
+def _next_month(value: date) -> date:
+    if value.day != 1:
+        raise ValueError("monthly aggregate-trade periods must start on day one")
+    return date(value.year + (value.month == 12), value.month % 12 + 1, 1)
 
 
 def _sha256_file(path: Path) -> str:
@@ -115,6 +190,14 @@ def _sha256_file(path: Path) -> str:
 def _canonical_decimal(value: Decimal) -> str:
     normalized = value.normalize()
     return "0" if normalized == 0 else format(normalized, "f")
+
+
+def _canonical_trade_line(trade: AggTrade) -> bytes:
+    return (
+        f"{trade.aggregate_trade_id},{_canonical_decimal(trade.price)},"
+        f"{_canonical_decimal(trade.quantity)},{trade.first_trade_id},{trade.last_trade_id},"
+        f"{trade.transact_time_ms},{str(trade.buyer_is_maker).lower()}\n"
+    ).encode("ascii")
 
 
 def _parse_decimal(raw: str, *, field: str, row_number: int) -> Decimal:
@@ -208,15 +291,19 @@ class BinanceAggTradeArchiveLoader:
         *,
         retries: int = 3,
         opener: Callable[..., object] = urlopen,
+        root: str = DAILY_AGGTRADES_ROOT,
     ) -> None:
         if isinstance(retries, bool) or not isinstance(retries, int) or retries < 1:
             raise ValueError("retries must be a positive integer")
         self.cache_dir = cache_dir
         self.retries = retries
         self._opener = opener
+        if root not in {DAILY_AGGTRADES_ROOT, MONTHLY_AGGTRADES_ROOT}:
+            raise ValueError("aggregate-trade root must be an official fixed Binance data path")
+        self._root = root
 
     def _download(self, url: str, target: Path) -> None:
-        if not url.startswith(f"{DAILY_AGGTRADES_ROOT}/"):
+        if not url.startswith(f"{self._root}/"):
             raise ValueError("aggregate-trade URL must use the fixed Binance data host")
         if target.is_file():
             return
@@ -344,12 +431,7 @@ class BinanceAggTradeArchiveLoader:
                     )
                 missing_aggregate_ids += trade.aggregate_trade_id - previous.aggregate_trade_id - 1
                 missing_raw_ids += trade.first_trade_id - previous.last_trade_id - 1
-            canonical = (
-                f"{trade.aggregate_trade_id},{_canonical_decimal(trade.price)},"
-                f"{_canonical_decimal(trade.quantity)},{trade.first_trade_id},{trade.last_trade_id},"
-                f"{trade.transact_time_ms},{str(trade.buyer_is_maker).lower()}\n"
-            )
-            digest.update(canonical.encode("ascii"))
+            digest.update(_canonical_trade_line(trade))
             first = trade if first is None else first
             previous = trade
             count += 1
@@ -374,6 +456,73 @@ class BinanceAggTradeArchiveLoader:
     def iter_trades(self, archive: AggTradeArchive) -> Iterator[AggTrade]:
         day = date.fromisoformat(archive.manifest.day)
         yield from self._rows(archive.path, archive.member_name, day)
+
+
+class BinanceMonthlyAggTradeArchiveLoader:
+    """Verify monthly transport without parsing a multi-gigabyte CSV twice."""
+
+    def __init__(
+        self,
+        cache_dir: Path,
+        *,
+        retries: int = 3,
+        opener: Callable[..., object] = urlopen,
+    ) -> None:
+        self.cache_dir = cache_dir
+        self._transport = BinanceAggTradeArchiveLoader(
+            cache_dir,
+            retries=retries,
+            opener=opener,
+            root=MONTHLY_AGGTRADES_ROOT,
+        )
+
+    def load(self, symbol: str, month: date) -> MonthlyAggTradeTransport:
+        symbol = symbol.upper()
+        if symbol not in SYMBOLS:
+            raise ValueError(f"symbol is outside the Kairos universe: {symbol}")
+        end = _next_month(month)
+        if end > datetime.now(UTC).date():
+            raise ValueError("monthly aggregate-trade archive requires a completed UTC month")
+        period = month.strftime("%Y-%m")
+        filename = f"{symbol}-aggTrades-{period}.zip"
+        base_url = f"{MONTHLY_AGGTRADES_ROOT}/{symbol}/{filename}"
+        target = self.cache_dir / symbol / "aggTrades" / "monthly" / filename
+        checksum_path = target.with_name(f"{filename}.CHECKSUM")
+        self._transport._download(f"{base_url}.CHECKSUM", checksum_path)
+        self._transport._download(base_url, target)
+        expected = BinanceAggTradeArchiveLoader._expected_checksum(checksum_path, filename)
+        archive_sha256 = _sha256_file(target)
+        if archive_sha256 != expected:
+            raise AggTradeIntegrityError(f"Binance aggregate-trade SHA-256 mismatch for {filename}")
+        return MonthlyAggTradeTransport(
+            symbol=symbol,
+            month=period,
+            start_ms=_date_ms(month),
+            end_ms=_date_ms(end),
+            path=target,
+            member_name=BinanceAggTradeArchiveLoader._csv_member(target, filename),
+            archive_sha256=archive_sha256,
+        )
+
+    @staticmethod
+    def iter_trades(archive: MonthlyAggTradeTransport) -> Iterator[AggTrade]:
+        with zipfile.ZipFile(archive.path) as compressed, compressed.open(archive.member_name) as raw:
+            with io.TextIOWrapper(raw, encoding="utf-8", newline="") as text:
+                reader = csv.reader(text)
+                first_data_seen = False
+                for row_number, row in enumerate(reader, start=1):
+                    if not row or all(not value.strip() for value in row):
+                        raise AggTradeIntegrityError(f"blank aggregate-trade row at line {row_number}")
+                    if not first_data_seen and _is_header(row):
+                        first_data_seen = True
+                        continue
+                    first_data_seen = True
+                    yield _parse_row(
+                        row,
+                        row_number=row_number,
+                        start_ms=archive.start_ms,
+                        end_ms=archive.end_ms,
+                    )
 
 
 def _quarter_hour_starts(start_ms: int, end_ms: int) -> Iterator[int]:
@@ -449,6 +598,175 @@ def quarter_hour_peak_windows(
             first_aggregate_trade_id=first_id,
             last_aggregate_trade_id=last_id,
         )
+
+
+def _phase_boundaries(
+    start_ms: int,
+    end_ms: int,
+    phase_offsets_minutes: Sequence[int],
+) -> tuple[tuple[int, int], ...]:
+    if start_ms < 0 or end_ms <= start_ms:
+        raise ValueError("phase-window range must be positive and non-empty")
+    offsets = tuple(phase_offsets_minutes)
+    if not offsets or len(set(offsets)) != len(offsets):
+        raise ValueError("phase offsets must be non-empty and unique")
+    if any(
+        isinstance(offset, bool) or not isinstance(offset, int) or not 0 <= offset < 15 for offset in offsets
+    ):
+        raise ValueError("phase offsets must be integer minutes in [0, 15)")
+    events: list[tuple[int, int]] = []
+    for offset in offsets:
+        shifted_start = start_ms - offset * 60_000
+        for boundary in _quarter_hour_starts(shifted_start, end_ms - offset * 60_000):
+            actual = boundary + offset * 60_000
+            if start_ms <= actual < end_ms:
+                events.append((actual, offset))
+    return tuple(sorted(events))
+
+
+def extract_phase_peak_windows(
+    archive: MonthlyAggTradeTransport,
+    trades: Iterable[AggTrade],
+    *,
+    phase_offsets_minutes: Sequence[int],
+    prior_trade: AggTrade | None = None,
+) -> PhasePeakExtraction:
+    """Scan one monthly archive once and extract all preregistered phases.
+
+    Each phase uses the latest trade at or before ``T`` as its reference and
+    the quantity-weighted prices in ``(T,T+10s]`` as its target.  Source-ID
+    gaps between that reference and the target trades are attached to the
+    window, so sensitivity analysis can remove affected observations without
+    inventing a value.
+    """
+
+    boundaries = _phase_boundaries(
+        archive.start_ms,
+        archive.end_ms,
+        phase_offsets_minutes,
+    )
+    if prior_trade is not None and prior_trade.transact_time_ms >= archive.start_ms:
+        raise AggTradeIntegrityError("prior aggregate trade must precede the archive")
+
+    iterator = iter(trades)
+    current = next(iterator, None)
+    last = prior_trade
+    first: AggTrade | None = None
+    previous_in_archive: AggTrade | None = None
+    rows = 0
+    missing_aggregate_ids = 0
+    missing_raw_ids = 0
+    digest = hashlib.sha256()
+    windows: list[PhasePeakWindow] = []
+    empty_windows = 0
+    missing_reference_windows = 0
+
+    def consume(trade: AggTrade) -> tuple[int, int]:
+        nonlocal first, previous_in_archive, last, rows
+        nonlocal missing_aggregate_ids, missing_raw_ids
+        if not archive.start_ms <= trade.transact_time_ms < archive.end_ms:
+            raise AggTradeIntegrityError("aggregate-trade timestamp lies outside its archive period")
+        previous = last
+        if previous is not None:
+            if trade.aggregate_trade_id <= previous.aggregate_trade_id:
+                raise AggTradeIntegrityError("aggregate trade ids must be strictly increasing")
+            if trade.transact_time_ms < previous.transact_time_ms:
+                raise AggTradeIntegrityError("aggregate-trade timestamps must be nondecreasing")
+            if trade.first_trade_id <= previous.last_trade_id:
+                raise AggTradeIntegrityError("raw-trade ranges must be strictly ordered and non-overlapping")
+        aggregate_gap = 0
+        raw_gap = 0
+        if previous is not None:
+            aggregate_gap = trade.aggregate_trade_id - previous.aggregate_trade_id - 1
+            raw_gap = trade.first_trade_id - previous.last_trade_id - 1
+        if previous_in_archive is not None:
+            missing_aggregate_ids += aggregate_gap
+            missing_raw_ids += raw_gap
+        digest.update(_canonical_trade_line(trade))
+        first = trade if first is None else first
+        previous_in_archive = trade
+        last = trade
+        rows += 1
+        return aggregate_gap, raw_gap
+
+    for boundary, phase_offset in boundaries:
+        while current is not None and current.transact_time_ms <= boundary:
+            consume(current)
+            current = next(iterator, None)
+        if last is None:
+            missing_reference_windows += 1
+            continue
+        reference = last
+        total_quantity = Decimal(0)
+        total_notional = Decimal(0)
+        buyer_quantity = Decimal(0)
+        seller_quantity = Decimal(0)
+        count = 0
+        first_id: int | None = None
+        last_id: int | None = None
+        target_aggregate_gaps = 0
+        target_raw_gaps = 0
+        window_end = boundary + _PEAK_WINDOW_MS
+        while current is not None and current.transact_time_ms <= window_end:
+            aggregate_gap, raw_gap = consume(current)
+            target_aggregate_gaps += aggregate_gap
+            target_raw_gaps += raw_gap
+            total_quantity += current.quantity
+            total_notional += current.price * current.quantity
+            buyer_quantity += current.buyer_taker_quantity
+            seller_quantity += current.seller_taker_quantity
+            first_id = current.aggregate_trade_id if first_id is None else first_id
+            last_id = current.aggregate_trade_id
+            count += 1
+            current = next(iterator, None)
+        if count == 0 or first_id is None or last_id is None:
+            empty_windows += 1
+            continue
+        windows.append(
+            PhasePeakWindow(
+                phase_offset_minutes=phase_offset,
+                start_ms=boundary,
+                end_ms=window_end,
+                opening_reference_price=reference.price,
+                vwap=total_notional / total_quantity,
+                total_quantity=total_quantity,
+                buyer_taker_quantity=buyer_quantity,
+                seller_taker_quantity=seller_quantity,
+                trade_count=count,
+                first_aggregate_trade_id=first_id,
+                last_aggregate_trade_id=last_id,
+                missing_aggregate_trade_ids=target_aggregate_gaps,
+                missing_raw_trade_ids=target_raw_gaps,
+            )
+        )
+
+    while current is not None:
+        consume(current)
+        current = next(iterator, None)
+    if first is None or previous_in_archive is None or last is None:
+        raise AggTradeIntegrityError(f"aggregate-trade archive contains no rows: {archive.path.name}")
+    manifest = AggTradePeriodManifest(
+        symbol=archive.symbol,
+        period=archive.month,
+        filename=archive.path.name,
+        archive_sha256=archive.archive_sha256,
+        normalized_rows_sha256=digest.hexdigest(),
+        rows=rows,
+        first_aggregate_trade_id=first.aggregate_trade_id,
+        last_aggregate_trade_id=previous_in_archive.aggregate_trade_id,
+        first_transact_time_ms=first.transact_time_ms,
+        last_transact_time_ms=previous_in_archive.transact_time_ms,
+        missing_aggregate_trade_ids=missing_aggregate_ids,
+        missing_raw_trade_ids=missing_raw_ids,
+    )
+    return PhasePeakExtraction(
+        manifest=manifest,
+        windows=tuple(windows),
+        last_trade=last,
+        expected_windows=len(boundaries),
+        empty_windows=empty_windows,
+        missing_reference_windows=missing_reference_windows,
+    )
 
 
 def completed_days(start: date, end_exclusive: date) -> tuple[date, ...]:
