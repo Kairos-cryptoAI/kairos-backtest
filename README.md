@@ -242,6 +242,12 @@ parameter trial is allowed. Even `FORWARD_FREEZE_CANDIDATE`
 requires at least 365 future days and 500 closed trades before a separate alpha
 decision.
 
+The consumed attempt returned `REJECT_REUSED_DATA_SCREEN`: robustness stress
+profit factor was `1.0382706977`, below the preregistered `>1.05` gate. The
+immutable evidence and interpretation are retained in the
+[right-tail report](reports/right-tail-screen/REPORT.md). The exact candidate
+must not be rerun or tuned into a passing result.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps

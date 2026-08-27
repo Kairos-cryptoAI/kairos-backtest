@@ -206,3 +206,11 @@ derivatives-state filter is permitted. Its use of an already observed feature
 makes every archive through July 2026 reused development data. The committed
 screen can return only `REJECT_REUSED_DATA_SCREEN` or
 `FORWARD_FREEZE_CANDIDATE`; both leave PAPER and LIVE disabled.
+
+The one-shot screen returned `REJECT_REUSED_DATA_SCREEN`. Selection was
+positive under baseline and stress assumptions, and robustness remained
+positive, but robustness stress profit factor was `1.0382706977`, below the
+preregistered strict threshold of `1.05`. BTC and SOL expectancy also turned
+negative in that scenario. The older research window was negative under both
+cost models, showing material regime dependence. No parameter was changed after
+this observation, and the exact candidate is not eligible for a forward freeze.

@@ -1,0 +1,17 @@
+{
+  "attempt_sha256": "9e01b505f701b336db861db84c57e07c85dd2bec560134aa84db71e76240aa40",
+  "classification": "reused_data_development_only",
+  "consumed_at": "2026-08-27T01:26:26.291108+00:00",
+  "consumption_point": "immediately_before_first_market_archive_access",
+  "crash_or_failure_releases_attempt": false,
+  "lineage_trial_number": 11,
+  "plan_file": {
+    "bytes": 4569,
+    "sha256": "c1bcef893a070aa8e808166d35f8709ffd75508c4596eb5c8c0921a342d8d28b"
+  },
+  "plan_sha256": "4b98938b7880c4a799a528a1f7f3e0a83fbd4bf2b4cb606ff51bf6daec1ecef4",
+  "rerun_allowed": false,
+  "schema_version": "kairos.right-tail-reused-screen.v1",
+  "status": "consumed",
+  "strategy_id": "right_tail_trend_v1"
+}

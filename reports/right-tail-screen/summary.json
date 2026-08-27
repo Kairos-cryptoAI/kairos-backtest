@@ -1,0 +1,1080 @@
+{
+  "attempt": {
+    "attempt_sha256": "9e01b505f701b336db861db84c57e07c85dd2bec560134aa84db71e76240aa40",
+    "classification": "reused_data_development_only",
+    "consumed_at": "2026-08-27T01:26:26.291108+00:00",
+    "consumption_point": "immediately_before_first_market_archive_access",
+    "crash_or_failure_releases_attempt": false,
+    "lineage_trial_number": 11,
+    "plan_file": {
+      "bytes": 4569,
+      "sha256": "c1bcef893a070aa8e808166d35f8709ffd75508c4596eb5c8c0921a342d8d28b"
+    },
+    "plan_sha256": "4b98938b7880c4a799a528a1f7f3e0a83fbd4bf2b4cb606ff51bf6daec1ecef4",
+    "rerun_allowed": false,
+    "schema_version": "kairos.right-tail-reused-screen.v1",
+    "status": "consumed",
+    "strategy_id": "right_tail_trend_v1"
+  },
+  "classification": "REJECT_REUSED_DATA_SCREEN",
+  "data_quality": {
+    "archive_audit": {
+      "checksum_files_verified": 305,
+      "coverage_pct": 99.89229192843894,
+      "csv_schema": "binance_futures_kline_v1_12_columns",
+      "expected_files": 305,
+      "gap_samples": [
+        "SOLUSDT:2022-02-25T23:59:00+00:00..2022-03-01T00:00:00+00:00",
+        "SOLUSDT:2022-03-31T23:59:00+00:00..2022-04-03T00:00:00+00:00",
+        "XRPUSDT:2022-02-25T23:59:00+00:00..2022-03-01T00:00:00+00:00",
+        "XRPUSDT:2022-03-31T23:59:00+00:00..2022-04-03T00:00:00+00:00",
+        "XRPUSDT:2023-11-30T12:34:00+00:00..2023-11-30T12:36:00+00:00"
+      ],
+      "gaps": 5,
+      "invalid_row_samples": [
+        "XRPUSDT-1m-2023-11.zip:line 42517:taker-buy volume exceeds total volume"
+      ],
+      "invalid_rows": 1,
+      "inventory_sha256": "1b83503434c9471eecdd84265a5d4d4d29a8ee66dd54fdaedba85f797e6e89fe",
+      "missing_minutes": 14400,
+      "present_files": 305,
+      "requested_end": "2026-08-01",
+      "requested_start": "2021-07-01",
+      "rows": 13355999,
+      "symbols": [
+        {
+          "checksum_files_verified": 61,
+          "coverage_pct": 100.0,
+          "files": 61,
+          "first_open_time_ms": 1625097600000,
+          "gap_samples": [],
+          "gaps": 0,
+          "invalid_rows": 0,
+          "last_close_time_ms": 1785542399999,
+          "missing_minutes": 0,
+          "rows": 2674080,
+          "symbol": "BTCUSDT",
+          "zip_bytes": 113912836
+        },
+        {
+          "checksum_files_verified": 61,
+          "coverage_pct": 100.0,
+          "files": 61,
+          "first_open_time_ms": 1625097600000,
+          "gap_samples": [],
+          "gaps": 0,
+          "invalid_rows": 0,
+          "last_close_time_ms": 1785542399999,
+          "missing_minutes": 0,
+          "rows": 2674080,
+          "symbol": "ETHUSDT",
+          "zip_bytes": 115903731
+        },
+        {
+          "checksum_files_verified": 61,
+          "coverage_pct": 99.73074851911686,
+          "files": 61,
+          "first_open_time_ms": 1625097600000,
+          "gap_samples": [
+            "SOLUSDT:2022-02-25T23:59:00+00:00..2022-03-01T00:00:00+00:00",
+            "SOLUSDT:2022-03-31T23:59:00+00:00..2022-04-03T00:00:00+00:00"
+          ],
+          "gaps": 2,
+          "invalid_rows": 0,
+          "last_close_time_ms": 1785542399999,
+          "missing_minutes": 7200,
+          "rows": 2666880,
+          "symbol": "SOLUSDT",
+          "zip_bytes": 97583021
+        },
+        {
+          "checksum_files_verified": 61,
+          "coverage_pct": 100.0,
+          "files": 61,
+          "first_open_time_ms": 1625097600000,
+          "gap_samples": [],
+          "gaps": 0,
+          "invalid_rows": 0,
+          "last_close_time_ms": 1785542399999,
+          "missing_minutes": 0,
+          "rows": 2674080,
+          "symbol": "BNBUSDT",
+          "zip_bytes": 100249059
+        },
+        {
+          "checksum_files_verified": 61,
+          "coverage_pct": 99.73071112307784,
+          "files": 61,
+          "first_open_time_ms": 1625097600000,
+          "gap_samples": [
+            "XRPUSDT:2022-02-25T23:59:00+00:00..2022-03-01T00:00:00+00:00",
+            "XRPUSDT:2022-03-31T23:59:00+00:00..2022-04-03T00:00:00+00:00",
+            "XRPUSDT:2023-11-30T12:34:00+00:00..2023-11-30T12:36:00+00:00"
+          ],
+          "gaps": 3,
+          "invalid_rows": 1,
+          "last_close_time_ms": 1785542399999,
+          "missing_minutes": 7200,
+          "rows": 2666879,
+          "symbol": "XRPUSDT",
+          "zip_bytes": 103379052
+        }
+      ],
+      "zip_bytes": 531027699
+    },
+    "evaluated_slices": [
+      {
+        "actual_end_ms": 1719791999999,
+        "actual_start_ms": 1627603200000,
+        "checksum_files_verified": 36,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 36,
+        "files": [
+          "BTCUSDT-1m-2021-07.zip",
+          "BTCUSDT-1m-2021-08.zip",
+          "BTCUSDT-1m-2021-09.zip",
+          "BTCUSDT-1m-2021-10.zip",
+          "BTCUSDT-1m-2021-11.zip",
+          "BTCUSDT-1m-2021-12.zip",
+          "BTCUSDT-1m-2022-01.zip",
+          "BTCUSDT-1m-2022-02.zip",
+          "BTCUSDT-1m-2022-03.zip",
+          "BTCUSDT-1m-2022-04.zip",
+          "BTCUSDT-1m-2022-05.zip",
+          "BTCUSDT-1m-2022-06.zip",
+          "BTCUSDT-1m-2022-07.zip",
+          "BTCUSDT-1m-2022-08.zip",
+          "BTCUSDT-1m-2022-09.zip",
+          "BTCUSDT-1m-2022-10.zip",
+          "BTCUSDT-1m-2022-11.zip",
+          "BTCUSDT-1m-2022-12.zip",
+          "BTCUSDT-1m-2023-01.zip",
+          "BTCUSDT-1m-2023-02.zip",
+          "BTCUSDT-1m-2023-03.zip",
+          "BTCUSDT-1m-2023-04.zip",
+          "BTCUSDT-1m-2023-05.zip",
+          "BTCUSDT-1m-2023-06.zip",
+          "BTCUSDT-1m-2023-07.zip",
+          "BTCUSDT-1m-2023-08.zip",
+          "BTCUSDT-1m-2023-09.zip",
+          "BTCUSDT-1m-2023-10.zip",
+          "BTCUSDT-1m-2023-11.zip",
+          "BTCUSDT-1m-2023-12.zip",
+          "BTCUSDT-1m-2024-01.zip",
+          "BTCUSDT-1m-2024-02.zip",
+          "BTCUSDT-1m-2024-03.zip",
+          "BTCUSDT-1m-2024-04.zip",
+          "BTCUSDT-1m-2024-05.zip",
+          "BTCUSDT-1m-2024-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2024-07-01",
+        "requested_start": "2021-07-30",
+        "rows": 1536480,
+        "sha256": "83c0e4ab330cd50b6d0e2e16cad7c7c37107a32471396b527e0e8ad12d652861",
+        "symbol": "BTCUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "research"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1719619200000,
+        "checksum_files_verified": 13,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 13,
+        "files": [
+          "BTCUSDT-1m-2024-06.zip",
+          "BTCUSDT-1m-2024-07.zip",
+          "BTCUSDT-1m-2024-08.zip",
+          "BTCUSDT-1m-2024-09.zip",
+          "BTCUSDT-1m-2024-10.zip",
+          "BTCUSDT-1m-2024-11.zip",
+          "BTCUSDT-1m-2024-12.zip",
+          "BTCUSDT-1m-2025-01.zip",
+          "BTCUSDT-1m-2025-02.zip",
+          "BTCUSDT-1m-2025-03.zip",
+          "BTCUSDT-1m-2025-04.zip",
+          "BTCUSDT-1m-2025-05.zip",
+          "BTCUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-06-29",
+        "rows": 528480,
+        "sha256": "828bb9fa07a4e7f3057a0f8bab7ea68446e95a37597607c84b66cc1004e74e6f",
+        "symbol": "BTCUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1751155200000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "files": [
+          "BTCUSDT-1m-2025-06.zip",
+          "BTCUSDT-1m-2025-07.zip",
+          "BTCUSDT-1m-2025-08.zip",
+          "BTCUSDT-1m-2025-09.zip",
+          "BTCUSDT-1m-2025-10.zip",
+          "BTCUSDT-1m-2025-11.zip",
+          "BTCUSDT-1m-2025-12.zip",
+          "BTCUSDT-1m-2026-01.zip",
+          "BTCUSDT-1m-2026-02.zip",
+          "BTCUSDT-1m-2026-03.zip",
+          "BTCUSDT-1m-2026-04.zip",
+          "BTCUSDT-1m-2026-05.zip",
+          "BTCUSDT-1m-2026-06.zip",
+          "BTCUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-06-29",
+        "rows": 573120,
+        "sha256": "aceb1833bb69ee55ba405dead0765016a476a7b724cb3897918b3d7b345648eb",
+        "symbol": "BTCUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1719791999999,
+        "actual_start_ms": 1627603200000,
+        "checksum_files_verified": 36,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 36,
+        "files": [
+          "ETHUSDT-1m-2021-07.zip",
+          "ETHUSDT-1m-2021-08.zip",
+          "ETHUSDT-1m-2021-09.zip",
+          "ETHUSDT-1m-2021-10.zip",
+          "ETHUSDT-1m-2021-11.zip",
+          "ETHUSDT-1m-2021-12.zip",
+          "ETHUSDT-1m-2022-01.zip",
+          "ETHUSDT-1m-2022-02.zip",
+          "ETHUSDT-1m-2022-03.zip",
+          "ETHUSDT-1m-2022-04.zip",
+          "ETHUSDT-1m-2022-05.zip",
+          "ETHUSDT-1m-2022-06.zip",
+          "ETHUSDT-1m-2022-07.zip",
+          "ETHUSDT-1m-2022-08.zip",
+          "ETHUSDT-1m-2022-09.zip",
+          "ETHUSDT-1m-2022-10.zip",
+          "ETHUSDT-1m-2022-11.zip",
+          "ETHUSDT-1m-2022-12.zip",
+          "ETHUSDT-1m-2023-01.zip",
+          "ETHUSDT-1m-2023-02.zip",
+          "ETHUSDT-1m-2023-03.zip",
+          "ETHUSDT-1m-2023-04.zip",
+          "ETHUSDT-1m-2023-05.zip",
+          "ETHUSDT-1m-2023-06.zip",
+          "ETHUSDT-1m-2023-07.zip",
+          "ETHUSDT-1m-2023-08.zip",
+          "ETHUSDT-1m-2023-09.zip",
+          "ETHUSDT-1m-2023-10.zip",
+          "ETHUSDT-1m-2023-11.zip",
+          "ETHUSDT-1m-2023-12.zip",
+          "ETHUSDT-1m-2024-01.zip",
+          "ETHUSDT-1m-2024-02.zip",
+          "ETHUSDT-1m-2024-03.zip",
+          "ETHUSDT-1m-2024-04.zip",
+          "ETHUSDT-1m-2024-05.zip",
+          "ETHUSDT-1m-2024-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2024-07-01",
+        "requested_start": "2021-07-30",
+        "rows": 1536480,
+        "sha256": "23109b66b20bcca41a720b1ae6ef79d3cd155571ab99015a36d8ffe8d0562030",
+        "symbol": "ETHUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "research"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1719619200000,
+        "checksum_files_verified": 13,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 13,
+        "files": [
+          "ETHUSDT-1m-2024-06.zip",
+          "ETHUSDT-1m-2024-07.zip",
+          "ETHUSDT-1m-2024-08.zip",
+          "ETHUSDT-1m-2024-09.zip",
+          "ETHUSDT-1m-2024-10.zip",
+          "ETHUSDT-1m-2024-11.zip",
+          "ETHUSDT-1m-2024-12.zip",
+          "ETHUSDT-1m-2025-01.zip",
+          "ETHUSDT-1m-2025-02.zip",
+          "ETHUSDT-1m-2025-03.zip",
+          "ETHUSDT-1m-2025-04.zip",
+          "ETHUSDT-1m-2025-05.zip",
+          "ETHUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-06-29",
+        "rows": 528480,
+        "sha256": "7915a1510555e05cc1ee6fac1f62f416dd7cdd768cf4840439b39d7eed487464",
+        "symbol": "ETHUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1751155200000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "files": [
+          "ETHUSDT-1m-2025-06.zip",
+          "ETHUSDT-1m-2025-07.zip",
+          "ETHUSDT-1m-2025-08.zip",
+          "ETHUSDT-1m-2025-09.zip",
+          "ETHUSDT-1m-2025-10.zip",
+          "ETHUSDT-1m-2025-11.zip",
+          "ETHUSDT-1m-2025-12.zip",
+          "ETHUSDT-1m-2026-01.zip",
+          "ETHUSDT-1m-2026-02.zip",
+          "ETHUSDT-1m-2026-03.zip",
+          "ETHUSDT-1m-2026-04.zip",
+          "ETHUSDT-1m-2026-05.zip",
+          "ETHUSDT-1m-2026-06.zip",
+          "ETHUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-06-29",
+        "rows": 573120,
+        "sha256": "c55ff6bbc4819f38890a43d79ad43054af9660bbd563b55e2c4ec4fc42b94423",
+        "symbol": "ETHUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1719619200000,
+        "checksum_files_verified": 13,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 13,
+        "files": [
+          "SOLUSDT-1m-2024-06.zip",
+          "SOLUSDT-1m-2024-07.zip",
+          "SOLUSDT-1m-2024-08.zip",
+          "SOLUSDT-1m-2024-09.zip",
+          "SOLUSDT-1m-2024-10.zip",
+          "SOLUSDT-1m-2024-11.zip",
+          "SOLUSDT-1m-2024-12.zip",
+          "SOLUSDT-1m-2025-01.zip",
+          "SOLUSDT-1m-2025-02.zip",
+          "SOLUSDT-1m-2025-03.zip",
+          "SOLUSDT-1m-2025-04.zip",
+          "SOLUSDT-1m-2025-05.zip",
+          "SOLUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-06-29",
+        "rows": 528480,
+        "sha256": "4c608a97aa45d1926075f88a953fef17292be7cbf8ee7db7cff53bc72681da6a",
+        "symbol": "SOLUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1751155200000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "files": [
+          "SOLUSDT-1m-2025-06.zip",
+          "SOLUSDT-1m-2025-07.zip",
+          "SOLUSDT-1m-2025-08.zip",
+          "SOLUSDT-1m-2025-09.zip",
+          "SOLUSDT-1m-2025-10.zip",
+          "SOLUSDT-1m-2025-11.zip",
+          "SOLUSDT-1m-2025-12.zip",
+          "SOLUSDT-1m-2026-01.zip",
+          "SOLUSDT-1m-2026-02.zip",
+          "SOLUSDT-1m-2026-03.zip",
+          "SOLUSDT-1m-2026-04.zip",
+          "SOLUSDT-1m-2026-05.zip",
+          "SOLUSDT-1m-2026-06.zip",
+          "SOLUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-06-29",
+        "rows": 573120,
+        "sha256": "56cb0b832fe9d902aa17c5e96af0adbf869ad1bf9e8ff4b1857b47416c864d0a",
+        "symbol": "SOLUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1719791999999,
+        "actual_start_ms": 1627603200000,
+        "checksum_files_verified": 36,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 36,
+        "files": [
+          "BNBUSDT-1m-2021-07.zip",
+          "BNBUSDT-1m-2021-08.zip",
+          "BNBUSDT-1m-2021-09.zip",
+          "BNBUSDT-1m-2021-10.zip",
+          "BNBUSDT-1m-2021-11.zip",
+          "BNBUSDT-1m-2021-12.zip",
+          "BNBUSDT-1m-2022-01.zip",
+          "BNBUSDT-1m-2022-02.zip",
+          "BNBUSDT-1m-2022-03.zip",
+          "BNBUSDT-1m-2022-04.zip",
+          "BNBUSDT-1m-2022-05.zip",
+          "BNBUSDT-1m-2022-06.zip",
+          "BNBUSDT-1m-2022-07.zip",
+          "BNBUSDT-1m-2022-08.zip",
+          "BNBUSDT-1m-2022-09.zip",
+          "BNBUSDT-1m-2022-10.zip",
+          "BNBUSDT-1m-2022-11.zip",
+          "BNBUSDT-1m-2022-12.zip",
+          "BNBUSDT-1m-2023-01.zip",
+          "BNBUSDT-1m-2023-02.zip",
+          "BNBUSDT-1m-2023-03.zip",
+          "BNBUSDT-1m-2023-04.zip",
+          "BNBUSDT-1m-2023-05.zip",
+          "BNBUSDT-1m-2023-06.zip",
+          "BNBUSDT-1m-2023-07.zip",
+          "BNBUSDT-1m-2023-08.zip",
+          "BNBUSDT-1m-2023-09.zip",
+          "BNBUSDT-1m-2023-10.zip",
+          "BNBUSDT-1m-2023-11.zip",
+          "BNBUSDT-1m-2023-12.zip",
+          "BNBUSDT-1m-2024-01.zip",
+          "BNBUSDT-1m-2024-02.zip",
+          "BNBUSDT-1m-2024-03.zip",
+          "BNBUSDT-1m-2024-04.zip",
+          "BNBUSDT-1m-2024-05.zip",
+          "BNBUSDT-1m-2024-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2024-07-01",
+        "requested_start": "2021-07-30",
+        "rows": 1536480,
+        "sha256": "8d7b7f477967ca7de08e4594211112c55953aa7f494f4bd4ebbd2b682f64ae96",
+        "symbol": "BNBUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "research"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1719619200000,
+        "checksum_files_verified": 13,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 13,
+        "files": [
+          "BNBUSDT-1m-2024-06.zip",
+          "BNBUSDT-1m-2024-07.zip",
+          "BNBUSDT-1m-2024-08.zip",
+          "BNBUSDT-1m-2024-09.zip",
+          "BNBUSDT-1m-2024-10.zip",
+          "BNBUSDT-1m-2024-11.zip",
+          "BNBUSDT-1m-2024-12.zip",
+          "BNBUSDT-1m-2025-01.zip",
+          "BNBUSDT-1m-2025-02.zip",
+          "BNBUSDT-1m-2025-03.zip",
+          "BNBUSDT-1m-2025-04.zip",
+          "BNBUSDT-1m-2025-05.zip",
+          "BNBUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-06-29",
+        "rows": 528480,
+        "sha256": "86c1e337ff4cff6d422c56a2233a75c81556777e7b245f82cdc066b9c8b837a5",
+        "symbol": "BNBUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1751155200000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "files": [
+          "BNBUSDT-1m-2025-06.zip",
+          "BNBUSDT-1m-2025-07.zip",
+          "BNBUSDT-1m-2025-08.zip",
+          "BNBUSDT-1m-2025-09.zip",
+          "BNBUSDT-1m-2025-10.zip",
+          "BNBUSDT-1m-2025-11.zip",
+          "BNBUSDT-1m-2025-12.zip",
+          "BNBUSDT-1m-2026-01.zip",
+          "BNBUSDT-1m-2026-02.zip",
+          "BNBUSDT-1m-2026-03.zip",
+          "BNBUSDT-1m-2026-04.zip",
+          "BNBUSDT-1m-2026-05.zip",
+          "BNBUSDT-1m-2026-06.zip",
+          "BNBUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-06-29",
+        "rows": 573120,
+        "sha256": "3ab16c3955a4a1a47a5464a5041833207094868d4d7865da7277807f2bdf6f84",
+        "symbol": "BNBUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "robustness"
+      },
+      {
+        "actual_end_ms": 1751327999999,
+        "actual_start_ms": 1719619200000,
+        "checksum_files_verified": 13,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 13,
+        "files": [
+          "XRPUSDT-1m-2024-06.zip",
+          "XRPUSDT-1m-2024-07.zip",
+          "XRPUSDT-1m-2024-08.zip",
+          "XRPUSDT-1m-2024-09.zip",
+          "XRPUSDT-1m-2024-10.zip",
+          "XRPUSDT-1m-2024-11.zip",
+          "XRPUSDT-1m-2024-12.zip",
+          "XRPUSDT-1m-2025-01.zip",
+          "XRPUSDT-1m-2025-02.zip",
+          "XRPUSDT-1m-2025-03.zip",
+          "XRPUSDT-1m-2025-04.zip",
+          "XRPUSDT-1m-2025-05.zip",
+          "XRPUSDT-1m-2025-06.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2025-07-01",
+        "requested_start": "2024-06-29",
+        "rows": 528480,
+        "sha256": "286b65fe2ffca81b10eb31235aaf60fffdc17a2299df8cedc56344f1bfffd508",
+        "symbol": "XRPUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "selection"
+      },
+      {
+        "actual_end_ms": 1785542399999,
+        "actual_start_ms": 1751155200000,
+        "checksum_files_verified": 14,
+        "checksum_status": "official_sha256_verified",
+        "csv_schema": "binance_futures_kline_v1_12_columns",
+        "expected_files": 14,
+        "files": [
+          "XRPUSDT-1m-2025-06.zip",
+          "XRPUSDT-1m-2025-07.zip",
+          "XRPUSDT-1m-2025-08.zip",
+          "XRPUSDT-1m-2025-09.zip",
+          "XRPUSDT-1m-2025-10.zip",
+          "XRPUSDT-1m-2025-11.zip",
+          "XRPUSDT-1m-2025-12.zip",
+          "XRPUSDT-1m-2026-01.zip",
+          "XRPUSDT-1m-2026-02.zip",
+          "XRPUSDT-1m-2026-03.zip",
+          "XRPUSDT-1m-2026-04.zip",
+          "XRPUSDT-1m-2026-05.zip",
+          "XRPUSDT-1m-2026-06.zip",
+          "XRPUSDT-1m-2026-07.zip"
+        ],
+        "gaps": 0,
+        "interval": "1m",
+        "requested_end": "2026-08-01",
+        "requested_start": "2025-06-29",
+        "rows": 573120,
+        "sha256": "c0930c9c2eb1a2d28a001abeab33352cb9cb285054ed03e11882fa4f90bc560f",
+        "symbol": "XRPUSDT",
+        "transport_verification": "zip_crc_and_parsed_rows_sha256",
+        "window": "robustness"
+      }
+    ],
+    "skipped_cells": [
+      {
+        "gaps": 2,
+        "invalid_rows": 0,
+        "missing_minutes": 7200,
+        "reason": "historical_archive_not_contiguous",
+        "symbol": "SOLUSDT",
+        "window": "research"
+      },
+      {
+        "gaps": 3,
+        "invalid_rows": 1,
+        "missing_minutes": 7200,
+        "reason": "historical_archive_not_contiguous",
+        "symbol": "XRPUSDT",
+        "window": "research"
+      }
+    ]
+  },
+  "environment": {
+    "git_head_sha": "b29020a64ae84d7e574715dd4df7e50007c56f97",
+    "git_tree_sha": "bdf08a164e92e5330ff00c201b6e922adbcca1eb",
+    "pyproject_sha256": "7b84f7b507676eca78907ab250ea93c88e9959d6d93b6d0584e6561fedc49c8e",
+    "runtime": {
+      "implementation": "CPython",
+      "packages": {
+        "kairos-backtest": "0.1.0",
+        "kairos-core": "0.3.0",
+        "kairos-quant-scouts": "0.1.0",
+        "kairos-strategy-engine": "0.2.0",
+        "numpy": "2.4.6"
+      },
+      "platform": "win32",
+      "python": "3.11.15"
+    },
+    "source_sha256": "178709f3ab33d1ece677f55e85ce8790a3c4c332fb124b18659b3d387cc92b2a",
+    "strategy_source_sha256": "039c53945d35299c15be553bcc3d90007410e8f3d7d0434653b814772b480878",
+    "uv_lock_sha256": "ffe37299d4a2aa5f97233ba303fe475e7db208cf95d5e363eea03a4137e37953"
+  },
+  "gate_failures": [
+    "robustness.stress.profit_factor_below_minimum"
+  ],
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "plan_sha256": "4b98938b7880c4a799a528a1f7f3e0a83fbd4bf2b4cb606ff51bf6daec1ecef4",
+  "result_schema_version": "kairos.right-tail-reused-screen.v1",
+  "strategy": {
+    "config": {
+      "atr_period_hours": 24,
+      "decision_interval_hours": 24,
+      "intent_valid_hours": 1,
+      "max_hold_hours": 72,
+      "minimum_trend_score": 1.0,
+      "stop_atr_multiple": 2.0,
+      "target_reward_to_risk": 4.0,
+      "trend_lookback_hours": 24
+    },
+    "config_sha256": "c36879cc052ccad8f126be29eb6cc8bd70c8274598e8a98fbae2e3ed69805253",
+    "id": "right_tail_trend_v1",
+    "revision": "1",
+    "source_commit": "331d8751901a8566fc4c99afd25d18cfd6db2f8f",
+    "status": "research"
+  },
+  "windows": {
+    "research": {
+      "baseline": {
+        "active_symbols": 3,
+        "carry_cost_usd": 0.0,
+        "direction_trades": {
+          "LONG": 427,
+          "SHORT": 372
+        },
+        "dispositions": {
+          "entered": 799,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 123,
+          "stop_too_wide": 12
+        },
+        "distinct_utc_exit_days": 489,
+        "expectancy_usd_per_trade": -0.6057791181746135,
+        "fees_usd": 1915.7254344584721,
+        "hac_sharpe": -0.0866373365731368,
+        "implementation_shortfall_usd": 1277.150533436106,
+        "maximum_drawdown": 0.0363360985812654,
+        "maximum_one_symbol_trade_share": 0.33667083854818525,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": 2.050346699650735,
+            "replay_evidence_sha256": "adf54f4960f8c12174a5a70513046cbb83488d3344fb4886ba397cd393dc520e",
+            "symbol": "BTCUSDT",
+            "total_return": 0.027474645775319884,
+            "trades": 268
+          },
+          {
+            "expectancy_usd_per_trade": -2.4694230999089015,
+            "replay_evidence_sha256": "6eef051264d27a2d092538da6d61a10c64e1a60a91a12b2120913d7621cf2677",
+            "symbol": "ETHUSDT",
+            "total_return": -0.03321374069377414,
+            "trades": 269
+          },
+          {
+            "expectancy_usd_per_trade": -1.409296248291674,
+            "replay_evidence_sha256": "2b84e59c866912c8df3dfbb72baa4415b9647b0acbe024937303ff5a6510cac5",
+            "symbol": "BNBUSDT",
+            "total_return": -0.018461780852620402,
+            "trades": 262
+          }
+        ],
+        "positive_expectancy_symbols": 1,
+        "profit_factor": 0.9814584544485575,
+        "r_multiple_distribution": {
+          "maximum": 5.0180657775720965,
+          "p10": -1.1039985064683502,
+          "p50": -1.0524676746470787,
+          "p90": 3.6081198946461814
+        },
+        "total_return": -0.008066958590358109,
+        "trades": 799,
+        "win_rate": 0.30663329161451813
+      },
+      "stress": {
+        "active_symbols": 3,
+        "carry_cost_usd": 2760.1190523238474,
+        "direction_trades": {
+          "LONG": 425,
+          "SHORT": 365
+        },
+        "dispositions": {
+          "entered": 790,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 122,
+          "reward_risk_too_low": 10,
+          "stop_too_wide": 12
+        },
+        "distinct_utc_exit_days": 486,
+        "expectancy_usd_per_trade": -5.398511898208091,
+        "fees_usd": 1384.1206105232047,
+        "hac_sharpe": -1.205139640945862,
+        "implementation_shortfall_usd": 1845.4947683318505,
+        "maximum_drawdown": 0.07491106446805172,
+        "maximum_one_symbol_trade_share": 0.3392405063291139,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": -4.3227623879961765,
+            "replay_evidence_sha256": "bb2d6f04f714230a769785d535c99f3ebc47f6c399cef9c235e3d6a211c68735",
+            "symbol": "BTCUSDT",
+            "total_return": -0.056844325402151896,
+            "trades": 263
+          },
+          {
+            "expectancy_usd_per_trade": -6.654772023658845,
+            "replay_evidence_sha256": "b625f90f4f45445f833fffa6b2b8a6bbad33de1fb129ac55f8bbe05f854b72c1",
+            "symbol": "ETHUSDT",
+            "total_return": -0.0891739451170308,
+            "trades": 268
+          },
+          {
+            "expectancy_usd_per_trade": -5.190961348265745,
+            "replay_evidence_sha256": "8b84ff4e945799b1b655e6e8c61ed1632d85558d46fa8058e5633a4f298668aa",
+            "symbol": "BNBUSDT",
+            "total_return": -0.06722294946004603,
+            "trades": 259
+          }
+        ],
+        "positive_expectancy_symbols": 0,
+        "profit_factor": 0.8028353690142077,
+        "r_multiple_distribution": {
+          "maximum": 4.792105822330061,
+          "p10": -1.2298497485679998,
+          "p50": -1.0988840662941253,
+          "p90": 3.3463780032126267
+        },
+        "total_return": -0.0710804066597428,
+        "trades": 790,
+        "win_rate": 0.28354430379746837
+      }
+    },
+    "robustness": {
+      "baseline": {
+        "active_symbols": 5,
+        "carry_cost_usd": 0.0,
+        "direction_trades": {
+          "LONG": 245,
+          "SHORT": 249
+        },
+        "dispositions": {
+          "entered": 494,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 96,
+          "stop_too_wide": 9
+        },
+        "distinct_utc_exit_days": 238,
+        "expectancy_usd_per_trade": 8.26320060793701,
+        "fees_usd": 1262.6011036904704,
+        "hac_sharpe": 1.2625258280114147,
+        "implementation_shortfall_usd": 841.7346258989983,
+        "maximum_drawdown": 0.01477959746265236,
+        "maximum_one_symbol_trade_share": 0.20850202429149797,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": 6.113994643530735,
+            "replay_evidence_sha256": "23c7038913072b4a7ddabe59d8b7b741dbcb98df52731adaa01379357407bf0d",
+            "symbol": "BTCUSDT",
+            "total_return": 0.03148707241418447,
+            "trades": 103
+          },
+          {
+            "expectancy_usd_per_trade": 11.906471610926971,
+            "replay_evidence_sha256": "fba7512e75682b83ad981c3a43a219eb48d1cd68c2b94cc08aeab85a84a54518",
+            "symbol": "ETHUSDT",
+            "total_return": 0.05655574015190168,
+            "trades": 95
+          },
+          {
+            "expectancy_usd_per_trade": 1.276621113964002,
+            "replay_evidence_sha256": "e11e802ec3322d71b9bb69fcc04c4c0baf6acbd69e0ca38d42cf53d24aea6131",
+            "symbol": "SOLUSDT",
+            "total_return": 0.00638310556981847,
+            "trades": 100
+          },
+          {
+            "expectancy_usd_per_trade": 8.608590712394651,
+            "replay_evidence_sha256": "9ff37b903f13139caceceb28acc63e4d7de0954bfe398fcd4fe7ff0e9f361ea8",
+            "symbol": "BNBUSDT",
+            "total_return": 0.0417516649551144,
+            "trades": 97
+          },
+          {
+            "expectancy_usd_per_trade": 13.72191352020681,
+            "replay_evidence_sha256": "5c715c9a5f9f8c4b5f05dea007b5c6203ce4ce4f31685a628c35d1f57ec7399b",
+            "symbol": "XRPUSDT",
+            "total_return": 0.06792347192502302,
+            "trades": 99
+          }
+        ],
+        "positive_expectancy_symbols": 5,
+        "profit_factor": 1.2624244386296257,
+        "r_multiple_distribution": {
+          "maximum": 4.523935293955881,
+          "p10": -1.1090050148760957,
+          "p50": -1.0517532851781648,
+          "p90": 3.7027791611932885
+        },
+        "total_return": 0.04082021100320832,
+        "trades": 494,
+        "win_rate": 0.3441295546558704
+      },
+      "stress": {
+        "active_symbols": 5,
+        "carry_cost_usd": 2043.5246767163608,
+        "direction_trades": {
+          "LONG": 241,
+          "SHORT": 248
+        },
+        "dispositions": {
+          "entered": 489,
+          "insufficient_terminal_horizon": 2,
+          "overlapping_position": 96,
+          "reward_risk_too_low": 4,
+          "stop_too_wide": 10
+        },
+        "distinct_utc_exit_days": 238,
+        "expectancy_usd_per_trade": 1.0170711212308308,
+        "fees_usd": 920.8564419530128,
+        "hac_sharpe": 0.21209870257989394,
+        "implementation_shortfall_usd": 1227.8102775047669,
+        "maximum_drawdown": 0.017652235671469858,
+        "maximum_one_symbol_trade_share": 0.2065439672801636,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": -2.604053147826046,
+            "replay_evidence_sha256": "c9fec6a37a31c1a5ae05d6c491e7bd2f3ad016d3ac27c053865237afa80325c1",
+            "symbol": "BTCUSDT",
+            "total_return": -0.013150468396521009,
+            "trades": 101
+          },
+          {
+            "expectancy_usd_per_trade": 3.6697348463139012,
+            "replay_evidence_sha256": "522dc0b48348b7252199228ecb27e65a45ee2269fb70123c1a59c3c1bb8ea2c6",
+            "symbol": "ETHUSDT",
+            "total_return": 0.017431240519993896,
+            "trades": 95
+          },
+          {
+            "expectancy_usd_per_trade": -3.5350652836935472,
+            "replay_evidence_sha256": "3ccdb7cc7d5532299283a1c4c6af39b6754e32b13846f8262f90711734529773",
+            "symbol": "SOLUSDT",
+            "total_return": -0.017675326418471582,
+            "trades": 100
+          },
+          {
+            "expectancy_usd_per_trade": 2.153063845388057,
+            "replay_evidence_sha256": "e56f1163c8648d43106afdb131710a44c8289a5b79f642c062a4813cda2894e3",
+            "symbol": "BNBUSDT",
+            "total_return": 0.01011940007332024,
+            "trades": 94
+          },
+          {
+            "expectancy_usd_per_trade": 5.685362249650139,
+            "replay_evidence_sha256": "baec33a4dfa9543994c3e102e5caf270aabfbc9a126efe49908ca374af167f7c",
+            "symbol": "XRPUSDT",
+            "total_return": 0.02814254313576625,
+            "trades": 99
+          }
+        ],
+        "positive_expectancy_symbols": 3,
+        "profit_factor": 1.0382706976835263,
+        "r_multiple_distribution": {
+          "maximum": 4.170796331095036,
+          "p10": -1.2501077853339062,
+          "p50": -1.0998581128823306,
+          "p90": 3.4787830852197885
+        },
+        "total_return": 0.004973477782817426,
+        "trades": 489,
+        "win_rate": 0.32719836400818
+      }
+    },
+    "selection": {
+      "baseline": {
+        "active_symbols": 5,
+        "carry_cost_usd": 0.0,
+        "direction_trades": {
+          "LONG": 245,
+          "SHORT": 214
+        },
+        "dispositions": {
+          "entered": 459,
+          "insufficient_terminal_horizon": 4,
+          "overlapping_position": 65,
+          "stop_too_wide": 18
+        },
+        "distinct_utc_exit_days": 223,
+        "expectancy_usd_per_trade": 12.133296675391597,
+        "fees_usd": 1051.649723278961,
+        "hac_sharpe": 1.878807640098634,
+        "implementation_shortfall_usd": 701.100474493238,
+        "maximum_drawdown": 0.012307832789363139,
+        "maximum_one_symbol_trade_share": 0.2178649237472767,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": 7.578378984933538,
+            "replay_evidence_sha256": "1ddcab909ecfe512775c80407a8d720ad8d5b782c55a4ea5da5ccd42934e35c3",
+            "symbol": "BTCUSDT",
+            "total_return": 0.037891894924668046,
+            "trades": 100
+          },
+          {
+            "expectancy_usd_per_trade": 7.845583064482837,
+            "replay_evidence_sha256": "ce00650bc30dde98ff7f0c54afe3c17897cfc3007e243a9604c1cc7e85f585b9",
+            "symbol": "ETHUSDT",
+            "total_return": 0.03765879870951805,
+            "trades": 96
+          },
+          {
+            "expectancy_usd_per_trade": 17.59774757483878,
+            "replay_evidence_sha256": "5b31d94b4b9ccf1f4ec3881e6be3724dd60224c3bf73a0f7795c50f49745362c",
+            "symbol": "SOLUSDT",
+            "total_return": 0.0800697514655162,
+            "trades": 91
+          },
+          {
+            "expectancy_usd_per_trade": 6.857649422540856,
+            "replay_evidence_sha256": "7f43227608d7bc2a60e7a2109c15503774d5160429f0dd820a5df931ad7efd25",
+            "symbol": "BNBUSDT",
+            "total_return": 0.03257383475706899,
+            "trades": 95
+          },
+          {
+            "expectancy_usd_per_trade": 23.445423076225023,
+            "replay_evidence_sha256": "390d30b932deff11430b44f2a05b4b6318737b3c6541cd409eadbbb114c66868",
+            "symbol": "XRPUSDT",
+            "total_return": 0.09026487884346657,
+            "trades": 77
+          }
+        ],
+        "positive_expectancy_symbols": 5,
+        "profit_factor": 1.3755964910359715,
+        "r_multiple_distribution": {
+          "maximum": 5.241050473904903,
+          "p10": -1.0908479331270833,
+          "p50": -1.0438193862687586,
+          "p90": 3.8224944211765313
+        },
+        "total_return": 0.05569183174004744,
+        "trades": 459,
+        "win_rate": 0.3442265795206972
+      },
+      "stress": {
+        "active_symbols": 5,
+        "carry_cost_usd": 1572.519766181192,
+        "direction_trades": {
+          "LONG": 245,
+          "SHORT": 214
+        },
+        "dispositions": {
+          "entered": 459,
+          "insufficient_terminal_horizon": 4,
+          "overlapping_position": 65,
+          "stop_too_wide": 18
+        },
+        "distinct_utc_exit_days": 223,
+        "expectancy_usd_per_trade": 5.029644774235269,
+        "fees_usd": 797.5684774361434,
+        "hac_sharpe": 1.0063265655295066,
+        "implementation_shortfall_usd": 1063.426703745391,
+        "maximum_drawdown": 0.012800741662869921,
+        "maximum_one_symbol_trade_share": 0.2178649237472767,
+        "per_symbol": [
+          {
+            "expectancy_usd_per_trade": -0.07629319249685333,
+            "replay_evidence_sha256": "e5f3713b1686399c9fdaf8c9262721e923522cc762b620778d4498ef422f48ec",
+            "symbol": "BTCUSDT",
+            "total_return": -0.00038146596248844755,
+            "trades": 100
+          },
+          {
+            "expectancy_usd_per_trade": 2.0570975378656686,
+            "replay_evidence_sha256": "16785c5eaee8c4889ada3873a91f62c761ddc6c75d2fd71255d8fa0ba88545b0",
+            "symbol": "ETHUSDT",
+            "total_return": 0.009874068181760176,
+            "trades": 96
+          },
+          {
+            "expectancy_usd_per_trade": 9.704617565934614,
+            "replay_evidence_sha256": "89f518739a5393d612dddc396a239193967207935935b5bc9b4517fce320c30c",
+            "symbol": "SOLUSDT",
+            "total_return": 0.04415600992499469,
+            "trades": 91
+          },
+          {
+            "expectancy_usd_per_trade": 0.5279747267340962,
+            "replay_evidence_sha256": "8d57aeff337eabbd93b6d704380d2d6771980a697bd1309b6d4bf2c3d4fda067",
+            "symbol": "BNBUSDT",
+            "total_return": 0.0025078799519862027,
+            "trades": 95
+          },
+          {
+            "expectancy_usd_per_trade": 15.395806616217929,
+            "replay_evidence_sha256": "8af93a807fd80638a3d621bd210dd8f1e8f9426f08e541abfa8035e095358e00",
+            "symbol": "XRPUSDT",
+            "total_return": 0.05927385547243946,
+            "trades": 77
+          }
+        ],
+        "positive_expectancy_symbols": 4,
+        "profit_factor": 1.1833894287447295,
+        "r_multiple_distribution": {
+          "maximum": 5.151927959362289,
+          "p10": -1.2040793775710672,
+          "p50": -1.076851880073832,
+          "p90": 3.575712174608727
+        },
+        "total_return": 0.02308606951373826,
+        "trades": 459,
+        "win_rate": 0.32679738562091504
+      }
+    }
+  }
+}

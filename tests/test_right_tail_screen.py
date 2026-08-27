@@ -130,3 +130,23 @@ def test_gate_rejects_one_sided_or_concentrated_candidate():
 
     assert "selection.baseline.short_trades_below_minimum" in failures
     assert "selection.baseline.one_symbol_trade_share_above_maximum" in failures
+
+
+def test_committed_attempt_and_result_are_immutable_rejection_evidence():
+    root = Path(__file__).resolve().parents[1]
+    attempt_path = root / "reports" / "right-tail-screen" / "attempt.json"
+    result_path = root / "reports" / "right-tail-screen" / "summary.json"
+
+    attempt = json.loads(attempt_path.read_text(encoding="utf-8"))
+    result = json.loads(result_path.read_text(encoding="utf-8"))
+    assert _sha256(attempt) == "22dbf4420c45478ec0f42b348dbdae11a1d1bbb638046f2e34b6afc573139739"
+    assert _sha256(result) == "b3b62e262d2a60be8fd9f1a101b4df3d1ee9d342907bb2e21598d8eb17642a0b"
+    assert attempt["attempt_sha256"] == "9e01b505f701b336db861db84c57e07c85dd2bec560134aa84db71e76240aa40"
+    assert result["classification"] == "REJECT_REUSED_DATA_SCREEN"
+    assert result["gate_failures"] == ["robustness.stress.profit_factor_below_minimum"]
+    assert result["permissions"] == {
+        "alpha_ready": False,
+        "live_allowed": False,
+        "paper_allowed": False,
+        "promotion_eligible": False,
+    }
