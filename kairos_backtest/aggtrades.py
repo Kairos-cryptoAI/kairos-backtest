@@ -81,7 +81,7 @@ class AggTradeArchive:
 
 @dataclass(frozen=True, slots=True)
 class MonthlyAggTradeTransport:
-    """Checksum- and CRC-verified monthly archive before its one-pass row scan."""
+    """Checksum- and structure-verified archive awaiting its one-pass row scan."""
 
     symbol: str
     month: str
@@ -102,6 +102,8 @@ class AggTradePeriodManifest:
     rows: int
     first_aggregate_trade_id: int
     last_aggregate_trade_id: int
+    first_raw_trade_id: int
+    last_raw_trade_id: int
     first_transact_time_ms: int
     last_transact_time_ms: int
     missing_aggregate_trade_ids: int
@@ -364,12 +366,13 @@ class BinanceAggTradeArchiveLoader:
         return expected
 
     @staticmethod
-    def _csv_member(path: Path, filename: str) -> str:
+    def _csv_member(path: Path, filename: str, *, verify_crc: bool = True) -> str:
         try:
             with zipfile.ZipFile(path) as archive:
-                corrupt_member = archive.testzip()
-                if corrupt_member is not None:
-                    raise AggTradeIntegrityError(f"ZIP CRC failed for {filename}: {corrupt_member}")
+                if verify_crc:
+                    corrupt_member = archive.testzip()
+                    if corrupt_member is not None:
+                        raise AggTradeIntegrityError(f"ZIP CRC failed for {filename}: {corrupt_member}")
                 members = [item.filename for item in archive.infolist() if not item.is_dir()]
         except zipfile.BadZipFile as exc:
             raise AggTradeIntegrityError(f"invalid Binance ZIP archive: {filename}") from exc
@@ -500,29 +503,36 @@ class BinanceMonthlyAggTradeArchiveLoader:
             start_ms=_date_ms(month),
             end_ms=_date_ms(end),
             path=target,
-            member_name=BinanceAggTradeArchiveLoader._csv_member(target, filename),
+            member_name=BinanceAggTradeArchiveLoader._csv_member(
+                target,
+                filename,
+                verify_crc=False,
+            ),
             archive_sha256=archive_sha256,
         )
 
     @staticmethod
     def iter_trades(archive: MonthlyAggTradeTransport) -> Iterator[AggTrade]:
-        with zipfile.ZipFile(archive.path) as compressed, compressed.open(archive.member_name) as raw:
-            with io.TextIOWrapper(raw, encoding="utf-8", newline="") as text:
-                reader = csv.reader(text)
-                first_data_seen = False
-                for row_number, row in enumerate(reader, start=1):
-                    if not row or all(not value.strip() for value in row):
-                        raise AggTradeIntegrityError(f"blank aggregate-trade row at line {row_number}")
-                    if not first_data_seen and _is_header(row):
+        try:
+            with zipfile.ZipFile(archive.path) as compressed, compressed.open(archive.member_name) as raw:
+                with io.TextIOWrapper(raw, encoding="utf-8", newline="") as text:
+                    reader = csv.reader(text)
+                    first_data_seen = False
+                    for row_number, row in enumerate(reader, start=1):
+                        if not row or all(not value.strip() for value in row):
+                            raise AggTradeIntegrityError(f"blank aggregate-trade row at line {row_number}")
+                        if not first_data_seen and _is_header(row):
+                            first_data_seen = True
+                            continue
                         first_data_seen = True
-                        continue
-                    first_data_seen = True
-                    yield _parse_row(
-                        row,
-                        row_number=row_number,
-                        start_ms=archive.start_ms,
-                        end_ms=archive.end_ms,
-                    )
+                        yield _parse_row(
+                            row,
+                            row_number=row_number,
+                            start_ms=archive.start_ms,
+                            end_ms=archive.end_ms,
+                        )
+        except zipfile.BadZipFile as exc:
+            raise AggTradeIntegrityError(f"ZIP CRC failed while scanning {archive.path.name}") from exc
 
 
 def _quarter_hour_starts(start_ms: int, end_ms: int) -> Iterator[int]:
@@ -754,6 +764,8 @@ def extract_phase_peak_windows(
         rows=rows,
         first_aggregate_trade_id=first.aggregate_trade_id,
         last_aggregate_trade_id=previous_in_archive.aggregate_trade_id,
+        first_raw_trade_id=first.first_trade_id,
+        last_raw_trade_id=previous_in_archive.last_trade_id,
         first_transact_time_ms=first.transact_time_ms,
         last_transact_time_ms=previous_in_archive.transact_time_ms,
         missing_aggregate_trade_ids=missing_aggregate_ids,
