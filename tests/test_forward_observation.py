@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -14,6 +15,7 @@ from kairos_core.enums import Side
 from kairos_strategy.runtime_requirements import RuntimeRequirements
 
 import kairos_backtest.forward_observation as forward
+from kairos_backtest.data import ArchiveFieldProfile, DatasetManifest
 from kairos_backtest.forward_observation import (
     ForwardIntegrityError,
     ForwardLedger,
@@ -174,6 +176,25 @@ def test_full_chain_verification_detects_database_mutation(tmp_path: Path):
             ledger.verify_integrity()
 
 
+def test_archive_batch_commits_once_and_rolls_back_the_whole_bad_block(tmp_path: Path):
+    good_path = tmp_path / "good.sqlite3"
+    first = _bar(forward.WARMUP_START_MS)
+    second = _bar(forward.WARMUP_START_MS + 60_000)
+    with ForwardLedger(good_path, expected_plan()) as ledger:
+        summary = ledger.ingest_atomic((first, second), as_of_ms=second.close_time_ms)
+        assert summary.inserted_bars == 2
+        ledger.verify_integrity()
+
+    bad_path = tmp_path / "bad.sqlite3"
+    gap = _bar(forward.WARMUP_START_MS + 2 * 60_000)
+    with ForwardLedger(bad_path, expected_plan()) as ledger:
+        with pytest.raises(ForwardIntegrityError, match="gap or reorder"):
+            ledger.ingest_atomic((first, gap), as_of_ms=gap.close_time_ms)
+        btc = next(item for item in ledger.status()["symbols"] if item["symbol"] == "BTCUSDT")
+        assert btc["bar_count"] == 0
+        assert "gap or reorder" in btc["blocked_reason"]
+
+
 def test_reopen_refuses_a_different_campaign_plan(tmp_path: Path):
     path = tmp_path / "forward.sqlite3"
     plan = expected_plan()
@@ -188,6 +209,33 @@ def test_reopen_refuses_a_different_campaign_plan(tmp_path: Path):
 def test_decision_clock_is_the_close_of_the_0000_0059_utc_hour():
     assert forward._is_decision_bar(_bar(forward.BLIND_START_MS + 59 * 60_000))
     assert not forward._is_decision_bar(_bar(forward.BLIND_START_MS + 23 * 60 * 60_000 + 59 * 60_000))
+
+
+def test_archive_manifest_requires_exact_complete_checksum_verified_price_volume():
+    start = forward.date(2026, 7, 23)
+    end = forward.date(2026, 7, 24)
+    manifest = DatasetManifest(
+        symbol="BTCUSDT",
+        interval="1m",
+        requested_start=start.isoformat(),
+        requested_end=end.isoformat(),
+        actual_start_ms=forward._date_ms(start),
+        actual_end_ms=forward._date_ms(end) - 1,
+        rows=1_440,
+        sha256="1" * 64,
+        files=("BTCUSDT-1m-2026-07.zip",),
+        gaps=0,
+        transport_verification="zip_crc_and_profiled_rows_sha256",
+        checksum_status="official_sha256_verified",
+        checksum_files_verified=1,
+        expected_files=1,
+        csv_schema="binance_futures_kline_v1_12_columns",
+        field_profile=ArchiveFieldProfile.PRICE_VOLUME.value,
+    )
+
+    forward._validate_archive_manifest(manifest, start, end)
+    with pytest.raises(ForwardIntegrityError, match="manifest"):
+        forward._validate_archive_manifest(replace(manifest, gaps=1), start, end)
 
 
 def test_intent_is_persisted_only_after_blind_boundary_and_full_window(monkeypatch, tmp_path: Path):

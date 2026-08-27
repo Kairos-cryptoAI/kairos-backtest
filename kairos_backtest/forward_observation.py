@@ -16,7 +16,7 @@ import sys
 import time
 from collections.abc import Iterable, Mapping
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
@@ -24,10 +24,11 @@ from typing import Any
 from kairos_core.contracts import ClosedBarEventV1, StrategyIntentV1, canonical_json_bytes
 from kairos_strategy.provenance import installed_source_tree_sha256
 from kairos_strategy.registry import StrategyStatus, get_strategy
-from kairos_strategy.runtime import generate_runtime_strategy_intents
+from kairos_strategy.runtime import candle_to_closed_bar, generate_runtime_strategy_intents
 from kairos_strategy.runtime_requirements import get_runtime_requirements
 from kairos_strategy.sleeves import RegimeAlignedRightTailConfig, RightTailTrendConfig
 
+from .data import ArchiveFieldProfile, BinanceArchiveLoader, DatasetManifest
 from .managed_evaluation import ManagedEvaluationPolicy
 from .quarter_hour_screen import _execution_scenarios
 from .right_tail_screen import (
@@ -81,6 +82,16 @@ class IngestSummary:
     emitted_intents: int = 0
 
 
+@dataclass(frozen=True, slots=True)
+class ArchiveIngestSummary:
+    start: str
+    end_exclusive: str
+    inserted_bars: int
+    duplicate_bars: int
+    emitted_intents: int
+    manifests: tuple[dict[str, object], ...]
+
+
 def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
@@ -91,6 +102,10 @@ def _canonical_document(value: Mapping[str, Any]) -> bytes:
 
 def _iso8601(timestamp_ms: int) -> str:
     return datetime.fromtimestamp(timestamp_ms / 1_000, UTC).isoformat().replace("+00:00", "Z")
+
+
+def _date_ms(value: date) -> int:
+    return int(datetime.combine(value, datetime.min.time(), UTC).timestamp() * 1_000)
 
 
 def expected_plan() -> dict[str, object]:
@@ -405,14 +420,8 @@ class ForwardLedger:
             )
         return emitted
 
-    def ingest_bar(
-        self,
-        bar: ClosedBarEventV1,
-        *,
-        as_of_ms: int | None = None,
-    ) -> tuple[IngestDisposition, int]:
-        """Append one final bar or accept an exact idempotent replay."""
-
+    @staticmethod
+    def _validated_bar(bar: ClosedBarEventV1, as_of_ms: int | None) -> ClosedBarEventV1:
         if not isinstance(bar, ClosedBarEventV1):
             raise TypeError("forward ledger accepts only ClosedBarEventV1")
         bar = _price_volume_bar(bar)
@@ -425,71 +434,80 @@ class ForwardLedger:
             raise ValueError("as_of_ms must be a non-negative integer")
         if bar.close_time_ms > observed_ms:
             raise ValueError("forward ledger refuses a bar that is not closed as of ingestion")
+        return bar
 
+    def _ingest_in_transaction(self, bar: ClosedBarEventV1) -> tuple[IngestDisposition, int]:
         canonical_payload = canonical_json_bytes(bar.model_dump(mode="json"))
         payload_json = canonical_payload.decode("ascii")
+        state = self.connection.execute("SELECT * FROM symbol_state WHERE symbol=?", (bar.symbol,)).fetchone()
+        if state is None:
+            raise ForwardIntegrityError("forward symbol state is missing")
+        if state["blocked_reason"] is not None:
+            raise ForwardIntegrityError(
+                f"{bar.symbol} is blocked after an integrity violation: {state['blocked_reason']}"
+            )
+        existing = self.connection.execute(
+            "SELECT bar_sha256, payload_json FROM bars WHERE symbol=? AND open_time_ms=?",
+            (bar.symbol, bar.open_time_ms),
+        ).fetchone()
+        if existing is not None:
+            if existing["bar_sha256"] == bar.bar_sha256 and existing["payload_json"] == payload_json:
+                return IngestDisposition.DUPLICATE, 0
+            raise ForwardIntegrityError(f"conflicting closed bar at {bar.open_time_ms}")
+
+        last_open = state["last_open_time_ms"]
+        if last_open is None:
+            if bar.open_time_ms != WARMUP_START_MS:
+                raise ForwardIntegrityError(f"first bar must start at the warmup boundary {WARMUP_START_MS}")
+            previous_sha = _ZERO_SHA256
+        else:
+            expected_open = int(last_open) + _ONE_MINUTE_MS
+            if bar.open_time_ms != expected_open:
+                raise ForwardIntegrityError(
+                    f"closed-bar gap or reorder: expected {expected_open}, received {bar.open_time_ms}"
+                )
+            previous_sha = str(state["last_record_sha256"])
+        record_sha = _record_sha256(previous_sha, canonical_payload)
+        role = "warmup" if bar.open_time_ms < BLIND_START_MS else "blind"
+        self.connection.execute(
+            """INSERT INTO bars(
+                   symbol, open_time_ms, close_time_ms, role, bar_sha256,
+                   payload_json, previous_record_sha256, record_sha256
+               ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                bar.symbol,
+                bar.open_time_ms,
+                bar.close_time_ms,
+                role,
+                bar.bar_sha256,
+                payload_json,
+                previous_sha,
+                record_sha,
+            ),
+        )
+        self.connection.execute(
+            """UPDATE symbol_state
+                  SET last_open_time_ms=?, last_record_sha256=?, bar_count=bar_count+1
+                WHERE symbol=?""",
+            (bar.open_time_ms, record_sha, bar.symbol),
+        )
+        emitted = self._persist_intents(bar)
+        return IngestDisposition.INSERTED, emitted
+
+    def ingest_bar(
+        self,
+        bar: ClosedBarEventV1,
+        *,
+        as_of_ms: int | None = None,
+    ) -> tuple[IngestDisposition, int]:
+        """Append one final bar or accept an exact idempotent replay."""
+
+        bar = self._validated_bar(bar, as_of_ms)
         self.connection.execute("BEGIN IMMEDIATE")
         try:
-            state = self.connection.execute(
-                "SELECT * FROM symbol_state WHERE symbol=?", (bar.symbol,)
-            ).fetchone()
-            if state is None:
-                raise ForwardIntegrityError("forward symbol state is missing")
-            if state["blocked_reason"] is not None:
-                raise ForwardIntegrityError(
-                    f"{bar.symbol} is blocked after an integrity violation: {state['blocked_reason']}"
-                )
-            existing = self.connection.execute(
-                "SELECT bar_sha256, payload_json FROM bars WHERE symbol=? AND open_time_ms=?",
-                (bar.symbol, bar.open_time_ms),
-            ).fetchone()
-            if existing is not None:
-                if existing["bar_sha256"] == bar.bar_sha256 and existing["payload_json"] == payload_json:
-                    self.connection.execute("COMMIT")
-                    return IngestDisposition.DUPLICATE, 0
-                raise ForwardIntegrityError(f"conflicting closed bar at {bar.open_time_ms}")
-
-            last_open = state["last_open_time_ms"]
-            if last_open is None:
-                if bar.open_time_ms != WARMUP_START_MS:
-                    raise ForwardIntegrityError(
-                        f"first bar must start at the warmup boundary {WARMUP_START_MS}"
-                    )
-                previous_sha = _ZERO_SHA256
-            else:
-                expected_open = int(last_open) + _ONE_MINUTE_MS
-                if bar.open_time_ms != expected_open:
-                    raise ForwardIntegrityError(
-                        f"closed-bar gap or reorder: expected {expected_open}, received {bar.open_time_ms}"
-                    )
-                previous_sha = str(state["last_record_sha256"])
-            record_sha = _record_sha256(previous_sha, canonical_payload)
-            role = "warmup" if bar.open_time_ms < BLIND_START_MS else "blind"
-            self.connection.execute(
-                """INSERT INTO bars(
-                       symbol, open_time_ms, close_time_ms, role, bar_sha256,
-                       payload_json, previous_record_sha256, record_sha256
-                   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    bar.symbol,
-                    bar.open_time_ms,
-                    bar.close_time_ms,
-                    role,
-                    bar.bar_sha256,
-                    payload_json,
-                    previous_sha,
-                    record_sha,
-                ),
-            )
-            self.connection.execute(
-                """UPDATE symbol_state
-                      SET last_open_time_ms=?, last_record_sha256=?, bar_count=bar_count+1
-                    WHERE symbol=?""",
-                (bar.open_time_ms, record_sha, bar.symbol),
-            )
-            emitted = self._persist_intents(bar)
+            result = self._ingest_in_transaction(bar)
             self.connection.execute("COMMIT")
-            return IngestDisposition.INSERTED, emitted
+            return result
         except Exception as exc:
             self.connection.execute("ROLLBACK")
             if isinstance(exc, ForwardIntegrityError):
@@ -509,6 +527,33 @@ class ForwardLedger:
             duplicates += disposition is IngestDisposition.DUPLICATE
             intents += emitted
         return IngestSummary(inserted, duplicates, intents)
+
+    def ingest_atomic(
+        self,
+        bars: Iterable[ClosedBarEventV1],
+        *,
+        as_of_ms: int | None = None,
+    ) -> IngestSummary:
+        """Commit a verified archive block with one durable transaction."""
+
+        inserted = duplicates = intents = 0
+        current_symbol: str | None = None
+        self.connection.execute("BEGIN IMMEDIATE")
+        try:
+            for raw_bar in bars:
+                bar = self._validated_bar(raw_bar, as_of_ms)
+                current_symbol = bar.symbol
+                disposition, emitted = self._ingest_in_transaction(bar)
+                inserted += disposition is IngestDisposition.INSERTED
+                duplicates += disposition is IngestDisposition.DUPLICATE
+                intents += emitted
+            self.connection.execute("COMMIT")
+            return IngestSummary(inserted, duplicates, intents)
+        except Exception as exc:
+            self.connection.execute("ROLLBACK")
+            if isinstance(exc, ForwardIntegrityError) and current_symbol is not None:
+                self._block(current_symbol, str(exc))
+            raise
 
     def verify_integrity(self) -> None:
         """Verify all bar chains, contracts, counters and stored intent bytes."""
@@ -606,6 +651,77 @@ class ForwardLedger:
         }
 
 
+def _validate_archive_manifest(manifest: DatasetManifest, start: date, end: date) -> None:
+    start_ms = _date_ms(start)
+    end_ms = _date_ms(end)
+    expected_rows = (end_ms - start_ms) // _ONE_MINUTE_MS
+    if (
+        manifest.requested_start != start.isoformat()
+        or manifest.requested_end != end.isoformat()
+        or manifest.actual_start_ms != start_ms
+        or manifest.actual_end_ms != end_ms - 1
+        or manifest.rows != expected_rows
+        or manifest.gaps != 0
+        or manifest.field_profile != ArchiveFieldProfile.PRICE_VOLUME.value
+        or manifest.checksum_status != "official_sha256_verified"
+        or manifest.checksum_files_verified != manifest.expected_files
+        or manifest.quarantined_optional_rows != 0
+    ):
+        raise ForwardIntegrityError(f"archive manifest failed forward gates for {manifest.symbol}")
+
+
+def ingest_monthly_archives(
+    ledger: ForwardLedger,
+    cache_dir: Path,
+    start: date,
+    end: date,
+) -> ArchiveIngestSummary:
+    """Ingest checksum-verified complete monthly archives already in local cache."""
+
+    if start >= end:
+        raise ValueError("archive start must precede its exclusive end")
+    if _date_ms(start) < WARMUP_START_MS:
+        raise ValueError("archive import cannot precede the registered warmup")
+    end_ms = _date_ms(end)
+    if end_ms > int(time.time() * 1_000):
+        raise ValueError("archive import requires a completed UTC date range")
+    loader = BinanceArchiveLoader(
+        cache_dir,
+        allow_download=False,
+        field_profile=ArchiveFieldProfile.PRICE_VOLUME,
+    )
+    inserted = duplicates = intents = 0
+    evidence: list[dict[str, object]] = []
+    for symbol in SYMBOLS:
+        candles, manifest = loader.load(symbol, start, end)
+        _validate_archive_manifest(manifest, start, end)
+        summary = ledger.ingest_atomic(
+            (candle_to_closed_bar(candle) for candle in candles),
+            as_of_ms=end_ms - 1,
+        )
+        inserted += summary.inserted_bars
+        duplicates += summary.duplicate_bars
+        intents += summary.emitted_intents
+        evidence.append(
+            {
+                "checksum_files_verified": manifest.checksum_files_verified,
+                "dataset_sha256": manifest.sha256,
+                "files": list(manifest.files),
+                "rows": manifest.rows,
+                "symbol": manifest.symbol,
+            }
+        )
+    ledger.verify_integrity()
+    return ArchiveIngestSummary(
+        start=start.isoformat(),
+        end_exclusive=end.isoformat(),
+        inserted_bars=inserted,
+        duplicate_bars=duplicates,
+        emitted_intents=intents,
+        manifests=tuple(evidence),
+    )
+
+
 def _load_json_lines(stream: Iterable[str]) -> Iterable[ClosedBarEventV1]:
     for line_number, line in enumerate(stream, start=1):
         if not line.strip():
@@ -633,6 +749,11 @@ def _parser() -> argparse.ArgumentParser:
     ingest.add_argument("--ledger", type=Path, required=True)
     ingest.add_argument("--input", type=Path)
     ingest.add_argument("--as-of-ms", type=int)
+    archives = subparsers.add_parser("ingest-monthly-archives")
+    archives.add_argument("--ledger", type=Path, required=True)
+    archives.add_argument("--cache-dir", type=Path, required=True)
+    archives.add_argument("--start", type=date.fromisoformat, required=True)
+    archives.add_argument("--end-exclusive", type=date.fromisoformat, required=True)
     return parser
 
 
@@ -657,6 +778,14 @@ def main(argv: list[str] | None = None) -> None:
                 with args.input.open(encoding="utf-8") as stream:
                     summary = ledger.ingest(_load_json_lines(stream), as_of_ms=args.as_of_ms)
             _print_json({"ingest": asdict(summary), "status": ledger.status()})
+        elif args.command == "ingest-monthly-archives":
+            archive_summary = ingest_monthly_archives(
+                ledger,
+                args.cache_dir,
+                args.start,
+                args.end_exclusive,
+            )
+            _print_json({"archive_ingest": asdict(archive_summary), "status": ledger.status()})
         else:  # pragma: no cover - argparse owns the command domain
             raise RuntimeError(f"unsupported command: {args.command}")
 

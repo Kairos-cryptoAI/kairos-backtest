@@ -302,11 +302,20 @@ uv run --locked kairos-forward-observer ingest \
   --ledger runtime/regime-aligned-forward.sqlite3 \
   --input closed-bars.jsonl
 
+uv run --locked kairos-forward-observer ingest-monthly-archives \
+  --ledger runtime/regime-aligned-forward.sqlite3 \
+  --cache-dir data/historical \
+  --start 2026-07-23 \
+  --end-exclusive 2026-08-01
+
 uv run --locked kairos-forward-observer verify \
   --ledger runtime/regime-aligned-forward.sqlite3
 ```
 
 A gap, reorder or conflicting final bar permanently quarantines that symbol.
+Archive import is offline-only: every required ZIP and official `.CHECKSUM`
+must already be present, every minute must be complete, and downloads are
+disabled inside the observer.
 Restart first verifies the immutable campaign identity; a different plan cannot
 reuse the same ledger. No status or future evaluator may change the frozen
 parameters, five-symbol universe, baseline/stress costs or blind boundary.
