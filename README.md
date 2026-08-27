@@ -205,6 +205,43 @@ overwrite its result. It can only return `REJECT_REUSED_DATA_SCREEN` or
 permissions false. Any later alpha claim still requires a candidate frozen
 before new blind data and at least eight months plus 500 forward trades.
 
+## Right-tail trend reused-data screen
+
+`right_tail_trend_v1` is an independently motivated, single-candidate test of
+positive-skew time-series trend capture. It samples one closed-hour decision at
+each UTC day boundary, uses a 24-hour return-to-realized-variation score, and
+attaches a symmetric 2 ATR stop, 4R target and 72-hour timeout. There is no
+volume, order-flow, funding, LLM, symbol-specific or side-specific threshold.
+
+The earlier `market_anatomy_v1` decision remains
+`NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES`; this candidate does not reinterpret
+that result as authorization. Because its feature definition has already been
+observed on all data through July 2026, the one permitted screen can only reject
+the candidate or freeze it before future evidence. It cannot produce alpha,
+PAPER or LIVE permission.
+
+Verify the exact committed plan without opening the historical cache:
+
+```sh
+uv run --locked kairos-right-tail-screen --verify-plan
+```
+
+After the preregistration commit is clean, run the consumed reused-data screen:
+
+```sh
+uv run --locked kairos-right-tail-screen \
+  --cache-dir data/historical \
+  --plan reports/right-tail-screen/plan.json \
+  --attempt reports/right-tail-screen/attempt.json \
+  --result reports/right-tail-screen/summary.json
+```
+
+The attempt ledger is created and fsynced before the first archive access; a
+crash or evaluation failure does not release the consumed trial. No alternative
+parameter trial is allowed. Even `FORWARD_FREEZE_CANDIDATE`
+requires at least 365 future days and 500 closed trades before a separate alpha
+decision.
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps

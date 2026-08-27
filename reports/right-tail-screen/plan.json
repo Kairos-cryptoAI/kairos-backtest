@@ -1,0 +1,160 @@
+{
+  "classification": "reused_data_development_only",
+  "data": {
+    "archive_end_exclusive": "2026-08-01",
+    "archive_start": "2021-07-01",
+    "official_checksums_required": true,
+    "reused_data": true,
+    "universe": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "warmup_days": 2,
+    "windows": [
+      {
+        "end_exclusive": "2024-07-01",
+        "name": "research",
+        "role": "research",
+        "start": "2021-08-01"
+      },
+      {
+        "end_exclusive": "2025-07-01",
+        "name": "selection",
+        "role": "selection",
+        "start": "2024-07-01"
+      },
+      {
+        "end_exclusive": "2026-08-01",
+        "name": "robustness",
+        "role": "robustness",
+        "start": "2025-07-01"
+      }
+    ]
+  },
+  "decision_rule": {
+    "forward_candidate_only_if_all_gates_pass": true,
+    "gated_windows": [
+      "selection",
+      "robustness"
+    ],
+    "maximum_drawdown": 0.1,
+    "maximum_one_symbol_trade_share": 0.5,
+    "minimum_active_symbols": 3,
+    "minimum_direction_trades": 25,
+    "minimum_expectancy_usd_per_trade": 0.0,
+    "minimum_hac_sharpe": 0.0,
+    "minimum_positive_expectancy_symbols": 3,
+    "minimum_profit_factor": 1.05,
+    "minimum_stress_trade_retention": 0.65,
+    "minimum_total_return": 0.0,
+    "minimum_trades_per_symbol": 10,
+    "minimum_trades_per_window_scenario": 100
+  },
+  "forward_gate": {
+    "blind_start_not_before": "2026-09-01",
+    "minimum_days": 365,
+    "minimum_trades": 500
+  },
+  "hypothesis": {
+    "economic_premise": "daily_sampled_time_series_trend_has_positive_skew_after_costs",
+    "market_anatomy_decision": "NO_PROTOTYPE_PASSED_DESCRIPTIVE_GATES",
+    "market_anatomy_plan_sha256": "07b6d8f4a79eec0781719d5777db88b31a00310a095f58267e71fad014e9c149",
+    "market_anatomy_reinterpreted_as_authorization": false,
+    "market_anatomy_result_sha256": "6f0a17e0edd702afff2a83d0b9bdb810f0f75d049993c39399751c5dfc227b5f",
+    "parameter_search_allowed": false,
+    "research_lineage_trial_number": 11,
+    "trial_count": 1
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "protocol": {
+    "fingerprint": "80e18c48acae1f3cb9035e7d4c6406dd4a2e24fcaad236a48f2fe0bedc51bf80",
+    "max_trials": 1,
+    "seed": 47
+  },
+  "scenarios": {
+    "baseline": {
+      "costs": {
+        "adverse_funding_bps": 0.0,
+        "fee_bps_per_side": 4.5,
+        "latency_bps": 0.0,
+        "slippage_bps_per_side": 2.0,
+        "spread_bps": 2.0,
+        "uncertainty_buffer_bps": 2.0
+      },
+      "execution": {
+        "fee_bps": 4.5,
+        "funding": {
+          "evidence": "unavailable",
+          "historical_rates": [],
+          "rate_8h_bps": null,
+          "settlement_interval_ms": 3600000,
+          "source": "unavailable"
+        },
+        "latency_ms": 250,
+        "max_volume_participation": 0.05,
+        "slippage_bps": 2,
+        "slippage_jitter_bps": 0.0,
+        "spread_bps": 2
+      },
+      "policy": {
+        "application_exit_latency_ms": 250,
+        "terminal_liquidation_grace_ms": 3600000
+      }
+    },
+    "stress": {
+      "costs": {
+        "adverse_funding_bps": 45.625,
+        "fee_bps_per_side": 4.5,
+        "latency_bps": 0.0,
+        "slippage_bps_per_side": 4.0,
+        "spread_bps": 4.0,
+        "uncertainty_buffer_bps": 2.0
+      },
+      "execution": {
+        "fee_bps": 4.5,
+        "funding": {
+          "evidence": "assumed",
+          "historical_rates": [],
+          "rate_8h_bps": 5.0,
+          "settlement_interval_ms": 3600000,
+          "source": "assumed_adverse_stress"
+        },
+        "latency_ms": 500,
+        "max_volume_participation": 0.05,
+        "slippage_bps": 4,
+        "slippage_jitter_bps": 0.0,
+        "spread_bps": 4
+      },
+      "policy": {
+        "application_exit_latency_ms": 500,
+        "terminal_liquidation_grace_ms": 3600000
+      }
+    }
+  },
+  "schema_version": "kairos.right-tail-reused-screen.v1",
+  "strategy": {
+    "config": {
+      "atr_period_hours": 24,
+      "decision_interval_hours": 24,
+      "intent_valid_hours": 1,
+      "max_hold_hours": 72,
+      "minimum_trend_score": 1.0,
+      "stop_atr_multiple": 2.0,
+      "target_reward_to_risk": 4.0,
+      "trend_lookback_hours": 24
+    },
+    "config_sha256": "c36879cc052ccad8f126be29eb6cc8bd70c8274598e8a98fbae2e3ed69805253",
+    "id": "right_tail_trend_v1",
+    "revision": "1",
+    "source_commit": "331d8751901a8566fc4c99afd25d18cfd6db2f8f",
+    "status": "research"
+  }
+}

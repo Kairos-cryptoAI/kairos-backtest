@@ -12,7 +12,7 @@ authors = [{ name = "TheLitis" }]
 dependencies = [
     "kairos-core>=0.3,<0.4",
     "kairos-quant-scouts>=0.1,<0.2",
-    "kairos-strategy-engine>=0.1,<0.2",
+    "kairos-strategy-engine>=0.2,<0.3",
     "numpy>=1.26,<3",
 ]
 
@@ -30,13 +30,14 @@ required-version = "==0.12.3"
 [tool.uv.sources]
 kairos-core = { git = "https://github.com/Kairos-cryptoAI/kairos-core.git", rev = "91cd95c8e5bd4393ed04606df08c205583092df7" }
 kairos-quant-scouts = { git = "https://github.com/Kairos-cryptoAI/kairos-quant-scouts.git", rev = "4e6553800facef0e014d5f3a2855ce774289b5e5" }
-kairos-strategy-engine = { git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git", rev = "dc74aa47ef9d3e36d4cd247a0daf0da09c6e928e" }
+kairos-strategy-engine = { git = "https://github.com/Kairos-cryptoAI/kairos-strategy-engine.git", rev = "b5d69b155fcefa18a925c4a263275955424dc73f" }
 
 [project.scripts]
 kairos-evaluate = "kairos_backtest.cli:main"
 kairos-development-screen = "kairos_backtest.development_screen:main"
 kairos-orderflow-screen = "kairos_backtest.orderflow_screen:main"
 kairos-quarter-hour-screen = "kairos_backtest.quarter_hour_screen:main"
+kairos-right-tail-screen = "kairos_backtest.right_tail_screen:main"
 kairos-regime-retest-screen = "kairos_backtest.regime_retest_screen:main"
 kairos-market-anatomy = "kairos_backtest.market_anatomy:main"
 kairos-factor-data = "kairos_backtest.factor_data:main"

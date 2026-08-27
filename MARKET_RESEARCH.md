@@ -183,3 +183,26 @@ deleveraging failed the fixed mean/hit gates across both reused windows. The
 crowding veto reduced, rather than improved, trend continuation. Full data
 quality, metrics and interpretation are preserved in the
 [`derivatives_state_v1` report](reports/derivatives-state/REPORT.md).
+
+## `right_tail_trend_v1`
+
+The two descriptive studies above did not authorize a prototype. A subsequent
+external time-series-trend hypothesis is therefore recorded as a new research
+lineage, not as a passed `market_anatomy_v1` candidate. The economic premise is
+that a deliberately low-turnover, positively skewed lifecycle may monetize
+trend persistence even with a hit rate near one half. Research on crypto
+momentum also warns that mean returns, leverage and liquidation assumptions can
+reverse apparent profitability, so this candidate is tested with loss-at-stop
+sizing and adverse costs rather than optimized for headline return:
+
+- [Momentum in the Cryptocurrency Market under realistic assumptions](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4675565)
+- [A Decade of Evidence of Trend Following Investing in Cryptocurrencies](https://arxiv.org/abs/2009.12155)
+- [Analytical results for EMA trend following and turnover costs](https://arxiv.org/abs/1308.5658)
+
+The exact candidate is intentionally small: a 24-hour standardized trend score,
+one UTC decision per day, 24-hour ATR, a symmetric 2 ATR stop, a 4R target and a
+72-hour timeout. No parameter search, per-symbol rule, side asymmetry, LLM or
+derivatives-state filter is permitted. Its use of an already observed feature
+makes every archive through July 2026 reused development data. The committed
+screen can return only `REJECT_REUSED_DATA_SCREEN` or
+`FORWARD_FREEZE_CANDIDATE`; both leave PAPER and LIVE disabled.
