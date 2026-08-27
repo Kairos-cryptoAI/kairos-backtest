@@ -44,7 +44,8 @@ def _bar(open_time_ms: int, *, symbol: str = "BTCUSDT", close: float = 100.0) ->
     )
 
 
-def _intent(bar: ClosedBarEventV1) -> StrategyIntentV1:
+def _intent(history: tuple[ClosedBarEventV1, ...]) -> StrategyIntentV1:
+    bar = history[-1]
     return StrategyIntentV1(
         source="strategy-engine",
         strategy_id=forward.STRATEGY_ID,
@@ -59,11 +60,11 @@ def _intent(bar: ClosedBarEventV1) -> StrategyIntentV1:
         gross_reward_bps=200,
         exit_plan=ExitPlanV1(stop_price=99, target_price=102, max_holding_ms=72 * 60 * 60 * 1_000),
         provenance=StrategyProvenanceV1(
-            strategy_code_sha256="1" * 64,
-            config_sha256="2" * 64,
+            strategy_code_sha256=forward.STRATEGY_SOURCE_TREE_SHA256,
+            config_sha256=forward.STRATEGY_CONFIG_SHA256,
             input_window_sha256="3" * 64,
             features_sha256="4" * 64,
-            input_bar_sha256s=("5" * 64, "6" * 64),
+            input_bar_sha256s=tuple(item.bar_sha256 for item in history),
         ),
     )
 
@@ -90,6 +91,7 @@ def test_ledger_is_idempotent_and_status_discloses_no_performance(tmp_path: Path
         assert ledger.ingest_bar(bar, as_of_ms=bar.close_time_ms) == (IngestDisposition.DUPLICATE, 0)
         ledger.verify_integrity()
         status = ledger.status()
+        assert tuple(ledger.iter_bars("BTCUSDT")) == (forward._price_volume_bar(bar),)
 
     encoded = json.dumps(status, sort_keys=True)
     assert "pnl" not in encoded
@@ -97,6 +99,25 @@ def test_ledger_is_idempotent_and_status_discloses_no_performance(tmp_path: Path
     assert "net_return" not in encoded
     assert status["blind_performance_disclosed"] is False
     assert sum(item["bar_count"] for item in status["symbols"]) == 1
+
+
+def test_sealed_dataset_uses_only_the_common_prefix(monkeypatch, tmp_path: Path):
+    start = forward.WARMUP_START_MS
+    monkeypatch.setattr(forward, "BLIND_START_MS", start - 60_000)
+    path = tmp_path / "forward.sqlite3"
+    first_rows = tuple(_bar(start, symbol=symbol) for symbol in forward.SYMBOLS)
+    with ForwardLedger(path, expected_plan()) as ledger:
+        ledger.ingest(first_rows, as_of_ms=start + 59_999)
+        watermark = start + 60_000
+        first_seal = ledger.sealed_dataset_sha256(watermark)
+        ledger.ingest_bar(
+            _bar(start + 60_000),
+            as_of_ms=start + 2 * 60_000 - 1,
+        )
+        assert ledger.sealed_dataset_sha256(watermark) == first_seal
+        assert tuple(ledger.iter_bars("BTCUSDT", end_exclusive_ms=watermark)) == (
+            forward._price_volume_bar(first_rows[0]),
+        )
 
 
 def test_gap_or_conflict_permanently_blocks_only_that_symbol(tmp_path: Path):
@@ -308,7 +329,7 @@ def test_intent_is_persisted_only_after_blind_boundary_and_full_window(monkeypat
 
     def generator(strategy_id, history):
         calls.append(history)
-        return (_intent(history[-1]),)
+        return (_intent(history),)
 
     monkeypatch.setattr(forward, "generate_runtime_strategy_intents", generator)
     first = _bar(start)

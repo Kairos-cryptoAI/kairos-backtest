@@ -639,17 +639,129 @@ class ForwardLedger:
             ):
                 payload = row["payload_json"].encode("ascii")
                 intent = StrategyIntentV1.model_validate_json(payload)
+                decision_open_ms = intent.decision_ts_ms - (_ONE_MINUTE_MS - 1)
+                decision_bar = self.connection.execute(
+                    "SELECT bar_sha256 FROM bars WHERE symbol=? AND open_time_ms=?",
+                    (symbol, decision_open_ms),
+                ).fetchone()
+                input_hashes = intent.provenance.input_bar_sha256s
+                first_input_open_ms = decision_open_ms - (len(input_hashes) - 1) * _ONE_MINUTE_MS
+                first_input_bar = self.connection.execute(
+                    "SELECT bar_sha256 FROM bars WHERE symbol=? AND open_time_ms=?",
+                    (symbol, first_input_open_ms),
+                ).fetchone()
                 if (
                     intent.intent_id != row["intent_id"]
                     or intent.symbol != symbol
                     or intent.decision_ts_ms != row["decision_ts_ms"]
                     or _sha256_bytes(payload) != row["payload_sha256"]
                     or intent.decision_ts_ms < BLIND_START_MS
+                    or decision_bar is None
+                    or row["decision_bar_sha256"] != decision_bar["bar_sha256"]
+                    or len(input_hashes) != OBSERVATION_WINDOW_BARS
+                    or input_hashes[-1] != decision_bar["bar_sha256"]
+                    or first_input_bar is None
+                    or input_hashes[0] != first_input_bar["bar_sha256"]
+                    or intent.provenance.strategy_code_sha256 != STRATEGY_SOURCE_TREE_SHA256
+                    or intent.provenance.config_sha256 != STRATEGY_CONFIG_SHA256
                 ):
                     raise ForwardIntegrityError(f"{symbol} stored intent is invalid")
                 intent_count += 1
             if intent_count != state["intent_count"]:
                 raise ForwardIntegrityError(f"{symbol} intent counter is invalid")
+
+    def iter_bars(
+        self,
+        symbol: str,
+        *,
+        end_exclusive_ms: int | None = None,
+    ) -> Iterable[ClosedBarEventV1]:
+        """Yield verified stored bars in canonical order without exposing performance."""
+
+        if symbol not in SYMBOLS:
+            raise ValueError(f"symbol is outside the frozen universe: {symbol}")
+        query = "SELECT payload_json FROM bars WHERE symbol=?"
+        parameters: tuple[object, ...] = (symbol,)
+        if end_exclusive_ms is not None:
+            if (
+                isinstance(end_exclusive_ms, bool)
+                or not isinstance(end_exclusive_ms, int)
+                or end_exclusive_ms < 0
+                or end_exclusive_ms % _ONE_MINUTE_MS
+            ):
+                raise ValueError("end_exclusive_ms must be a non-negative minute boundary")
+            query += " AND open_time_ms<?"
+            parameters += (end_exclusive_ms,)
+        query += " ORDER BY open_time_ms"
+        for row in self.connection.execute(query, parameters):
+            yield ClosedBarEventV1.model_validate_json(row["payload_json"])
+
+    def intents_before(self, symbol: str, end_exclusive_ms: int) -> tuple[StrategyIntentV1, ...]:
+        """Return the stored candidate inventory below one sealed watermark."""
+
+        if symbol not in SYMBOLS:
+            raise ValueError(f"symbol is outside the frozen universe: {symbol}")
+        if (
+            isinstance(end_exclusive_ms, bool)
+            or not isinstance(end_exclusive_ms, int)
+            or end_exclusive_ms < 0
+            or end_exclusive_ms % _ONE_MINUTE_MS
+        ):
+            raise ValueError("end_exclusive_ms must be a non-negative minute boundary")
+        rows = self.connection.execute(
+            """SELECT payload_json FROM intents
+                 WHERE symbol=? AND decision_ts_ms<?
+                 ORDER BY decision_ts_ms, intent_id""",
+            (symbol, end_exclusive_ms),
+        ).fetchall()
+        return tuple(StrategyIntentV1.model_validate_json(row["payload_json"]) for row in rows)
+
+    def sealed_dataset_sha256(self, watermark_ms: int) -> str:
+        """Bind the common bar prefix and candidate inventory used by final evaluation."""
+
+        if (
+            isinstance(watermark_ms, bool)
+            or not isinstance(watermark_ms, int)
+            or watermark_ms <= BLIND_START_MS
+            or watermark_ms % _ONE_MINUTE_MS
+        ):
+            raise ValueError("watermark_ms must be a post-blind minute boundary")
+        self.verify_integrity()
+        digest = hashlib.sha256(b"kairos-forward-sealed-dataset-v1\0")
+        digest.update(self.plan_sha256.encode("ascii"))
+        digest.update(str(watermark_ms).encode("ascii"))
+        terminal_open_ms = watermark_ms - _ONE_MINUTE_MS
+        for symbol in SYMBOLS:
+            terminal = self.connection.execute(
+                """SELECT record_sha256 FROM bars
+                     WHERE symbol=? AND open_time_ms=?""",
+                (symbol, terminal_open_ms),
+            ).fetchone()
+            if terminal is None:
+                raise ForwardIntegrityError(f"{symbol} does not reach the sealed watermark")
+            bar_count = self.connection.execute(
+                "SELECT COUNT(*) FROM bars WHERE symbol=? AND open_time_ms<?",
+                (symbol, watermark_ms),
+            ).fetchone()[0]
+            intent_rows = self.connection.execute(
+                """SELECT intent_id, payload_sha256 FROM intents
+                     WHERE symbol=? AND decision_ts_ms<?
+                     ORDER BY decision_ts_ms, intent_id""",
+                (symbol, watermark_ms),
+            ).fetchall()
+            digest.update(
+                _canonical_document(
+                    {
+                        "bar_count": bar_count,
+                        "intent_count": len(intent_rows),
+                        "symbol": symbol,
+                        "terminal_record_sha256": terminal["record_sha256"],
+                    }
+                )
+            )
+            for row in intent_rows:
+                digest.update(_canonical_document(dict(row)))
+        return digest.hexdigest()
 
     def evidence_sha256(self) -> str:
         """Fingerprint verified campaign state without disclosing performance."""
