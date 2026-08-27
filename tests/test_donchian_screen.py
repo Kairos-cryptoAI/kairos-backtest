@@ -122,6 +122,29 @@ def test_committed_plan_has_stable_canonical_hash():
     assert _sha256(loaded) == _sha256(expected_plan())
 
 
+def test_consumed_trial_is_closed_as_inconclusive_without_performance_result():
+    root = Path(__file__).resolve().parents[1]
+    failure = json.loads((root / "reports" / "donchian-screen" / "failure.json").read_text(encoding="utf-8"))
+
+    assert failure["classification"] == "INCONCLUSIVE_DATA_INTEGRITY"
+    assert failure["rerun_allowed"] is False
+    assert failure["failure"]["taker_buy_volume"] > failure["failure"]["total_volume"]
+    assert failure["archive"]["official_sha256_verified"] is True
+    assert failure["observability"] == {
+        "operator_observed_performance_metrics": False,
+        "partial_in_memory_symbol_replays_persisted": False,
+        "result_file_written": False,
+    }
+    assert failure["permissions"] == {
+        "alpha_ready": False,
+        "live_allowed": False,
+        "paper_allowed": False,
+        "promotion_eligible": False,
+    }
+    assert _sha256(failure) == "02bf8eff39c03a756aaea48642a45973bb8b20ee0c4ae1751b3e07e2e1c8fd82"
+    assert not (root / "reports" / "donchian-screen" / "summary.json").exists()
+
+
 def test_symbol_replay_applies_next_day_weight_turnover_and_funding_once():
     day_ms = 86_400_000
     daily = [

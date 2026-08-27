@@ -1,0 +1,17 @@
+{
+  "attempt_sha256": "50a70c82ec3a0a70831dc0d39dc1fa1bef8d4eea20ecc709c1f03531651d2ea7",
+  "classification": "independent_published_model_reused_data_only",
+  "consumed_at": "2026-08-27T03:09:36.131734+00:00",
+  "consumption_point": "before_first_price_or_funding_archive_access",
+  "crash_or_failure_releases_attempt": false,
+  "lineage_trial_number": 13,
+  "plan_file": {
+    "bytes": 2777,
+    "sha256": "04263dac118b1a8a783780cebb12ff213bf671ab5930ddbbcf9b93a35099530c"
+  },
+  "plan_sha256": "af901d350c1ebdc2eedf89229859c8934ecaa85bc44deff698720f01ae208b9a",
+  "rerun_allowed": false,
+  "schema_version": "kairos.donchian-ensemble-reused-screen.v1",
+  "status": "consumed",
+  "strategy_id": "donchian_ensemble_long_v1"
+}

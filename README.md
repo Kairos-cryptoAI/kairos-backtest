@@ -319,6 +319,12 @@ route. This reused-data screen can only reject or forward-freeze the exact model
 it cannot enable PAPER until both future evidence and a dynamic execution
 lifecycle exist.
 
+The one permitted attempt ended `INCONCLUSIVE_DATA_INTEGRITY` before any
+portfolio metric was persisted: one checksum-verified official XRP archive has
+taker-buy volume greater than total volume. The attempt remains consumed and
+must not be rerun. Exact evidence and the research consequence are recorded in
+the [immutable trial report](reports/donchian-screen/REPORT.md).
+
 ## Reproducibility contract
 
 - Candle inputs are canonicalized chronologically and conflicting timestamps

@@ -1,0 +1,43 @@
+{
+  "archive": {
+    "file": "data/historical/XRPUSDT/1m/XRPUSDT-1m-2023-11.zip",
+    "official_checksum_file": "XRPUSDT-1m-2023-11.zip.CHECKSUM",
+    "official_sha256": "b817ca0a6478d73cfd50dfc224aab84ec7f15ed0129795c3df2c39e6ce08cc99",
+    "official_sha256_verified": true
+  },
+  "attempt": {
+    "attempt_file_sha256": "d12d7bc06a94eb5e0245a868ea66cade7bef6cc5d484982d2287b12c7fde4a30",
+    "attempt_sha256": "50a70c82ec3a0a70831dc0d39dc1fa1bef8d4eea20ecc709c1f03531651d2ea7",
+    "lineage_trial_number": 13,
+    "plan_sha256": "af901d350c1ebdc2eedf89229859c8934ecaa85bc44deff698720f01ae208b9a",
+    "preregistration_commit": "efbb24cda7e6f8f816689e43809112bf8266694f",
+    "preregistration_tree": "ac772485a26c27ec638da9182c8f4cbb72a4fd39"
+  },
+  "classification": "INCONCLUSIVE_DATA_INTEGRITY",
+  "failure": {
+    "exception_type": "ValueError",
+    "message": "malformed Binance CSV row at line 42517: taker-buy volume exceeds total volume",
+    "open_time_ms": 1701347700000,
+    "open_time_utc": "2023-11-30T12:35:00Z",
+    "row": 42517,
+    "row_sha256": "0e7d93382fecbd52a376de4b073396c6a55adc2b2e3902bee2ff9fedbd20e2ee",
+    "stage": "official_price_archive_domain_validation",
+    "taker_buy_volume": 132462.5,
+    "total_volume": 91695.7,
+    "volume_excess": 40766.8
+  },
+  "observability": {
+    "operator_observed_performance_metrics": false,
+    "partial_in_memory_symbol_replays_persisted": false,
+    "result_file_written": false
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "rerun_allowed": false,
+  "result_schema_version": "kairos.donchian-ensemble-reused-screen-failure.v1",
+  "strategy_id": "donchian_ensemble_long_v1"
+}
