@@ -33,6 +33,7 @@ PLAN_LOGICAL_SHA256 = "f335b3eaf75ffd153b2f4d4341271280cb725de98b1a7584a8eaed076
 DATA_START = date(2021, 1, 1)
 DATA_END_EXCLUSIVE = date(2026, 8, 1)
 PHASE_OFFSETS_MINUTES = (0, 2, 5, 7)
+PREREGISTERED_LAG_COUNT = 12
 _ZERO_SHA256 = "0" * 64
 
 
@@ -93,12 +94,71 @@ def _logical_sha256(value: object) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _plan_value(plan: Mapping[str, object], path: tuple[str, ...]) -> object:
+    value: object = plan
+    for key in path:
+        if not isinstance(value, Mapping) or key not in value:
+            raise QuarterHourFeatureIntegrityError(
+                f"committed quarter-hour replication plan is missing {'.'.join(path)}"
+            )
+        value = value[key]
+    return value
+
+
+def _validate_plan_contract(plan: Mapping[str, object]) -> None:
+    expected: tuple[tuple[tuple[str, ...], object], ...] = (
+        (("schema_version",), "kairos.quarter-hour-lag-replication.v1"),
+        (("classification",), "PERFORMANCE_BLIND_STATISTICAL_REPLICATION"),
+        (("data", "archive_cadence"), "monthly"),
+        (
+            ("data", "checksum_policy"),
+            "official adjacent SHA-256 sidecar plus ZIP CRC",
+        ),
+        (("data", "end_exclusive"), DATA_END_EXCLUSIVE.isoformat()),
+        (("data", "market"), "Binance USD-M perpetual futures"),
+        (("data", "source"), "official Binance public-data aggTrades archives"),
+        (("data", "start"), DATA_START.isoformat()),
+        (("data", "universe"), list(SYMBOLS)),
+        (("measurement", "boundary_spacing_minutes"), 15),
+        (("measurement", "forward_window"), "(T,T+10s]"),
+        (("measurement", "lag_count"), PREREGISTERED_LAG_COUNT),
+        (
+            ("measurement", "opening_reference"),
+            "latest transaction price at or before T",
+        ),
+        (("measurement", "phase_offsets_minutes"), list(PHASE_OFFSETS_MINUTES)),
+        (("measurement", "primary_phase_offset_minutes"), 0),
+        (
+            ("measurement", "response"),
+            "forward quantity-weighted transaction price / opening reference price - 1",
+        ),
+        (
+            ("permissions",),
+            {
+                "alpha_ready": False,
+                "live_allowed": False,
+                "paper_allowed": False,
+                "promotion_eligible": False,
+            },
+        ),
+        (("protocol", "paid_apis"), False),
+        (("protocol", "result_may_not_change_this_plan"), True),
+    )
+    for path, expected_value in expected:
+        actual = _plan_value(plan, path)
+        if type(actual) is not type(expected_value) or actual != expected_value:
+            raise QuarterHourFeatureIntegrityError(
+                f"committed plan field {'.'.join(path)} does not match the executable contract"
+            )
+
+
 def load_plan(path: Path) -> dict[str, object]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict) or _logical_sha256(payload) != PLAN_LOGICAL_SHA256:
         raise QuarterHourFeatureIntegrityError(
             "committed quarter-hour replication plan differs from the preregistration"
         )
+    _validate_plan_contract(payload)
     return payload
 
 

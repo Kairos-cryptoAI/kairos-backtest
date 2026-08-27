@@ -8,10 +8,15 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from kairos_backtest.quarter_hour_features import (
+    QuarterHourFeatureIntegrityError,
+    load_plan,
+)
 from kairos_backtest.quarter_hour_lag_model import RollingForecast
 from kairos_backtest.quarter_hour_lag_replication import (
     _atomic_create,
     _slice_forecast,
+    _validate_model_plan,
     gate_failures,
 )
 
@@ -97,3 +102,14 @@ def test_replication_result_writer_is_create_only(tmp_path: Path) -> None:
 
     with pytest.raises(FileExistsError, match="refusing to overwrite"):
         _atomic_create(path, payload)
+
+
+def test_executable_model_contract_is_bound_to_plan_fields() -> None:
+    root = Path(__file__).resolve().parents[1]
+    plan = load_plan(root / "reports" / "quarter-hour-lag-replication" / "plan.json")
+    _validate_model_plan(plan)
+
+    mutated = deepcopy(plan)
+    mutated["model"]["refit_training_window_calendar_months"] = 12
+    with pytest.raises(QuarterHourFeatureIntegrityError, match="model contract"):
+        _validate_model_plan(mutated)

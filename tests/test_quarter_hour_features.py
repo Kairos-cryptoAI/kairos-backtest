@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from copy import deepcopy
 from dataclasses import replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
@@ -21,6 +22,7 @@ from kairos_backtest.quarter_hour_features import (
     QuarterHourFeatureLedger,
     _expected_windows,
     _logical_sha256,
+    _validate_plan_contract,
     collect_features,
     expected_sequence,
     load_plan,
@@ -104,6 +106,17 @@ def test_committed_plan_matches_the_preregistered_logical_hash(tmp_path: Path) -
     path.write_text(json.dumps(mutated), encoding="utf-8")
     with pytest.raises(QuarterHourFeatureIntegrityError, match="preregistration"):
         load_plan(path)
+
+
+def test_executable_feature_contract_is_bound_to_plan_fields() -> None:
+    root = Path(__file__).resolve().parents[1]
+    plan = load_plan(root / "reports" / "quarter-hour-lag-replication" / "plan.json")
+    _validate_plan_contract(plan)
+
+    mutated = deepcopy(plan)
+    mutated["measurement"]["phase_offsets_minutes"] = [0]
+    with pytest.raises(QuarterHourFeatureIntegrityError, match="executable contract"):
+        _validate_plan_contract(mutated)
 
 
 def test_month_sequence_is_exact_and_exclusive() -> None:

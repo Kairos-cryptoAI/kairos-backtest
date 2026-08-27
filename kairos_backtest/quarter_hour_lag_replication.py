@@ -17,16 +17,19 @@ from typing import cast
 
 import numpy as np
 
+from . import quarter_hour_lag_model as lag_model
 from .quarter_hour_features import (
     DATA_END_EXCLUSIVE,
     DATA_START,
     PHASE_OFFSETS_MINUTES,
     PLAN_FILENAME,
+    QuarterHourFeatureIntegrityError,
     QuarterHourFeatureLedger,
     _assert_clean,
     _json_bytes,
     _json_value,
     _logical_sha256,
+    _plan_value,
     expected_sequence,
     load_plan,
 )
@@ -52,10 +55,8 @@ def _utc_ms(value: date) -> int:
 
 
 def _model_source_sha256() -> str:
-    from . import quarter_hour_lag_model as model_module
-
     digest = hashlib.sha256()
-    paths = sorted((Path(cast(str, model_module.__file__)), Path(__file__)), key=str)
+    paths = sorted((Path(cast(str, lag_model.__file__)), Path(__file__)), key=str)
     for path in paths:
         name = path.name.encode("ascii")
         content = path.read_bytes()
@@ -64,6 +65,48 @@ def _model_source_sha256() -> str:
         digest.update(len(content).to_bytes(8, "big"))
         digest.update(content)
     return digest.hexdigest()
+
+
+def _validate_model_plan(plan: Mapping[str, object]) -> None:
+    expected: tuple[tuple[tuple[str, ...], object], ...] = (
+        (("measurement", "lag_count"), lag_model.LAG_COUNT),
+        (("measurement", "phase_offsets_minutes"), list(PHASE_OFFSETS_MINUTES)),
+        (("model", "lasso_max_iterations"), lag_model.LASSO_MAX_ITERATIONS),
+        (("model", "lasso_tolerance"), lag_model.LASSO_TOLERANCE),
+        (("model", "monthly_refit"), True),
+        (("model", "refit_training_window_calendar_months"), lag_model.TRAINING_MONTHS),
+        (
+            ("model", "tie_break"),
+            "largest lambda within an absolute tuning-MSE tolerance of 1e-15",
+        ),
+        (("model", "lambda_grid", "count"), len(lag_model.LAMBDA_GRID)),
+        (("model", "lambda_grid", "maximum"), max(lag_model.LAMBDA_GRID)),
+        (("model", "lambda_grid", "minimum"), min(lag_model.LAMBDA_GRID)),
+        (("model", "lambda_grid", "spacing"), "base-10 logarithmic inclusive"),
+        (("protocol", "paper_replication_end_exclusive"), PAPER_END_EXCLUSIVE.isoformat()),
+        (("protocol", "paper_replication_oos_start"), OOS_START.isoformat()),
+        (("protocol", "post_sample_end_exclusive"), DATA_END_EXCLUSIVE.isoformat()),
+        (("protocol", "post_sample_start"), POST_SAMPLE_START.isoformat()),
+        (("data", "paper_overlap_assets"), list(PAPER_OVERLAP_ASSETS)),
+    )
+    for path, expected_value in expected:
+        actual = _plan_value(plan, path)
+        if type(actual) is not type(expected_value) or actual != expected_value:
+            raise QuarterHourFeatureIntegrityError(
+                f"committed plan field {'.'.join(path)} does not match the model contract"
+            )
+    grid = tuple(
+        float(value)
+        for value in np.logspace(
+            np.log10(min(lag_model.LAMBDA_GRID)),
+            np.log10(max(lag_model.LAMBDA_GRID)),
+            len(lag_model.LAMBDA_GRID),
+        )
+    )
+    if grid != lag_model.LAMBDA_GRID or lag_model.TUNING_MSE_TOLERANCE != 1e-15:
+        raise QuarterHourFeatureIntegrityError(
+            "executable lag-model grid or tuning tie-break differs from the committed plan"
+        )
 
 
 def _slice_forecast(
@@ -346,6 +389,7 @@ def run_replication(
     result_path: Path,
 ) -> dict[str, object]:
     plan = load_plan(plan_path)
+    _validate_model_plan(plan)
     plan_sha = _logical_sha256(plan)
     git_head = _assert_clean(project_root)
     ledger_source = feature_source_sha256()
