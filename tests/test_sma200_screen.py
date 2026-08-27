@@ -72,7 +72,8 @@ def test_preflight_receipt_accepts_git_crlf_materialization(tmp_path):
     root = Path(__file__).resolve().parents[1]
     source = root / "reports" / "data-field-preflight" / "result-v2.json"
     crlf_copy = tmp_path / "result-v2.json"
-    crlf_copy.write_bytes(source.read_bytes().replace(b"\n", b"\r\n"))
+    lf_bytes = source.read_bytes().replace(b"\r\n", b"\n")
+    crlf_copy.write_bytes(lf_bytes.replace(b"\n", b"\r\n"))
 
     receipt = _validate_preflight_receipt(crlf_copy)
 
