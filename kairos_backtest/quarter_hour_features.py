@@ -169,15 +169,41 @@ def _trade_from_json(raw: str) -> AggTrade:
     if not isinstance(payload, dict):
         raise QuarterHourFeatureIntegrityError("stored last trade is not a mapping")
     try:
-        return AggTrade(
-            aggregate_trade_id=int(payload["aggregate_trade_id"]),
+        integer_fields = {
+            name: payload[name]
+            for name in (
+                "aggregate_trade_id",
+                "first_trade_id",
+                "last_trade_id",
+                "transact_time_ms",
+            )
+        }
+        if any(
+            isinstance(value, bool) or not isinstance(value, int) or value < 0
+            for value in integer_fields.values()
+        ):
+            raise TypeError("stored trade integer fields are invalid")
+        maker = payload["buyer_is_maker"]
+        if not isinstance(maker, bool):
+            raise TypeError("stored trade maker flag is invalid")
+        trade = AggTrade(
+            aggregate_trade_id=integer_fields["aggregate_trade_id"],
             price=Decimal(payload["price"]),
             quantity=Decimal(payload["quantity"]),
-            first_trade_id=int(payload["first_trade_id"]),
-            last_trade_id=int(payload["last_trade_id"]),
-            transact_time_ms=int(payload["transact_time_ms"]),
-            buyer_is_maker=bool(payload["buyer_is_maker"]),
+            first_trade_id=integer_fields["first_trade_id"],
+            last_trade_id=integer_fields["last_trade_id"],
+            transact_time_ms=integer_fields["transact_time_ms"],
+            buyer_is_maker=maker,
         )
+        if (
+            not trade.price.is_finite()
+            or trade.price <= 0
+            or not trade.quantity.is_finite()
+            or trade.quantity <= 0
+            or trade.first_trade_id > trade.last_trade_id
+        ):
+            raise ValueError("stored trade values are invalid")
+        return trade
     except (KeyError, TypeError, ValueError) as exc:
         raise QuarterHourFeatureIntegrityError("stored last trade is invalid") from exc
 
