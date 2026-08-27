@@ -1,22 +1,48 @@
 from __future__ import annotations
 
 import json
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
 from kairos_core.enums import Side
 
+from kairos_backtest.aggtrades import AggTrade
 from kairos_backtest.quarter_hour_execution_overlay import (
     PARENT_PLAN_SHA256,
+    EntryTickRequest,
+    EntryTickStatus,
     ParentDisposition,
     TimingAction,
     decide_timing,
     direction_adjusted_entry_improvement_bps,
+    extract_exact_entry_ticks,
     load_plan,
     verify_parent_result,
 )
 
 BOUNDARY_MS = 1_800_000
+
+
+def _trade(
+    aggregate_trade_id: int,
+    transact_time_ms: int,
+    *,
+    first_trade_id: int | None = None,
+    last_trade_id: int | None = None,
+    price: str = "100",
+) -> AggTrade:
+    first = aggregate_trade_id if first_trade_id is None else first_trade_id
+    last = first if last_trade_id is None else last_trade_id
+    return AggTrade(
+        aggregate_trade_id=aggregate_trade_id,
+        price=Decimal(price),
+        quantity=Decimal("1"),
+        first_trade_id=first,
+        last_trade_id=last,
+        transact_time_ms=transact_time_ms,
+        buyer_is_maker=False,
+    )
 
 
 @pytest.mark.parametrize(
@@ -87,6 +113,115 @@ def test_direction_adjusted_tca_uses_the_correct_side_sign() -> None:
 
     assert long_better == pytest.approx(100.0)
     assert short_better == pytest.approx(100.0)
+
+
+def test_exact_entry_tick_selects_first_trade_inside_one_second() -> None:
+    requests = (EntryTickRequest("entry", 1_000),)
+    trades = (
+        _trade(1, 999, first_trade_id=10),
+        _trade(2, 1_250, first_trade_id=11, price="101.25"),
+        _trade(3, 1_251, first_trade_id=12, price="102"),
+    )
+
+    (resolution,) = extract_exact_entry_ticks(trades, requests, coverage_end_ms=3_000)
+
+    assert resolution.status is EntryTickStatus.FOUND
+    assert resolution.aggregate_trade_id == 2
+    assert resolution.transact_time_ms == 1_250
+    assert resolution.price == Decimal("101.25")
+
+
+def test_exact_entry_tick_taints_gap_that_can_hide_first_fill() -> None:
+    requests = (EntryTickRequest("entry", 1_000),)
+    trades = (
+        _trade(1, 900, first_trade_id=10),
+        _trade(3, 1_100, first_trade_id=12),
+    )
+
+    (resolution,) = extract_exact_entry_ticks(trades, requests, coverage_end_ms=3_000)
+
+    assert resolution.status is EntryTickStatus.GAP_TAINTED
+    assert resolution.price is None
+
+
+def test_exact_entry_tick_taints_raw_id_gap_even_with_contiguous_aggregates() -> None:
+    requests = (EntryTickRequest("entry", 1_000),)
+    trades = (
+        _trade(1, 900, first_trade_id=10),
+        _trade(2, 1_100, first_trade_id=12),
+    )
+
+    (resolution,) = extract_exact_entry_ticks(trades, requests, coverage_end_ms=3_000)
+
+    assert resolution.status is EntryTickStatus.GAP_TAINTED
+
+
+def test_exact_entry_tick_timeout_contains_no_synthetic_price() -> None:
+    requests = (EntryTickRequest("entry", 1_000),)
+    trades = (
+        _trade(1, 900),
+        _trade(2, 2_001),
+    )
+
+    (resolution,) = extract_exact_entry_ticks(trades, requests, coverage_end_ms=3_000)
+
+    assert resolution.status is EntryTickStatus.TIMEOUT
+    assert resolution.aggregate_trade_id is None
+    assert resolution.transact_time_ms is None
+    assert resolution.price is None
+
+
+def test_exact_entry_tick_gap_taints_even_when_next_record_is_after_deadline() -> None:
+    requests = (EntryTickRequest("entry", 1_000),)
+    trades = (
+        _trade(1, 900, first_trade_id=10),
+        _trade(3, 2_001, first_trade_id=12),
+    )
+
+    (resolution,) = extract_exact_entry_ticks(trades, requests, coverage_end_ms=3_000)
+
+    assert resolution.status is EntryTickStatus.GAP_TAINTED
+
+
+def test_exact_entry_tick_resolves_overlapping_requests_in_one_pass() -> None:
+    requests = (
+        EntryTickRequest("base", 1_000),
+        EntryTickRequest("candidate", 1_500),
+    )
+    trades = (
+        _trade(1, 900),
+        _trade(2, 1_100),
+        _trade(3, 1_600),
+    )
+
+    base, candidate = extract_exact_entry_ticks(trades, requests, coverage_end_ms=3_000)
+
+    assert base.aggregate_trade_id == 2
+    assert candidate.aggregate_trade_id == 3
+
+
+def test_exact_entry_tick_requires_proven_predecessor_and_ordered_requests() -> None:
+    request = EntryTickRequest("entry", 1_000)
+    (resolution,) = extract_exact_entry_ticks(
+        (_trade(1, 1_100),),
+        (request,),
+        coverage_end_ms=3_000,
+    )
+    assert resolution.status is EntryTickStatus.GAP_TAINTED
+
+    with pytest.raises(ValueError, match="must be sorted"):
+        extract_exact_entry_ticks(
+            (_trade(1, 900),),
+            (EntryTickRequest("later", 2_000), EntryTickRequest("earlier", 1_000)),
+            coverage_end_ms=4_000,
+        )
+
+    with pytest.raises(ValueError, match="coverage must include"):
+        extract_exact_entry_ticks(
+            (_trade(1, 900),),
+            (request,),
+            coverage_end_ms=1_500,
+        )
 
 
 def _parent_result(classification: str) -> dict[str, object]:

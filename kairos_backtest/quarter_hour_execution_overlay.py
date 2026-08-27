@@ -5,11 +5,15 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from decimal import Decimal
 from enum import StrEnum
 from pathlib import Path
 
 from kairos_core.enums import Side
+
+from .aggtrades import AggTrade
 
 PLAN_PATH = Path("reports/quarter-hour-execution-overlay/plan.json")
 PLAN_SHA256 = "637e9240545f7dfcd10a21989bff761ce55ef4eed9f51d7eea4e6415af0ff073"
@@ -35,6 +39,67 @@ class ParentDisposition(StrEnum):
     PENDING = "PENDING"
     ELIGIBLE = "ELIGIBLE"
     NOT_RUN_PARENT_COMPONENT_REJECTED = "NOT_RUN_PARENT_COMPONENT_REJECTED"
+
+
+class EntryTickStatus(StrEnum):
+    """Why an exact historical entry tick is or is not usable."""
+
+    FOUND = "FOUND"
+    GAP_TAINTED = "GAP_TAINTED"
+    TIMEOUT = "TIMEOUT"
+
+
+@dataclass(frozen=True, slots=True)
+class EntryTickRequest:
+    """One exact first-trade lookup within the frozen one-second deadline."""
+
+    request_id: str
+    submission_timestamp_ms: int
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.request_id, str) or not self.request_id:
+            raise ValueError("entry tick request_id must be a non-empty string")
+        if (
+            isinstance(self.submission_timestamp_ms, bool)
+            or not isinstance(self.submission_timestamp_ms, int)
+            or self.submission_timestamp_ms < 0
+        ):
+            raise ValueError("entry submission timestamp must be a non-negative integer")
+
+
+@dataclass(frozen=True, slots=True)
+class EntryTickResolution:
+    """Immutable exact-tick evidence aligned one-to-one with a request."""
+
+    request: EntryTickRequest
+    status: EntryTickStatus
+    aggregate_trade_id: int | None = None
+    transact_time_ms: int | None = None
+    price: Decimal | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.request, EntryTickRequest):
+            raise TypeError("entry tick resolution requires an EntryTickRequest")
+        if not isinstance(self.status, EntryTickStatus):
+            raise TypeError("entry tick status must be an EntryTickStatus")
+        evidence = (self.aggregate_trade_id, self.transact_time_ms, self.price)
+        if self.status is EntryTickStatus.FOUND:
+            if (
+                isinstance(self.aggregate_trade_id, bool)
+                or not isinstance(self.aggregate_trade_id, int)
+                or self.aggregate_trade_id < 0
+                or isinstance(self.transact_time_ms, bool)
+                or not isinstance(self.transact_time_ms, int)
+                or not self.request.submission_timestamp_ms
+                <= self.transact_time_ms
+                <= self.request.submission_timestamp_ms + 1_000
+                or not isinstance(self.price, Decimal)
+                or not self.price.is_finite()
+                or self.price <= 0
+            ):
+                raise ValueError("found entry tick evidence is malformed or outside its deadline")
+        elif any(value is not None for value in evidence):
+            raise ValueError("unavailable entry ticks cannot contain synthetic evidence")
 
 
 @dataclass(frozen=True, slots=True)
@@ -191,6 +256,93 @@ def direction_adjusted_entry_improvement_bps(
     return 0.0 if result == 0 else result
 
 
+def extract_exact_entry_ticks(
+    trades: Iterable[AggTrade],
+    requests: Sequence[EntryTickRequest],
+    *,
+    coverage_end_ms: int,
+) -> tuple[EntryTickResolution, ...]:
+    """Resolve the first validated aggregate trade after each submission.
+
+    The stream is consumed once. Aggregate-ID or raw-trade-ID gaps that could
+    hide an earlier eligible trade mark that request as tainted; no value is
+    filled, interpolated, or inferred from a later return window.
+    """
+
+    if isinstance(coverage_end_ms, bool) or not isinstance(coverage_end_ms, int) or coverage_end_ms < 0:
+        raise ValueError("entry tick coverage end must be a non-negative integer")
+    ordered_requests = tuple(
+        sorted(requests, key=lambda item: (item.submission_timestamp_ms, item.request_id))
+    )
+    if len({item.request_id for item in ordered_requests}) != len(ordered_requests):
+        raise ValueError("entry tick request IDs must be unique")
+    if tuple(requests) != ordered_requests:
+        raise ValueError("entry tick requests must be sorted by submission time and identity")
+    if any(item.submission_timestamp_ms + 1_000 > coverage_end_ms for item in ordered_requests):
+        raise ValueError("entry tick coverage must include every request deadline")
+
+    resolutions: list[EntryTickResolution] = []
+    request_index = 0
+    previous: AggTrade | None = None
+    for trade in trades:
+        if not isinstance(trade, AggTrade):
+            raise TypeError("entry tick stream must contain AggTrade values")
+        if trade.transact_time_ms >= coverage_end_ms:
+            raise ValueError("entry tick trade lies outside declared coverage")
+        if previous is not None:
+            if trade.aggregate_trade_id <= previous.aggregate_trade_id:
+                raise ValueError("entry tick aggregate trades must be strictly ID ordered")
+            if trade.transact_time_ms < previous.transact_time_ms:
+                raise ValueError("entry tick aggregate trades must be timestamp ordered")
+            if trade.first_trade_id <= previous.last_trade_id:
+                raise ValueError("entry tick raw trade ranges must be strictly ordered")
+
+        while (
+            request_index < len(ordered_requests)
+            and ordered_requests[request_index].submission_timestamp_ms <= trade.transact_time_ms
+        ):
+            request = ordered_requests[request_index]
+            deadline = request.submission_timestamp_ms + 1_000
+            missing_aggregate = (
+                previous is not None and trade.aggregate_trade_id > previous.aggregate_trade_id + 1
+            )
+            missing_raw = previous is not None and trade.first_trade_id > previous.last_trade_id + 1
+            predecessor_unproven = previous is None
+            gap_crosses_request_window = (
+                previous is not None
+                and previous.transact_time_ms < deadline
+                and trade.transact_time_ms >= request.submission_timestamp_ms
+                and (missing_aggregate or missing_raw)
+            )
+            if predecessor_unproven or gap_crosses_request_window:
+                status = EntryTickStatus.GAP_TAINTED
+            elif trade.transact_time_ms > deadline:
+                status = EntryTickStatus.TIMEOUT
+            else:
+                resolutions.append(
+                    EntryTickResolution(
+                        request=request,
+                        status=EntryTickStatus.FOUND,
+                        aggregate_trade_id=trade.aggregate_trade_id,
+                        transact_time_ms=trade.transact_time_ms,
+                        price=trade.price,
+                    )
+                )
+                request_index += 1
+                continue
+            resolutions.append(EntryTickResolution(request=request, status=status))
+            request_index += 1
+        previous = trade
+
+    resolutions.extend(
+        EntryTickResolution(request=request, status=EntryTickStatus.TIMEOUT)
+        for request in ordered_requests[request_index:]
+    )
+    if tuple(item.request for item in resolutions) != ordered_requests:
+        raise RuntimeError("entry tick extraction lost request ordering")
+    return tuple(resolutions)
+
+
 def verify_parent_result(path: Path) -> ParentDisposition:
     """Verify immutable parent evidence before the overlay may access performance data."""
 
@@ -221,11 +373,15 @@ def verify_parent_result(path: Path) -> ParentDisposition:
 
 
 __all__ = [
+    "EntryTickRequest",
+    "EntryTickResolution",
+    "EntryTickStatus",
     "ParentDisposition",
     "TimingAction",
     "TimingDecision",
     "decide_timing",
     "direction_adjusted_entry_improvement_bps",
+    "extract_exact_entry_ticks",
     "load_plan",
     "verify_parent_result",
 ]
