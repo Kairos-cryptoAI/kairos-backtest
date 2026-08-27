@@ -38,3 +38,22 @@ The immutable success receipt is [`result-v2.json`](result-v2.json), with plan
 SHA-256 `217195a5c940e9fbc6da6fe8d4a8aebb23bfa9f30d5792e3c70148aa02cb977b`
 and result SHA-256
 `908ba2b469bb5c2811e4763d07c34bde9e97fda4b64d5e277496af637400ea62`.
+
+## V3 price-and-volume qualification
+
+Trial 15 needs base and quote volume for execution-capacity simulation even
+though its strategy features use price only. A second performance-blind plan
+therefore qualifies the exact selection and robustness windows plus 40 days of
+warm-up under `PRICE_VOLUME`. This profile preserves OHLC, base volume and quote
+volume while zeroing unused taker fields.
+
+All ten slices passed: 6,055,200 minute rows, 145 official checksum
+verifications, zero gaps and zero quarantined rows. The older November 2023 XRP
+source anomaly is outside both exact slices. No strategy generator, intent,
+position, return or PnL calculation ran during this preflight.
+
+The immutable artifacts are [`plan-v3.json`](plan-v3.json) and
+[`result-v3.json`](result-v3.json), with plan SHA-256
+`cdec435d635495d897e3e0b78a9e17b4cec38ff58bd2a62ed097bcacdbee3ae5`
+and result SHA-256
+`91b1331fead7a7392b7a21f406f67e95e57c3ad1fd370f2c0a472c71d276a4dd`.
