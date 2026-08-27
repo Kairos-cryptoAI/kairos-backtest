@@ -1,0 +1,44 @@
+{
+  "classification": "PERFORMANCE_BLIND_SOURCE_QUALIFICATION",
+  "data": {
+    "dataset": "aggTrades",
+    "end_exclusive": "2026-08-26",
+    "market": "Binance USD-M futures",
+    "official_checksums_required": true,
+    "start": "2026-08-25",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "transport": "official daily ZIP plus adjacent SHA-256 sidecar"
+  },
+  "measurement_contract": {
+    "boundary_minutes": [
+      0,
+      15,
+      30,
+      45
+    ],
+    "buyer_taker_rule": "not is_buyer_maker",
+    "opening_reference": "latest transaction price at or before T",
+    "peak_window": "(T,T+10s]",
+    "source_paper": "https://arxiv.org/abs/2607.09426v2"
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "prohibitions": [
+    "directional metric",
+    "fitted model",
+    "PnL",
+    "strategy generator",
+    "trade simulation"
+  ],
+  "schema_version": "kairos.aggtrades-data-preflight.v1"
+}

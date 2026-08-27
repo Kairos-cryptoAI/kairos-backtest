@@ -255,6 +255,25 @@ quarter-hour candidate must receive its own preregistered lineage and pass
 execution costs; the paper's forecast accuracy is not a Kairos profitability
 claim.
 
+The committed one-day, five-symbol transport canary is intentionally separate
+from any strategy experiment. Verify its exact plan before opening data, then
+run or resume the append-only manifest ledger:
+
+```sh
+uv run --locked kairos-aggtrades-preflight verify-plan \
+  --plan reports/aggtrades-preflight/plan.json
+
+uv run --locked kairos-aggtrades-preflight run \
+  --plan reports/aggtrades-preflight/plan.json \
+  --ledger runtime/aggtrades-preflight.sqlite3 \
+  --cache-dir data/aggtrades \
+  --result reports/aggtrades-preflight/result.json
+```
+
+The run refuses a dirty worktree, binds every manifest to the plan in exact
+day/symbol order and can resume after interruption. The final receipt contains
+only archive, row, gap, hash-chain and provenance evidence.
+
 ## Right-tail trend reused-data screen
 
 `right_tail_trend_v1` is an independently motivated, single-candidate test of
