@@ -42,7 +42,7 @@ from .right_tail_screen import (
     _costs,
 )
 
-PLAN_SCHEMA_VERSION = "kairos.regime-aligned-forward-plan.v1"
+PLAN_SCHEMA_VERSION = "kairos.regime-aligned-forward-plan.v2"
 LEDGER_SCHEMA_VERSION = "kairos.regime-aligned-forward-ledger.v1"
 PLAN_FILENAME = "reports/regime-aligned-forward/plan.json"
 STRATEGY_ID = "regime_aligned_right_tail_v1"
@@ -52,6 +52,7 @@ STRATEGY_SOURCE_TREE_SHA256 = "f795c8f01d58666c5f215e5c98eabf7368e25d1ac83ff3bc7
 STRATEGY_CONFIG_SHA256 = "ae4ff7d7c54353a544be045903b64d5c0be9d6ca8d22ec6158e4942a36a59efe"
 TRIAL15_PLAN_SHA256 = "aae0730019cb5f78099b0b3e89afbe21fe1d4bb9ef8f247c74e53f349fc31730"
 TRIAL15_RESULT_SHA256 = "bc31c3134b296a80a234ed2d87a3851a5e6f409666f87ffe4fb8646a5367fd53"
+SUPERSEDED_PLAN_SHA256 = "15cc52c1356cce349c623dd4753c1ca6b91de386041b132b016949add43f2528"
 SYMBOLS = ("BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT")
 OBSERVATION_WINDOW_BARS = 40 * 24 * 60
 MINIMUM_FORWARD_DAYS = 365
@@ -115,6 +116,7 @@ def expected_plan() -> dict[str, object]:
         "data": {
             "blind_start_inclusive": _iso8601(BLIND_START_MS),
             "closed_bar_contract": "closed-bar.v1",
+            "discarded_fields": ["taker_buy_base_volume", "taker_buy_quote_volume"],
             "field_profile": "price_volume",
             "minimum_end_exclusive": _iso8601(MINIMUM_END_MS),
             "source": "BINANCE_UM",
@@ -146,6 +148,7 @@ def expected_plan() -> dict[str, object]:
         },
         "lineage": {
             "classification": "independent_forward_after_post_hoc_reused_data_screen",
+            "supersedes_prestart_plan_sha256": SUPERSEDED_PLAN_SHA256,
             "trial15_plan_sha256": TRIAL15_PLAN_SHA256,
             "trial15_result_sha256": TRIAL15_RESULT_SHA256,
         },
@@ -162,6 +165,7 @@ def expected_plan() -> dict[str, object]:
             "exchange_mutations": False,
             "final_evaluation": "one_shot_after_both_duration_and_trade_count_gates",
             "llm_calls": False,
+            "normalization": "deterministic_price_volume_contract_before_hashing",
             "restart_policy": "verify_full_chain_then_resume",
         },
         "scenarios": {
@@ -216,6 +220,25 @@ def validate_frozen_runtime() -> None:
 
 def _record_sha256(previous_sha256: str, payload: bytes) -> str:
     return _sha256_bytes(b"kairos-forward-bar-v1\0" + previous_sha256.encode("ascii") + b"\0" + payload)
+
+
+def _price_volume_bar(bar: ClosedBarEventV1) -> ClosedBarEventV1:
+    """Discard envelope/taker fields outside the preregistered field profile."""
+
+    return ClosedBarEventV1(
+        source="forward-observer.price-volume",
+        symbol=bar.symbol,
+        open_time_ms=bar.open_time_ms,
+        close_time_ms=bar.close_time_ms,
+        open=bar.open,
+        high=bar.high,
+        low=bar.low,
+        close=bar.close,
+        base_volume=bar.base_volume,
+        quote_volume=bar.quote_volume,
+        taker_buy_base_volume=0.0,
+        taker_buy_quote_volume=0.0,
+    )
 
 
 def _is_decision_bar(bar: ClosedBarEventV1) -> bool:
@@ -392,6 +415,7 @@ class ForwardLedger:
 
         if not isinstance(bar, ClosedBarEventV1):
             raise TypeError("forward ledger accepts only ClosedBarEventV1")
+        bar = _price_volume_bar(bar)
         if bar.symbol not in SYMBOLS:
             raise ValueError(f"bar symbol is outside the frozen universe: {bar.symbol}")
         if bar.open_time_ms < WARMUP_START_MS:

@@ -71,6 +71,8 @@ def test_plan_freezes_forward_boundary_lineage_and_permissions():
     assert plan["data"]["blind_start_inclusive"] == "2026-09-01T00:00:00Z"
     assert plan["data"]["minimum_end_exclusive"] == "2027-09-01T00:00:00Z"
     assert plan["candidate"]["runtime_window_bars"] == 57_600
+    assert plan["data"]["field_profile"] == "price_volume"
+    assert plan["lineage"]["supersedes_prestart_plan_sha256"] == forward.SUPERSEDED_PLAN_SHA256
     assert plan["decision_rule"]["minimum_forward_trades"] == 500
     assert plan["protocol"]["early_performance_access"] is False
     assert not any(plan["permissions"].values())
@@ -122,6 +124,30 @@ def test_conflicting_replay_is_not_treated_as_a_duplicate(tmp_path: Path):
                 _bar(forward.WARMUP_START_MS, close=101),
                 as_of_ms=first.close_time_ms,
             )
+
+
+def test_non_strategy_taker_fields_and_transport_envelope_are_canonicalized(tmp_path: Path):
+    path = tmp_path / "forward.sqlite3"
+    first = _bar(forward.WARMUP_START_MS)
+    replay = first.model_copy(
+        update={
+            "message_id": "transport-replay",
+            "source": "another-collector",
+            "bar_sha256": None,
+            "taker_buy_base_volume": 4.0,
+            "taker_buy_quote_volume": 400.0,
+        }
+    )
+    replay = ClosedBarEventV1.model_validate(replay.model_dump(mode="json"))
+    with ForwardLedger(path, expected_plan()) as ledger:
+        assert ledger.ingest_bar(first, as_of_ms=first.close_time_ms)[0] is IngestDisposition.INSERTED
+        assert ledger.ingest_bar(replay, as_of_ms=replay.close_time_ms)[0] is IngestDisposition.DUPLICATE
+        payload = ledger.connection.execute("SELECT payload_json FROM bars").fetchone()[0]
+
+    stored = ClosedBarEventV1.model_validate_json(payload)
+    assert stored.source == "forward-observer.price-volume"
+    assert stored.taker_buy_base_volume == 0
+    assert stored.taker_buy_quote_volume == 0
 
 
 def test_unclosed_or_pre_warmup_bar_is_rejected_without_poisoning_state(tmp_path: Path):
@@ -195,7 +221,7 @@ def test_intent_is_persisted_only_after_blind_boundary_and_full_window(monkeypat
         assert sum(item["intent_count"] for item in ledger.status()["symbols"]) == 1
 
     assert len(calls) == 1
-    assert calls[0] == (first, second)
+    assert calls[0] == (forward._price_volume_bar(first), forward._price_volume_bar(second))
 
 
 def test_committed_plan_matches_executable_plan():

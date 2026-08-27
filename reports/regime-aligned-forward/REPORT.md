@@ -9,9 +9,14 @@ Bars from 2026-07-23 through 2026-08-31 are feature-only warmup and can never
 contribute a scored trade.
 
 The canonical plan SHA-256 is
-`15cc52c1356cce349c623dd4753c1ca6b91de386041b132b016949add43f2528`.
+`38fe7512b4e4c318e5bc8dd6baa66b48eedd63112a4a447eaaf36c1175f623e8`.
 It binds the five-symbol universe, exact generator source-tree SHA-256, config,
 daily decision clock, 40-day runtime window, execution scenarios and gates.
+This pre-start v2 plan supersedes v1 SHA-256
+`15cc52c1356cce349c623dd4753c1ca6b91de386041b132b016949add43f2528`:
+v2 makes the already-declared `PRICE_VOLUME` profile executable by discarding
+taker-only fields and the transport envelope before ledger hashing. No price,
+volume, signal, lifecycle, universe, scenario, date or acceptance gate changed.
 
 The append-only SQLite observer:
 

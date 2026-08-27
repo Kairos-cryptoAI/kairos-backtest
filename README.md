@@ -285,10 +285,12 @@ The independent period starts no earlier than `2026-09-01T00:00:00Z` and must
 contain both 365 complete days and at least 500 simulated closed trades.
 
 The committed [forward plan](reports/regime-aligned-forward/plan.json) has
-SHA-256 `15cc52c1356cce349c623dd4753c1ca6b91de386041b132b016949add43f2528`.
+SHA-256 `38fe7512b4e4c318e5bc8dd6baa66b48eedd63112a4a447eaaf36c1175f623e8`.
 The observer accepts only strict `ClosedBarEventV1` JSONL, starts with the
 feature-only warmup boundary, and writes a per-symbol append-only SHA-256 chain
-to SQLite. It has no exchange, model, bus-publish or order code. Status exposes
+to SQLite. The `PRICE_VOLUME` profile deterministically discards transport
+envelope and taker-only fields before hashing, matching the historical screen.
+It has no exchange, model, bus-publish or order code. Status exposes
 coverage and intent counts but deliberately withholds PnL and performance until
 the sealed gate is eligible.
 
