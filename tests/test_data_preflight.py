@@ -97,6 +97,17 @@ def test_committed_plan_is_data_only_and_has_stable_identity():
     assert sum(item["rows"] for item in result["evidence"]) == 10_735_200
     assert sum(item["quarantined_optional_rows"] for item in result["evidence"]) == 1
 
+    v3, v3_requirements = load_preflight_plan(
+        root / "reports" / "data-field-preflight" / "plan-v3.json"
+    )
+    assert len(v3_requirements) == 10
+    assert {item.field_profile for item in v3_requirements} == {ArchiveFieldProfile.PRICE_VOLUME}
+    assert {item.purpose for item in v3_requirements} == {
+        "selection_with_40d_warmup",
+        "robustness_with_40d_warmup",
+    }
+    assert _sha256(v3) == "cdec435d635495d897e3e0b78a9e17b4cec38ff58bd2a62ed097bcacdbee3ae5"
+
 
 def test_price_volume_preflight_quarantines_unused_taker_fields_with_evidence(tmp_path):
     _cache_archive(tmp_path, _day_archive(anomalous_taker_row=100))
