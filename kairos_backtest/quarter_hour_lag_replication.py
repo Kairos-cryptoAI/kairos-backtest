@@ -80,9 +80,9 @@ def _validate_model_plan(plan: Mapping[str, object]) -> None:
             ("model", "tie_break"),
             "largest lambda within an absolute tuning-MSE tolerance of 1e-15",
         ),
-        (("model", "lambda_grid", "count"), len(lag_model.LAMBDA_GRID)),
-        (("model", "lambda_grid", "maximum"), max(lag_model.LAMBDA_GRID)),
-        (("model", "lambda_grid", "minimum"), min(lag_model.LAMBDA_GRID)),
+        (("model", "lambda_grid", "count"), lag_model.LAMBDA_COUNT),
+        (("model", "lambda_grid", "maximum"), lag_model.LAMBDA_MAXIMUM),
+        (("model", "lambda_grid", "minimum"), lag_model.LAMBDA_MINIMUM),
         (("model", "lambda_grid", "spacing"), "base-10 logarithmic inclusive"),
         (("protocol", "paper_replication_end_exclusive"), PAPER_END_EXCLUSIVE.isoformat()),
         (("protocol", "paper_replication_oos_start"), OOS_START.isoformat()),
@@ -99,12 +99,23 @@ def _validate_model_plan(plan: Mapping[str, object]) -> None:
     grid = tuple(
         float(value)
         for value in np.logspace(
-            np.log10(min(lag_model.LAMBDA_GRID)),
-            np.log10(max(lag_model.LAMBDA_GRID)),
-            len(lag_model.LAMBDA_GRID),
+            np.log10(lag_model.LAMBDA_MINIMUM),
+            np.log10(lag_model.LAMBDA_MAXIMUM),
+            lag_model.LAMBDA_COUNT,
         )
     )
-    if grid != lag_model.LAMBDA_GRID or lag_model.TUNING_MSE_TOLERANCE != 1e-15:
+    if (
+        len(lag_model.LAMBDA_GRID) != lag_model.LAMBDA_COUNT
+        or lag_model.LAMBDA_GRID[0] != lag_model.LAMBDA_MINIMUM
+        or lag_model.LAMBDA_GRID[-1] != lag_model.LAMBDA_MAXIMUM
+        or not np.allclose(
+            lag_model.LAMBDA_GRID[1:-1],
+            grid[1:-1],
+            rtol=0.0,
+            atol=np.finfo(np.float64).eps,
+        )
+        or lag_model.TUNING_MSE_TOLERANCE != 1e-15
+    ):
         raise QuarterHourFeatureIntegrityError(
             "executable lag-model grid or tuning tie-break differs from the committed plan"
         )

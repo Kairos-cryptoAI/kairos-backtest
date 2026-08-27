@@ -16,7 +16,20 @@ TRAINING_MONTHS = 6
 LASSO_TOLERANCE = 1e-10
 LASSO_MAX_ITERATIONS = 10_000
 TUNING_MSE_TOLERANCE = 1e-15
-LAMBDA_GRID = tuple(float(value) for value in np.logspace(-5, -1, 21))
+LAMBDA_MINIMUM = 1e-5
+LAMBDA_MAXIMUM = 0.1
+LAMBDA_COUNT = 21
+_lambda_grid = [
+    float(value)
+    for value in np.logspace(
+        math.log10(LAMBDA_MINIMUM),
+        math.log10(LAMBDA_MAXIMUM),
+        LAMBDA_COUNT,
+    )
+]
+_lambda_grid[0] = LAMBDA_MINIMUM
+_lambda_grid[-1] = LAMBDA_MAXIMUM
+LAMBDA_GRID = tuple(_lambda_grid)
 
 FloatArray = NDArray[np.float64]
 IntArray = NDArray[np.int64]

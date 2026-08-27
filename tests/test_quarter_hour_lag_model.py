@@ -7,7 +7,10 @@ import pytest
 
 from kairos_backtest.quarter_hour_lag_model import (
     LAG_COUNT,
+    LAMBDA_COUNT,
     LAMBDA_GRID,
+    LAMBDA_MAXIMUM,
+    LAMBDA_MINIMUM,
     QUARTER_HOUR_MS,
     LagDataset,
     build_lag_dataset,
@@ -65,6 +68,13 @@ def test_tuning_tie_breaks_to_largest_preregistered_penalty() -> None:
     )
 
     assert selected == max(LAMBDA_GRID)
+
+
+def test_lambda_grid_has_exact_cross_platform_preregistered_endpoints() -> None:
+    assert len(LAMBDA_GRID) == LAMBDA_COUNT == 21
+    assert LAMBDA_GRID[0] == LAMBDA_MINIMUM == 1e-5
+    assert LAMBDA_GRID[-1] == LAMBDA_MAXIMUM == 0.1
+    assert all(LAMBDA_GRID[index] < LAMBDA_GRID[index + 1] for index in range(len(LAMBDA_GRID) - 1))
 
 
 def test_rolling_monthly_forecast_is_causal_deterministic_and_monthly() -> None:
