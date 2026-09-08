@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory)][ValidateSet('Forward', 'QuarterHour')][string]$Track,
-    [string]$RuntimeRoot = 'D:\Kairos\runtime'
+    [string]$RuntimeRoot = 'D:\Kairos\runtime',
+    [ValidateRange(1, 4)][int]$Workers = 4
 )
 
 $ErrorActionPreference = 'Stop'
@@ -17,6 +18,7 @@ $lock = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]:
 $state = [ordered]@{
     schema_version = 'kairos.research-recovery.v1'
     track = $Track
+    workers = if ($Track -eq 'QuarterHour') { $Workers } else { $null }
     run_id = $runId
     supervisor_pid = $PID
     started_at_utc = [DateTime]::UtcNow.ToString('o')
@@ -126,7 +128,7 @@ try {
         $cache = Join-Path $RuntimeRoot 'quarter-hour-lag-archives'
         $result = Join-Path $projectRoot 'reports/quarter-hour-lag-replication-v2/result.json'
         if (Test-Path -LiteralPath $result) { throw 'V2 result already exists; review it instead of rerunning.' }
-        Invoke-Phase 'collect' @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--workers', '4')
+        Invoke-Phase 'collect' @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--workers', [string]$Workers)
         Invoke-Phase 'deep-verify' @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--verify', '--deep')
         if (Test-Path -LiteralPath $result) { throw 'V2 result appeared during collection; refusing another evaluation.' }
         Invoke-Phase 'replication' @('-u', '-m', 'kairos_backtest.quarter_hour_lag_replication', '--plan', 'reports/quarter-hour-lag-replication-v2/plan.json', '--ledger', $ledger, '--result', $result)

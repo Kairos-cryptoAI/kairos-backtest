@@ -31,6 +31,14 @@ runs the fixed V2 replication. A pre-existing result stops the track for review;
 it is never overwritten. An external failure stops subsequent phases. Inspect
 the complete result and its parent gate before any conditional overlay work.
 
+If concurrent archive reads repeatedly time out, first verify the committed
+chain, preserve a new backup and confirm all prior processes have exited. Then
+use `-Track QuarterHour -Workers 1` for serial transport/extraction. The default
+remains four; the supported range is 1–4 and the selected value is in status.
+This changes only concurrency, not frozen source, archive checks, feature
+fingerprints or evaluator rules. A timeout still stops the run for inspection;
+there is no unlimited retry loop or checksum-error fallback.
+
 `Test-ResearchRecovery.ps1` exercises real harmless child processes, exit-code
 propagation, atomic status replacement and exclusive locking on Windows. It
 does not open market data, launch collection or call a paid service.

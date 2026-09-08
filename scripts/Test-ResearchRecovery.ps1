@@ -4,6 +4,16 @@ $tokens = $null
 $errors = $null
 $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref]$tokens, [ref]$errors)
 if ($errors) { throw ($errors | Out-String) }
+# Validate the operational throttle through PowerShell's actual parameter binder,
+# without executing the supervisor body or touching a research ledger.
+$parameterProbe = [scriptblock]::Create($ast.ParamBlock.Extent.Text + "`nreturn `$Workers")
+if ((& $parameterProbe -Track QuarterHour) -ne 4) { throw 'Default worker count changed.' }
+if ((& $parameterProbe -Track QuarterHour -Workers 1) -ne 1) { throw 'Serial recovery unavailable.' }
+foreach ($invalid in @(0, 5)) {
+    $rejected = $false
+    try { & $parameterProbe -Track QuarterHour -Workers $invalid | Out-Null } catch { $rejected = $true }
+    if (-not $rejected) { throw 'Invalid worker count accepted.' }
+}
 # Exercise the real phase/status functions against a harmless child process.
 # Do not run the collector or open a market database.
 foreach ($name in @('Save-State', 'Invoke-Phase')) {
