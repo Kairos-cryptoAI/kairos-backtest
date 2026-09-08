@@ -45,6 +45,10 @@ jobs:
         run: uv run --python "${{ matrix.python-version }}" --locked ruff check kairos_backtest tests
       - name: Check formatting
         run: uv run --python "${{ matrix.python-version }}" --locked ruff format --check kairos_backtest tests
+      - name: Check operational recovery driver
+        run: |
+          uv run --python "${{ matrix.python-version }}" --locked ruff check scripts/recover_quarter_hour.py
+          uv run --python "${{ matrix.python-version }}" --locked ruff format --check scripts/recover_quarter_hour.py
       - name: Type check
         run: uv run --python "${{ matrix.python-version }}" --locked mypy --python-version "${{ matrix.python-version }}" kairos_backtest
       - name: Security scan

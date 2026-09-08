@@ -1,7 +1,8 @@
 param(
     [Parameter(Mandatory)][ValidateSet('Forward', 'QuarterHour')][string]$Track,
     [string]$RuntimeRoot = 'D:\Kairos\runtime',
-    [ValidateRange(1, 4)][int]$Workers = 4
+    [ValidateRange(1, 4)][int]$Workers = 4,
+    [switch]$PrepareArchives
 )
 
 $ErrorActionPreference = 'Stop'
@@ -19,6 +20,7 @@ $state = [ordered]@{
     schema_version = 'kairos.research-recovery.v1'
     track = $Track
     workers = if ($Track -eq 'QuarterHour') { $Workers } else { $null }
+    prepare_archives = [bool]$PrepareArchives
     run_id = $runId
     supervisor_pid = $PID
     started_at_utc = [DateTime]::UtcNow.ToString('o')
@@ -98,7 +100,7 @@ try {
     $modulePattern = if ($Track -eq 'Forward') {
         '-m\s+kairos_backtest\.forward_(collection|observation|evaluation)\b'
     } else {
-        '-m\s+kairos_backtest\.quarter_hour_(features|lag_replication)\b'
+        '-m\s+(kairos_backtest\.quarter_hour_(features|lag_replication)|scripts\.recover_quarter_hour)\b'
     }
     $existingWorkers = Get-CimInstance Win32_Process | Where-Object {
         $_.Name -match '^python(w)?\.exe$' -and $_.CommandLine -match $modulePattern
@@ -128,7 +130,8 @@ try {
         $cache = Join-Path $RuntimeRoot 'quarter-hour-lag-archives'
         $result = Join-Path $projectRoot 'reports/quarter-hour-lag-replication-v2/result.json'
         if (Test-Path -LiteralPath $result) { throw 'V2 result already exists; review it instead of rerunning.' }
-        Invoke-Phase 'collect' @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--workers', [string]$Workers)
+        $collectorModule = if ($PrepareArchives) { 'scripts.recover_quarter_hour' } else { 'kairos_backtest.quarter_hour_features' }
+        Invoke-Phase 'collect' @('-u', '-m', $collectorModule, '--ledger', $ledger, '--cache-dir', $cache, '--workers', [string]$Workers)
         Invoke-Phase 'deep-verify' @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--verify', '--deep')
         if (Test-Path -LiteralPath $result) { throw 'V2 result appeared during collection; refusing another evaluation.' }
         Invoke-Phase 'replication' @('-u', '-m', 'kairos_backtest.quarter_hour_lag_replication', '--plan', 'reports/quarter-hour-lag-replication-v2/plan.json', '--ledger', $ledger, '--result', $result)

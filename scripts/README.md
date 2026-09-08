@@ -39,6 +39,17 @@ This changes only concurrency, not frozen source, archive checks, feature
 fingerprints or evaluator rules. A timeout still stops the run for inspection;
 there is no unlimited retry loop or checksum-error fallback.
 
+After repeated archive read timeouts, `-PrepareArchives -Workers 1` stages the
+next uncommitted monthly group before invoking the original feature collector
+with `--max-new-batches`. Preparation uses the official monthly loader, at most
+three attempts per archive, and 10/20-second backoff only for transport errors.
+SHA-256 and complete ZIP CRC verification are required; an integrity failure
+or an unpublished archive stops immediately. Accepted batches are never staged
+or re-extracted again. The frozen verifier runs first, the original collector
+remains the only ledger writer, and full deep verification still precedes V2.
+Per-archive hashes/retry events and monthly progress remain in the run log.
+Run this driver only through the supervisor, which owns the exclusive lock.
+
 `Test-ResearchRecovery.ps1` exercises real harmless child processes, exit-code
 propagation, atomic status replacement and exclusive locking on Windows. It
 does not open market data, launch collection or call a paid service.
