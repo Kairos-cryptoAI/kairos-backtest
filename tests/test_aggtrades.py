@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import io
 import zipfile
-from datetime import date
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from pathlib import Path
 
@@ -308,12 +308,22 @@ def test_multi_phase_extraction_is_causal_sorted_and_cross_month_gap_aware() -> 
     assert extraction.windows[1].open_to_vwap_return == Decimal("103") / Decimal("102") - 1
 
 
-def test_monthly_transport_rejects_partial_or_future_month(tmp_path: Path) -> None:
+def test_monthly_transport_rejects_partial_or_future_month(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class FrozenDatetime(datetime):
+        @classmethod
+        def now(cls, tz=None):
+            return datetime(2026, 8, 27, tzinfo=UTC).astimezone(tz)
+
+    monkeypatch.setattr(aggtrades, "datetime", FrozenDatetime)
     loader = aggtrades.BinanceMonthlyAggTradeArchiveLoader(tmp_path)
     with pytest.raises(ValueError, match="day one"):
         loader.load("BTCUSDT", date(2026, 7, 2))
     with pytest.raises(ValueError, match="completed UTC month"):
         loader.load("BTCUSDT", date(2026, 8, 1))
+    with pytest.raises(ValueError, match="completed UTC month"):
+        loader.load("BTCUSDT", date(2026, 9, 1))
 
 
 def _trade(
