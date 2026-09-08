@@ -45,3 +45,44 @@ fully published exclusive boundary; no REST substitute or partial day was used.
 The remaining warmup days must be appended only after their official daily
 archives and checksum sidecars are published. No blind performance may be
 evaluated before both the duration and closed-trade-count gates mature.
+
+## Recovery receipt: 2026-09-08
+
+The preceding August receipt is retained as historical evidence. The collector
+was offline after the Windows migration. Data for **2026-08-27 through
+2026-09-06 inclusive** was retrieved retrospectively on **2026-09-08**, not
+observed by a continuously running online process. The recovery supervisor ran
+from `2026-09-08T04:17:44Z` to `2026-09-08T04:27:12Z`.
+
+- Official resumable `sync-latest`: 55 daily archives (11 days × 5 symbols).
+- Appended bars: `79,200`; duplicates: `0`.
+- Common exclusive watermark: `2026-09-07T00:00:00Z`.
+- Bars per symbol: `66,240`; total bars: `331,200`.
+- Transport/row checks: official SHA-256, ZIP CRC and contiguous full-day rows.
+- Full ledger verification: `valid`; blocked symbols: none.
+- Evidence SHA-256:
+  `ec93fa4afeced23d48ab676a4b6581c6ef3b9eca73dc0e970dd8dd6b5433941c`.
+- Warmup is complete; the ledger covers 6 complete blind-period days.
+- Performance-blind eligibility: duration gate not satisfied; closed-trade-count
+  gate not evaluated; no blind performance disclosed.
+- Frozen plan, strategy, evaluator and promotion permissions are unchanged.
+
+### September backup and recovery
+
+- Before-sync backup:
+  `D:\Kairos\runtime\backups\forward-before-20260908T041744Z-32788.sqlite3`.
+- Before-sync file SHA-256:
+  `e87e7d50484f4fd32aea3a4b006432194b20ee97438248ba832889b1df9f3795`.
+- After-sync backup:
+  `D:\Kairos\runtime\backups\forward-after-20260908T041744Z-32788.sqlite3`.
+- Recovered copy:
+  `D:\Kairos\runtime\recovery\forward-20260908T041744Z-32788.sqlite3`.
+- Identical backup/recovered file SHA-256:
+  `6569f5e3b1ab5c0f8cb798fc7456be852c19837fca4834f842bbbc1ac832ed2b`.
+- Recovered evidence matches the September ledger hash above.
+- Primary unchanged during recovery drill: `true`.
+
+The latest published complete boundary during this run was September 7. This
+does not assert that September 7's archive will remain unavailable later.
+Further observations remain subject to the unchanged 365-day and 500-closed-
+trade gates. Retrospective coverage is not proof of online operational uptime.
