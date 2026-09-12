@@ -86,3 +86,43 @@ The latest published complete boundary during this run was September 7. This
 does not assert that September 7's archive will remain unavailable later.
 Further observations remain subject to the unchanged 365-day and 500-closed-
 trade gates. Retrospective coverage is not proof of online operational uptime.
+
+## Recovery receipt: 2026-09-12
+
+The prior receipts remain unchanged. Official archives for **2026-09-07 through
+2026-09-11 inclusive** were retrieved retrospectively on **2026-09-12**. This
+does not represent continuous online observation. The existing recovery
+supervisor completed all six phases between `2026-09-12T13:12:59Z` and
+`2026-09-12T13:19:25Z`.
+
+- Official resumable `sync-latest`: 25 daily archives (5 days × 5 symbols).
+- Appended bars: `36,000`; duplicates: `0`.
+- Common exclusive watermark: `2026-09-12T00:00:00Z`.
+- Bars per symbol: `73,440`; total bars: `367,200`.
+- Transport/row checks: official SHA-256, ZIP CRC and contiguous full-day rows.
+- Full ledger verification: `valid`; blocked symbols: none.
+- Evidence SHA-256:
+  `5464c9ac23bc9c1ed981da5fd7169efe1ffbc5ce804e6e413b038b13ae359440`.
+- Warmup is complete; the ledger covers 11 complete blind-period days.
+- Performance-blind eligibility: duration gate not satisfied; closed-trade-count
+  gate not evaluated; no blind performance disclosed.
+- Frozen plan, strategy, evaluator and promotion permissions are unchanged.
+
+### September 12 backup and recovery
+
+- Before-sync backup:
+  `D:\Kairos\runtime\backups\forward-before-20260912T131258Z-34004.sqlite3`.
+- Before-sync file SHA-256:
+  `6569f5e3b1ab5c0f8cb798fc7456be852c19837fca4834f842bbbc1ac832ed2b`.
+- After-sync backup:
+  `D:\Kairos\runtime\backups\forward-after-20260912T131258Z-34004.sqlite3`.
+- Recovered copy:
+  `D:\Kairos\runtime\recovery\forward-20260912T131258Z-34004.sqlite3`.
+- Identical backup/recovered file SHA-256:
+  `ddd26f7883f17fd94fa93f0d68e0f82231800c98a4cb3fffd6c210ad9e0a608e`.
+- Recovered evidence matches the September 12 ledger hash above.
+- Primary unchanged during recovery drill: `true`.
+
+The unchanged eligibility requirements remain 365 complete forward days and
+500 closed simulated trades per scenario. Coverage and successful recovery
+neither establish strategy profitability nor authorize PAPER or LIVE.
