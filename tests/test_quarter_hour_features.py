@@ -285,6 +285,68 @@ def test_ledger_persists_corroborated_gaps_but_excludes_them_from_clean_primary(
     assert clean_targets == ()
 
 
+def test_ledger_accepts_complete_multi_day_daily_gap_corroboration(tmp_path: Path) -> None:
+    extraction = _extraction(symbol="BTCUSDT", period="2021-01")
+    first_time = extraction.last_trade.transact_time_ms
+    third_time = first_time + 2 * 86_400_000
+    gap = AggregateTradeGap(
+        previous_aggregate_trade_id=10,
+        next_aggregate_trade_id=14,
+        missing_aggregate_trade_ids=3,
+        previous_transact_time_ms=first_time,
+        next_transact_time_ms=third_time,
+        in_period=True,
+    )
+    manifest = replace(
+        extraction.manifest,
+        rows=2,
+        last_aggregate_trade_id=14,
+        last_raw_trade_id=104,
+        last_transact_time_ms=third_time,
+        missing_aggregate_trade_ids=3,
+        missing_raw_trade_ids=3,
+    )
+    last_trade = replace(
+        extraction.last_trade,
+        aggregate_trade_id=14,
+        first_trade_id=104,
+        last_trade_id=104,
+        transact_time_ms=third_time,
+    )
+    evidence = tuple(
+        AggTradeArchiveManifest(
+            symbol="BTCUSDT",
+            day=f"2021-01-0{day}",
+            filename=f"BTCUSDT-aggTrades-2021-01-0{day}.zip",
+            archive_sha256=character * 64,
+            normalized_rows_sha256=character.lower() * 64,
+            rows=1 if day != 2 else 3,
+            first_aggregate_trade_id=first_id,
+            last_aggregate_trade_id=last_id,
+            first_transact_time_ms=first_time if day == 1 else first_time + (day - 1) * 86_400_000,
+            last_transact_time_ms=third_time if day == 3 else first_time + (day - 1) * 86_400_000,
+            missing_aggregate_trade_ids=0,
+            missing_raw_trade_ids=0,
+        )
+        for day, first_id, last_id, character in ((1, 10, 10, "d"), (2, 11, 13, "e"), (3, 14, 14, "f"))
+    )
+    corroborated = replace(
+        extraction,
+        manifest=manifest,
+        last_trade=last_trade,
+        aggregate_gaps=(gap,),
+        gap_corroborations=(AggregateGapCorroboration(gap, evidence),),
+    )
+
+    with QuarterHourFeatureLedger(
+        tmp_path / "features.sqlite3",
+        plan_sha256=PLAN_LOGICAL_SHA256,
+        feature_source_sha256="c" * 64,
+    ) as ledger:
+        assert ledger.append(0, corroborated) is True
+        assert len(ledger.verify(require_complete=False, deep=True)) == 64
+
+
 def test_ledger_detects_cross_period_aggregate_id_gap(tmp_path: Path) -> None:
     with QuarterHourFeatureLedger(
         tmp_path / "features.sqlite3",

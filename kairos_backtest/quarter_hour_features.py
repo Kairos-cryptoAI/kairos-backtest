@@ -501,7 +501,7 @@ class QuarterHourFeatureLedger:
                 )
             else:
                 endpoints_match = (
-                    len(manifests) == 2
+                    len(manifests) >= 2
                     and manifests[0].last_aggregate_trade_id == gap.previous_aggregate_trade_id
                     and manifests[0].last_transact_time_ms == gap.previous_transact_time_ms
                     and manifests[-1].first_aggregate_trade_id == gap.next_aggregate_trade_id

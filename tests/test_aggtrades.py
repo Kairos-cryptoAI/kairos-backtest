@@ -45,6 +45,27 @@ def _loader(tmp_path: Path, symbol: str, day: date, payload: bytes) -> aggtrades
     return aggtrades.BinanceAggTradeArchiveLoader(tmp_path, opener=opener)
 
 
+def _daily_loader(
+    tmp_path: Path,
+    symbol: str,
+    payloads: dict[date, bytes],
+) -> aggtrades.BinanceAggTradeArchiveLoader:
+    """Serve independently checksummed official-shaped daily archives."""
+
+    def opener(request, *, timeout):
+        assert timeout == 60
+        for day, payload in payloads.items():
+            filename = f"{symbol}-aggTrades-{day.isoformat()}.zip"
+            if filename in request.full_url:
+                if request.full_url.endswith(".CHECKSUM"):
+                    checksum = f"{hashlib.sha256(payload).hexdigest()}  {filename}\n"
+                    return _Response(checksum.encode("ascii"))
+                return _Response(payload)
+        raise AssertionError(f"unexpected official archive request: {request.full_url}")
+
+    return aggtrades.BinanceAggTradeArchiveLoader(tmp_path, opener=opener)
+
+
 def _monthly_archive(symbol: str, month: date, rows: list[str]) -> bytes:
     stem = f"{symbol}-aggTrades-{month:%Y-%m}"
     buffer = io.BytesIO()
@@ -239,6 +260,61 @@ def test_monthly_aggregate_gap_requires_exact_official_daily_corroboration(
     )
     with pytest.raises(aggtrades.AggTradeIntegrityError, match="not reproduced"):
         aggtrades.corroborate_aggregate_gaps(extraction, conflicting_loader)
+
+
+def test_monthly_aggregate_gap_corroborates_complete_multi_day_daily_sequence(
+    tmp_path: Path,
+) -> None:
+    symbol = "BTCUSDT"
+    month = date(2026, 7, 1)
+    first_day = month
+    second_day = date(2026, 7, 2)
+    third_day = date(2026, 7, 3)
+    first_ms = aggtrades._date_ms(first_day)
+    second_ms = aggtrades._date_ms(second_day)
+    third_ms = aggtrades._date_ms(third_day)
+    monthly_rows = [
+        f"10,100,1,100,100,{first_ms + 1},false\n",
+        f"14,101,1,104,104,{third_ms + 1},false\n",
+    ]
+    monthly_loader = _monthly_loader(
+        tmp_path,
+        symbol,
+        month,
+        _monthly_archive(symbol, month, monthly_rows),
+    )
+    transport = monthly_loader.load(symbol, month)
+    extraction = aggtrades.extract_phase_peak_windows(
+        transport,
+        monthly_loader.iter_trades(transport),
+        phase_offsets_minutes=(0,),
+    )
+    daily_loader = _daily_loader(
+        tmp_path,
+        symbol,
+        {
+            first_day: _archive(symbol, first_day, monthly_rows[:1]),
+            second_day: _archive(
+                symbol,
+                second_day,
+                [
+                    f"11,100,1,101,101,{second_ms + 1},false\n",
+                    f"12,100,1,102,102,{second_ms + 2},false\n",
+                    f"13,100,1,103,103,{second_ms + 3},false\n",
+                ],
+            ),
+            third_day: _archive(symbol, third_day, monthly_rows[1:]),
+        },
+    )
+
+    corroborated = aggtrades.corroborate_aggregate_gaps(extraction, daily_loader)
+
+    assert len(corroborated.gap_corroborations) == 1
+    assert tuple(manifest.day for manifest in corroborated.gap_corroborations[0].daily_manifests) == (
+        "2026-07-01",
+        "2026-07-02",
+        "2026-07-03",
+    )
 
 
 def test_multi_phase_extraction_is_causal_sorted_and_cross_month_gap_aware() -> None:

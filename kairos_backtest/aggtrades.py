@@ -860,6 +860,56 @@ def _gap_key(gap: AggregateTradeGap) -> tuple[int, int, int, int, int]:
     )
 
 
+def _cross_day_gap_is_corroborated(
+    gap: AggregateTradeGap,
+    *,
+    days: tuple[date, ...],
+    archives: dict[date, AggTradeArchive],
+    daily_loader: BinanceAggTradeArchiveLoader,
+) -> bool:
+    """Prove a monthly discontinuity against the complete daily trade sequence."""
+
+    previous: AggTrade | None = None
+    observed_gaps: list[tuple[int, int, int, int, int]] = []
+    for day in days:
+        for trade in daily_loader.iter_trades(archives[day]):
+            if previous is None:
+                if trade.aggregate_trade_id < gap.previous_aggregate_trade_id:
+                    continue
+                if (
+                    trade.aggregate_trade_id != gap.previous_aggregate_trade_id
+                    or trade.transact_time_ms != gap.previous_transact_time_ms
+                ):
+                    return False
+                previous = trade
+                continue
+            if (
+                trade.aggregate_trade_id <= previous.aggregate_trade_id
+                or trade.transact_time_ms < previous.transact_time_ms
+                or trade.first_trade_id <= previous.last_trade_id
+                or trade.aggregate_trade_id > gap.next_aggregate_trade_id
+                or trade.transact_time_ms > gap.next_transact_time_ms
+            ):
+                return False
+            if trade.aggregate_trade_id > previous.aggregate_trade_id + 1:
+                observed_gaps.append(
+                    (
+                        previous.aggregate_trade_id,
+                        trade.aggregate_trade_id,
+                        trade.aggregate_trade_id - previous.aggregate_trade_id - 1,
+                        previous.transact_time_ms,
+                        trade.transact_time_ms,
+                    )
+                )
+            if trade.aggregate_trade_id == gap.next_aggregate_trade_id:
+                return (
+                    trade.transact_time_ms == gap.next_transact_time_ms
+                    and observed_gaps in ([], [_gap_key(gap)])
+                )
+            previous = trade
+    return False
+
+
 def corroborate_aggregate_gaps(
     extraction: PhasePeakExtraction,
     daily_loader: BinanceAggTradeArchiveLoader,
@@ -912,14 +962,11 @@ def corroborate_aggregate_gaps(
         if start_day == end_day:
             corroborated = _gap_key(gap) in same_day_keys[start_day]
         else:
-            first = archives[start_day].manifest
-            last = archives[end_day].manifest
-            corroborated = (
-                len(days) == 2
-                and first.last_aggregate_trade_id == gap.previous_aggregate_trade_id
-                and first.last_transact_time_ms == gap.previous_transact_time_ms
-                and last.first_aggregate_trade_id == gap.next_aggregate_trade_id
-                and last.first_transact_time_ms == gap.next_transact_time_ms
+            corroborated = _cross_day_gap_is_corroborated(
+                gap,
+                days=days,
+                archives=archives,
+                daily_loader=daily_loader,
             )
         if not corroborated:
             raise AggTradeIntegrityError(
