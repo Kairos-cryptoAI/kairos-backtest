@@ -902,9 +902,9 @@ def _cross_day_gap_is_corroborated(
                     )
                 )
             if trade.aggregate_trade_id == gap.next_aggregate_trade_id:
-                return (
-                    trade.transact_time_ms == gap.next_transact_time_ms
-                    and observed_gaps in ([], [_gap_key(gap)])
+                return trade.transact_time_ms == gap.next_transact_time_ms and observed_gaps in (
+                    [],
+                    [_gap_key(gap)],
                 )
             previous = trade
     return False
