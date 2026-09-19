@@ -323,7 +323,8 @@ feature hash chain are checked. It creates no new ledger batches and does not
 start collection. A collector continuation requires the explicit `-Resume`
 form after a human has inspected that run's receipt; a missing prior child is
 durably recorded as `INTERRUPTED`/`ORPHANED`, never silently treated as a
-completed collection.
+completed collection. The clone remains bound to V5's frozen source identity,
+plan and schema, rather than to whichever later checkout performs the audit.
 
 Only after all 335 batches and daily proofs pass deep verification may the
 fixed rolling model run. It evaluates clean-target paper-sample replication,

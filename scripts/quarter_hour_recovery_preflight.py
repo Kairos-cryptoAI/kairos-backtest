@@ -24,8 +24,15 @@ from kairos_backtest.quarter_hour_features import (
     QuarterHourFeatureLedger,
     _logical_sha256,
     load_plan,
-    source_sha256,
 )
+
+# V5 began at this signed, immutable feature-source identity.  A later repair
+# must verify a sealed clone against this historical identity, rather than the
+# mutable checkout that happens to run the preflight tool today.
+V5_FROZEN_SOURCE_COMMIT = "55b9d20f15dedc5da070b81decdba016467d0ecc"
+V5_FROZEN_FEATURE_SOURCE_SHA256 = "1df69cc8f73264e7fcaf1f9770219c63edba1dfcb64e24b8d6cc216910f15f0b"
+V5_FROZEN_PLAN_SHA256 = "2c5d91f76dcf5fd2f8c5bcc1ccec1032fb56b967e131d6136fb9b437c86f425f"
+V5_FROZEN_LEDGER_SCHEMA_VERSION = "kairos.quarter-hour-feature-ledger.v2"
 
 
 class QuarterHourRecoveryPreflightError(RuntimeError):
@@ -45,12 +52,23 @@ def _require_new(path: Path, *, label: str) -> None:
         raise FileExistsError(f"{label} already exists; refusing to overwrite: {path}")
 
 
-def _read_source_snapshot_metadata(path: Path) -> dict[str, object]:
+def _source_read_uri(path: Path) -> str:
+    """Avoid a sidecar for a sealed source; retain WAL visibility when it exists."""
+    wal_path = path.with_name(path.name + "-wal")
+    suffix = "?mode=ro" if wal_path.is_file() else "?mode=ro&immutable=1"
+    return path.resolve().as_uri() + suffix
+
+
+def _read_source_snapshot_metadata(
+    path: Path,
+    *,
+    expected_plan_sha256: str,
+) -> dict[str, object]:
     if not path.is_file():
         raise FileNotFoundError(f"V5 feature ledger does not exist: {path}")
     wal_path = path.with_name(path.name + "-wal")
     shm_path = path.with_name(path.name + "-shm")
-    uri = path.resolve().as_uri() + "?mode=ro"
+    uri = _source_read_uri(path)
     connection = sqlite3.connect(uri, uri=True)
     try:
         integrity_rows = tuple(row[0] for row in connection.execute("PRAGMA integrity_check"))
@@ -61,9 +79,23 @@ def _read_source_snapshot_metadata(path: Path) -> dict[str, object]:
             raise QuarterHourRecoveryPreflightError("source SQLite foreign_key_check found violations")
         journal_mode = connection.execute("PRAGMA journal_mode").fetchone()[0]
         page_count = int(connection.execute("PRAGMA page_count").fetchone()[0])
+        metadata = dict(connection.execute("SELECT key, value FROM metadata"))
     finally:
         connection.close()
+    expected_metadata = {
+        "feature_source_sha256": V5_FROZEN_FEATURE_SOURCE_SHA256,
+        "plan_sha256": expected_plan_sha256,
+        "schema_version": V5_FROZEN_LEDGER_SCHEMA_VERSION,
+    }
+    for key, expected in expected_metadata.items():
+        if metadata.get(key) != expected:
+            raise QuarterHourRecoveryPreflightError(
+                f"source ledger {key} does not match the immutable V5 source identity"
+            )
     return {
+        "feature_source_sha256": metadata["feature_source_sha256"],
+        "frozen_source_commit": V5_FROZEN_SOURCE_COMMIT,
+        "frozen_plan_sha256": V5_FROZEN_PLAN_SHA256,
         "journal_mode": str(journal_mode).lower(),
         "main_database_sha256": _sha256(path),
         "page_count": page_count,
@@ -75,7 +107,7 @@ def _read_source_snapshot_metadata(path: Path) -> dict[str, object]:
 
 def _backup_sqlite_snapshot(source: Path, temporary_clone: Path) -> None:
     """Use SQLite's online backup API, never a sidecar-blind filesystem copy."""
-    source_uri = source.resolve().as_uri() + "?mode=ro"
+    source_uri = _source_read_uri(source)
     source_connection = sqlite3.connect(source_uri, uri=True)
     clone_connection = sqlite3.connect(temporary_clone)
     try:
@@ -103,13 +135,13 @@ def _publish_new(temporary: Path, destination: Path, *, label: str) -> None:
 def _verify_clone(
     clone: Path,
     *,
-    plan_path: Path,
+    expected_plan_sha256: str,
+    expected_feature_source_sha256: str,
 ) -> dict[str, object]:
-    plan = load_plan(plan_path)
     with QuarterHourFeatureLedger.open_read_only(
         clone,
-        plan_sha256=_logical_sha256(plan),
-        feature_source_sha256=source_sha256(),
+        plan_sha256=expected_plan_sha256,
+        feature_source_sha256=expected_feature_source_sha256,
     ) as ledger:
         chain = ledger.verify(require_complete=False, deep=True)
         completed_batches = ledger.completed_batches()
@@ -161,12 +193,25 @@ def create_verified_recovery_clone(
         raise FileNotFoundError(f"quarter-hour plan does not exist: {plan_path}")
     clone.parent.mkdir(parents=True, exist_ok=True)
     receipt.parent.mkdir(parents=True, exist_ok=True)
-    source = _read_source_snapshot_metadata(ledger)
+    plan = load_plan(plan_path)
+    expected_plan_sha256 = _logical_sha256(plan)
+    if expected_plan_sha256 != V5_FROZEN_PLAN_SHA256:
+        raise QuarterHourRecoveryPreflightError(
+            "committed V2 plan does not match the immutable V5 recovery identity"
+        )
+    source = _read_source_snapshot_metadata(
+        ledger,
+        expected_plan_sha256=expected_plan_sha256,
+    )
     temporary_clone = clone.with_name(f"{clone.name}.partial-{uuid.uuid4().hex}")
     temporary_receipt = receipt.with_name(f"{receipt.name}.partial-{uuid.uuid4().hex}")
     try:
         _backup_sqlite_snapshot(ledger, temporary_clone)
-        clone_evidence = _verify_clone(temporary_clone, plan_path=plan_path)
+        clone_evidence = _verify_clone(
+            temporary_clone,
+            expected_plan_sha256=expected_plan_sha256,
+            expected_feature_source_sha256=str(source["feature_source_sha256"]),
+        )
         _publish_new(temporary_clone, clone, label="recovery clone")
         payload: dict[str, Any] = {
             "classification": "V5_RECOVERY_PREFLIGHT",

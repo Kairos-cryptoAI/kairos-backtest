@@ -42,9 +42,13 @@ collection and refuses a completed run if it changes. Its default operation is
 instead a non-mutating ledger recovery preflight: SQLite's online backup API
 creates a uniquely named clone that includes committed source WAL frames, then
 the clone receives SQLite integrity/foreign-key checks and full deep feature
-hash-chain verification. The supervisor records the clone and receipt paths in
-status. It does not launch a collector unless a human explicitly invokes the
-separate `-Resume` form after inspecting that receipt. Both lineages use the
+hash-chain verification. The V5 clone is bound to its recorded immutable source
+fingerprint, frozen V2-plan hash and ledger schema—not to the mutable checkout
+currently running the supervisor—so a later code repair cannot invalidate a
+valid V5 prefix, while an unknown or altered lineage still stops. The supervisor
+records the clone and receipt paths in status. It does not launch a collector
+unless a human explicitly invokes the separate `-Resume` form after inspecting
+that receipt. Both lineages use the
 same frozen V2 plan, archive checks and one-shot result path; a pre-existing
 result stops either lineage for review and is never overwritten. An external
 failure stops subsequent phases. Inspect the complete result and its parent
