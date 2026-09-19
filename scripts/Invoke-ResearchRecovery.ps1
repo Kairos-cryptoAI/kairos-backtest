@@ -59,6 +59,21 @@ function Save-State {
     }
 }
 
+function Get-Sha256Hex([string]$Path) {
+    $stream = [IO.File]::OpenRead($Path)
+    try {
+        $algorithm = [Security.Cryptography.SHA256]::Create()
+        try {
+            $bytes = $algorithm.ComputeHash($stream)
+        } finally {
+            $algorithm.Dispose()
+        }
+    } finally {
+        $stream.Dispose()
+    }
+    return ([BitConverter]::ToString($bytes).Replace('-', '').ToLowerInvariant())
+}
+
 function Invoke-Phase([string]$Name, [string[]]$CommandArguments) {
     $state.phase = $Name
     $state.state = 'RUNNING'
@@ -142,7 +157,7 @@ try {
             if (-not (Test-Path -LiteralPath $immutableV4)) {
                 throw 'V5 lineage requires the preserved V4 ledger for provenance.'
             }
-            $v4Hash = (Get-FileHash -LiteralPath $immutableV4 -Algorithm SHA256).Hash.ToLowerInvariant()
+            $v4Hash = Get-Sha256Hex $immutableV4
             $state.artifacts['immutable_v4_ledger'] = $immutableV4
             $state.artifacts['immutable_v4_sha256_before'] = $v4Hash
             $state.artifacts['v5_ledger'] = $ledger
@@ -154,7 +169,7 @@ try {
         if (Test-Path -LiteralPath $result) { throw 'V2 result appeared during collection; refusing another evaluation.' }
         Invoke-Phase 'replication' @('-u', '-m', 'kairos_backtest.quarter_hour_lag_replication', '--plan', 'reports/quarter-hour-lag-replication-v2/plan.json', '--ledger', $ledger, '--result', $result)
         if ($QuarterHourLineage -eq 'v5') {
-            $v4HashAfter = (Get-FileHash -LiteralPath $immutableV4 -Algorithm SHA256).Hash.ToLowerInvariant()
+            $v4HashAfter = Get-Sha256Hex $immutableV4
             if ($v4HashAfter -ne $state.artifacts['immutable_v4_sha256_before']) {
                 throw 'The immutable V4 ledger changed while V5 was running; preserve both ledgers and investigate.'
             }

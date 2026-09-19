@@ -17,7 +17,7 @@ foreach ($invalid in @(0, 5)) {
 }
 # Exercise the real phase/status functions against a harmless child process.
 # Do not run the collector or open a market database.
-foreach ($name in @('Save-State', 'Invoke-Phase')) {
+foreach ($name in @('Save-State', 'Get-Sha256Hex', 'Invoke-Phase')) {
     $functionAst = $ast.Find({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name }, $true)
     . ([scriptblock]::Create($functionAst.Extent.Text))
 }
@@ -25,6 +25,11 @@ $projectRoot = Split-Path $PSScriptRoot -Parent
 $python = Join-Path $projectRoot '.venv\Scripts\python.exe'
 $runDir = Join-Path ([IO.Path]::GetTempPath()) ('kairos-supervisor-test-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $runDir | Out-Null
+$hashFixture = Join-Path $runDir 'sha256.bin'
+[IO.File]::WriteAllBytes($hashFixture, [byte[]](0, 1, 2, 3))
+if ((Get-Sha256Hex $hashFixture) -ne '054edec1d0211f624fed0cbca9d4f9400b0e491c43742af2c5b0abebf0c990d8') {
+    throw 'Portable SHA-256 helper returned an unexpected digest.'
+}
 $statusPath = Join-Path $runDir 'latest.json'
 $state = [ordered]@{ updated_at_utc = $null; phase = ''; state = ''; artifacts = @{}; child_pid = $null; child_started_at_utc = $null; last_output_at_utc = $null; exit_code = $null; completed_phases = @() }
 Invoke-Phase 'success' @('-c', 'print(123)')
