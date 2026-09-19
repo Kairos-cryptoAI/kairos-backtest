@@ -7,6 +7,7 @@ or an independently running command for the same research track.
 ```powershell
 ./scripts/Invoke-ResearchRecovery.ps1 -Track Forward
 ./scripts/Invoke-ResearchRecovery.ps1 -Track QuarterHour
+./scripts/Invoke-ResearchRecovery.ps1 -Track QuarterHour -QuarterHourLineage v5
 ```
 
 Launch long sessions with `Start-Process -WindowStyle Hidden`, using the absolute
@@ -26,10 +27,14 @@ in the coverage report after completion.
 
 Before starting QuarterHour, preserve and verify a backup of its existing
 ledger and repair any invalid cached archive without modifying accepted batches.
-The track resumes collection with four workers, deeply verifies the result, and
-runs the fixed V2 replication. A pre-existing result stops the track for review;
-it is never overwritten. An external failure stops subsequent phases. Inspect
-the complete result and its parent gate before any conditional overlay work.
+The default `v4` lineage resumes its existing ledger. `-QuarterHourLineage v5`
+creates and owns `quarter-hour-lag-features-v5.sqlite3` while retaining V4 as an
+immutable provenance artifact. The V5 supervisor records V4's SHA-256 before
+collection and refuses a completed run if it changes. Both lineages use the
+same frozen V2 plan, archive checks and one-shot result path; a pre-existing
+result stops either lineage for review and is never overwritten. An external
+failure stops subsequent phases. Inspect the complete result and its parent
+gate before any conditional overlay work.
 
 If concurrent archive reads repeatedly time out, first verify the committed
 chain, preserve a new backup and confirm all prior processes have exited. Then

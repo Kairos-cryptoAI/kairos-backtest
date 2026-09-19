@@ -9,6 +9,7 @@ if ($errors) { throw ($errors | Out-String) }
 $parameterProbe = [scriptblock]::Create($ast.ParamBlock.Extent.Text + "`nreturn `$Workers")
 if ((& $parameterProbe -Track QuarterHour) -ne 4) { throw 'Default worker count changed.' }
 if ((& $parameterProbe -Track QuarterHour -Workers 1) -ne 1) { throw 'Serial recovery unavailable.' }
+if ((& $parameterProbe -Track QuarterHour -QuarterHourLineage v5) -ne 4) { throw 'V5 lineage is unavailable.' }
 foreach ($invalid in @(0, 5)) {
     $rejected = $false
     try { & $parameterProbe -Track QuarterHour -Workers $invalid | Out-Null } catch { $rejected = $true }

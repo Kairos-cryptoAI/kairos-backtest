@@ -2,7 +2,8 @@ param(
     [Parameter(Mandatory)][ValidateSet('Forward', 'QuarterHour')][string]$Track,
     [string]$RuntimeRoot = 'D:\Kairos\runtime',
     [ValidateRange(1, 4)][int]$Workers = 4,
-    [switch]$PrepareArchives
+    [switch]$PrepareArchives,
+    [ValidateSet('v4', 'v5')][string]$QuarterHourLineage = 'v4'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -12,13 +13,19 @@ if (-not (Test-Path -LiteralPath $python)) { throw 'Restore the locked Python en
 $runId = (Get-Date).ToUniversalTime().ToString('yyyyMMddTHHmmssZ') + '-' + $PID
 $controlRoot = Join-Path $RuntimeRoot 'research-recovery'
 New-Item -ItemType Directory -Path $controlRoot -Force | Out-Null
-$statusPath = Join-Path $controlRoot ($Track.ToLowerInvariant() + '.status.json')
-$lockPath = Join-Path $controlRoot ($Track.ToLowerInvariant() + '.lock')
+$trackKey = if ($Track -eq 'QuarterHour') {
+    'quarterhour-' + $QuarterHourLineage
+} else {
+    $Track.ToLowerInvariant()
+}
+$statusPath = Join-Path $controlRoot ($trackKey + '.status.json')
+$lockPath = Join-Path $controlRoot ($trackKey + '.lock')
 # FileShare.None is an OS lock, released even if the supervisor crashes.
 $lock = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
 $state = [ordered]@{
     schema_version = 'kairos.research-recovery.v1'
     track = $Track
+    quarter_hour_lineage = if ($Track -eq 'QuarterHour') { $QuarterHourLineage } else { $null }
     workers = if ($Track -eq 'QuarterHour') { $Workers } else { $null }
     prepare_archives = [bool]$PrepareArchives
     run_id = $runId
@@ -126,15 +133,33 @@ try {
         Invoke-Phase 'backup-after' @('-u', '-m', 'kairos_backtest.forward_observation', 'backup', '--ledger', $ledger, '--output', $postBackup)
         Invoke-Phase 'recovery-drill' @('-u', '-m', 'kairos_backtest.forward_observation', 'recovery-drill', '--ledger', $ledger, '--backup', $postBackup, '--recovered', $recovered)
     } else {
-        $ledger = Join-Path $RuntimeRoot 'quarter-hour-lag-features-v4.sqlite3'
+        $ledger = Join-Path $RuntimeRoot ('quarter-hour-lag-features-' + $QuarterHourLineage + '.sqlite3')
         $cache = Join-Path $RuntimeRoot 'quarter-hour-lag-archives'
         $result = Join-Path $projectRoot 'reports/quarter-hour-lag-replication-v2/result.json'
+        $immutableV4 = Join-Path $RuntimeRoot 'quarter-hour-lag-features-v4.sqlite3'
         if (Test-Path -LiteralPath $result) { throw 'V2 result already exists; review it instead of rerunning.' }
+        if ($QuarterHourLineage -eq 'v5') {
+            if (-not (Test-Path -LiteralPath $immutableV4)) {
+                throw 'V5 lineage requires the preserved V4 ledger for provenance.'
+            }
+            $v4Hash = (Get-FileHash -LiteralPath $immutableV4 -Algorithm SHA256).Hash.ToLowerInvariant()
+            $state.artifacts['immutable_v4_ledger'] = $immutableV4
+            $state.artifacts['immutable_v4_sha256_before'] = $v4Hash
+            $state.artifacts['v5_ledger'] = $ledger
+            Save-State
+        }
         $collectorModule = if ($PrepareArchives) { 'scripts.recover_quarter_hour' } else { 'kairos_backtest.quarter_hour_features' }
         Invoke-Phase 'collect' @('-u', '-m', $collectorModule, '--ledger', $ledger, '--cache-dir', $cache, '--workers', [string]$Workers)
         Invoke-Phase 'deep-verify' @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--verify', '--deep')
         if (Test-Path -LiteralPath $result) { throw 'V2 result appeared during collection; refusing another evaluation.' }
         Invoke-Phase 'replication' @('-u', '-m', 'kairos_backtest.quarter_hour_lag_replication', '--plan', 'reports/quarter-hour-lag-replication-v2/plan.json', '--ledger', $ledger, '--result', $result)
+        if ($QuarterHourLineage -eq 'v5') {
+            $v4HashAfter = (Get-FileHash -LiteralPath $immutableV4 -Algorithm SHA256).Hash.ToLowerInvariant()
+            if ($v4HashAfter -ne $state.artifacts['immutable_v4_sha256_before']) {
+                throw 'The immutable V4 ledger changed while V5 was running; preserve both ledgers and investigate.'
+            }
+            $state.artifacts['immutable_v4_sha256_after'] = $v4HashAfter
+        }
         $state.artifacts['result'] = $result
     }
     $state.state = 'COMPLETED'
