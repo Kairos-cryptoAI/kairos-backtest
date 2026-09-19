@@ -16,7 +16,8 @@ or an independently running command for the same research track.
 Launch long sessions with `Start-Process -WindowStyle Hidden`, using the absolute
 script path and `-NoProfile -File`. The default runtime root is
 `D:\Kairos\runtime`. Inspect `research-recovery/forward.status.json` and
-`research-recovery/quarterhour.status.json` there. Each run also retains its own
+`research-recovery/quarterhour-v4.status.json` or
+`research-recovery/quarterhour-v5.status.json` there. Each run also retains its own
 status and stdout/stderr files. Status distinguishes `RUNNING`, `INTERRUPTED`,
 `FAILED` and `COMPLETED`, records the phase and child identity, and separates
 heartbeat time from last log-output time. A stale heartbeat is not completion.
