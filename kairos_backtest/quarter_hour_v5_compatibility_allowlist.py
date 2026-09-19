@@ -7,4 +7,4 @@ an intentional update requires a new reviewed digest here as well.
 
 from __future__ import annotations
 
-V5_COMPATIBLE_RUNTIME_SOURCE_SHA256 = "01f06aa5663730fa770da75070896a49c0316022015a05afb093ec63d86c5171"
+V5_COMPATIBLE_RUNTIME_SOURCE_SHA256 = "95ee8a5216e8960d7e2274b1e3bc0c29d9ade165c7202d6259cbda3037f78cdd"

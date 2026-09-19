@@ -10,6 +10,9 @@ from pathlib import Path
 
 import pytest
 
+from kairos_backtest import aggtrades as aggtrades_module
+from kairos_backtest import quarter_hour_features as feature_module
+from kairos_backtest import quarter_hour_v5_compatibility as v5_compatibility_module
 from kairos_backtest.aggtrades import (
     AggregateGapCorroboration,
     AggregateTradeGap,
@@ -24,6 +27,7 @@ from kairos_backtest.quarter_hour_features import (
     PLAN_LOGICAL_SHA256,
     QuarterHourFeatureIntegrityError,
     QuarterHourFeatureLedger,
+    _canonical_source_bytes,
     _expected_windows,
     _logical_sha256,
     _validate_plan_contract,
@@ -110,6 +114,46 @@ def test_committed_plan_matches_the_preregistered_logical_hash(tmp_path: Path) -
     path.write_text(json.dumps(mutated), encoding="utf-8")
     with pytest.raises(QuarterHourFeatureIntegrityError, match="preregistration"):
         load_plan(path)
+
+
+def test_source_hash_canonicalization_is_text_only_and_cross_platform_stable(tmp_path: Path) -> None:
+    lf_path = tmp_path / "reviewed_lf.py"
+    crlf_path = tmp_path / "reviewed_crlf.py"
+    lf_path.write_bytes(b"first = 1\nsecond = 2\n")
+    crlf_path.write_bytes(b"first = 1\r\nsecond = 2\r\n")
+
+    assert _canonical_source_bytes(lf_path) == _canonical_source_bytes(crlf_path)
+
+    invalid_utf8 = tmp_path / "not_source.py"
+    invalid_utf8.write_bytes(b"\xff")
+    with pytest.raises(QuarterHourFeatureIntegrityError, match="valid UTF-8"):
+        _canonical_source_bytes(invalid_utf8)
+
+    bare_carriage_return = tmp_path / "noncanonical_source.py"
+    bare_carriage_return.write_bytes(b"first = 1\rsecond = 2\n")
+    with pytest.raises(QuarterHourFeatureIntegrityError, match="bare carriage return"):
+        _canonical_source_bytes(bare_carriage_return)
+
+
+def test_feature_source_digest_is_stable_for_lf_and_crlf_checkouts(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_names = (
+        (aggtrades_module, "aggtrades.py", b"# aggregate source\n"),
+        (feature_module, "quarter_hour_features.py", b"# feature source\n"),
+        (v5_compatibility_module, "quarter_hour_v5_compatibility.py", b"# compatibility source\n"),
+    )
+
+    def digest_for(directory: Path, newline: bytes) -> str:
+        directory.mkdir()
+        for module, filename, payload in source_names:
+            path = directory / filename
+            path.write_bytes(payload.replace(b"\n", newline))
+            monkeypatch.setattr(module, "__file__", str(path))
+        return feature_module.source_sha256()
+
+    assert digest_for(tmp_path / "lf", b"\n") == digest_for(tmp_path / "crlf", b"\r\n")
 
 
 def test_executable_feature_contract_is_bound_to_plan_fields() -> None:

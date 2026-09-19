@@ -55,8 +55,10 @@ source/plan/schema metadata, and the one reviewed digest of the running feature
 implementation. Collector receipts retain the immutable ledger fingerprint and
 the reviewed runtime digest separately. Any later feature-source change fails
 before the ledger is opened read-write until a new compatibility review is
-committed. Default and future lineages retain ordinary current-source
-enforcement. Both lineages use the
+committed. The digest canonicalizes only reviewed UTF-8 Python source line
+endings, so Windows CRLF and Linux LF checkouts retain one identity; non-text
+or malformed source fails closed. Default and future lineages retain ordinary
+current-source enforcement. Both lineages use the
 same frozen V2 plan, archive checks and one-shot result path; a pre-existing
 result stops either lineage for review and is never overwritten. An external
 failure stops subsequent phases. Inspect the complete result and its parent

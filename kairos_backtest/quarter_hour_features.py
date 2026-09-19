@@ -251,7 +251,20 @@ def _assert_clean(project_root: Path) -> str:
     return _git(project_root, "rev-parse", "HEAD")
 
 
+def _canonical_source_bytes(path: Path) -> bytes:
+    """Canonicalize a reviewed UTF-8 source file without accepting binary input."""
+    try:
+        text = path.read_bytes().decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise QuarterHourFeatureIntegrityError(f"feature source is not valid UTF-8: {path.name}") from exc
+    normalized = text.replace("\r\n", "\n")
+    if "\r" in normalized:
+        raise QuarterHourFeatureIntegrityError(f"feature source has a bare carriage return: {path.name}")
+    return normalized.encode("utf-8")
+
+
 def source_sha256() -> str:
+    """Hash the reviewed text runtime independent of Windows checkout line endings."""
     digest = hashlib.sha256()
     paths = sorted(
         (
@@ -263,7 +276,10 @@ def source_sha256() -> str:
     )
     for path in paths:
         encoded_name = path.name.encode("ascii")
-        content = path.read_bytes()
+        # Git may materialise these Python modules as CRLF on Windows and LF on
+        # Linux. The compatibility identity must be the reviewed program, not a
+        # checkout setting; non-text inputs are rejected by the helper above.
+        content = _canonical_source_bytes(path)
         digest.update(len(encoded_name).to_bytes(4, "big"))
         digest.update(encoded_name)
         digest.update(len(content).to_bytes(8, "big"))
