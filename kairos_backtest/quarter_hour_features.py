@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import cast
 
 from . import aggtrades as aggtrades_module
+from . import quarter_hour_v5_compatibility as v5_compatibility_module
 from .aggtrades import (
     AggTrade,
     BinanceAggTradeArchiveLoader,
@@ -26,6 +27,10 @@ from .aggtrades import (
     PhasePeakWindow,
     corroborate_aggregate_gaps,
     extract_phase_peak_windows,
+)
+from .quarter_hour_v5_compatibility import (
+    V5RuntimeCompatibilityEvidence,
+    require_v5_runtime_compatibility,
 )
 from .scenarios import SYMBOLS
 
@@ -248,7 +253,14 @@ def _assert_clean(project_root: Path) -> str:
 
 def source_sha256() -> str:
     digest = hashlib.sha256()
-    paths = sorted((Path(cast(str, aggtrades_module.__file__)), Path(__file__)), key=str)
+    paths = sorted(
+        (
+            Path(cast(str, aggtrades_module.__file__)),
+            Path(__file__),
+            Path(cast(str, v5_compatibility_module.__file__)),
+        ),
+        key=str,
+    )
     for path in paths:
         encoded_name = path.name.encode("ascii")
         content = path.read_bytes()
@@ -257,6 +269,29 @@ def source_sha256() -> str:
         digest.update(len(content).to_bytes(8, "big"))
         digest.update(content)
     return digest.hexdigest()
+
+
+def _ledger_source_identity(
+    *,
+    ledger_path: Path,
+    plan_sha256: str,
+    v5_compatibility: bool,
+) -> tuple[str, str, V5RuntimeCompatibilityEvidence | None]:
+    """Bind a normal ledger to current code or the one reviewed V5 exception.
+
+    The exception intentionally has no caller-provided digest.  It can only
+    select the immutable V5 source identity after checking the named ledger,
+    frozen plan/schema, and the exact reviewed digest of this running code.
+    """
+    runtime_source_sha = source_sha256()
+    if not v5_compatibility:
+        return runtime_source_sha, runtime_source_sha, None
+    evidence = require_v5_runtime_compatibility(
+        ledger_path=ledger_path,
+        plan_sha256=plan_sha256,
+        runtime_feature_source_sha256=runtime_source_sha,
+    )
+    return evidence.frozen_feature_source_sha256, runtime_source_sha, evidence
 
 
 def _trade_from_json(raw: str) -> AggTrade:
@@ -832,7 +867,10 @@ def collect_features(
     workers: int = 1,
     loader_factory=BinanceMonthlyAggTradeArchiveLoader,
     require_clean: bool = True,
+    v5_compatibility: bool = False,
 ) -> dict[str, object]:
+    if not isinstance(v5_compatibility, bool):
+        raise ValueError("V5 compatibility must be a boolean")
     if isinstance(workers, bool) or not isinstance(workers, int) or not 1 <= workers <= 8:
         raise ValueError("feature workers must be an integer in [1, 8]")
     if max_new_batches is not None and (
@@ -844,13 +882,17 @@ def collect_features(
     plan = load_plan(plan_path)
     plan_sha = _logical_sha256(plan)
     head = _assert_clean(project_root) if require_clean else "0" * 40
-    source_sha = source_sha256()
+    ledger_source_sha, runtime_source_sha, compatibility = _ledger_source_identity(
+        ledger_path=ledger_path,
+        plan_sha256=plan_sha,
+        v5_compatibility=v5_compatibility,
+    )
     appended = 0
     sequence_plan = expected_sequence()
     with QuarterHourFeatureLedger(
         ledger_path,
         plan_sha256=plan_sha,
-        feature_source_sha256=source_sha,
+        feature_source_sha256=ledger_source_sha,
     ) as ledger:
         ledger.verify(require_complete=False)
         completed_before = ledger.completed_batches()
@@ -900,11 +942,13 @@ def collect_features(
         "appended_batches": appended,
         "batch_chain_sha256": chain,
         "completed_batches": completed_after,
-        "feature_source_sha256": source_sha,
+        "feature_source_sha256": ledger_source_sha,
         "git_head_sha": head,
         "plan_sha256": plan_sha,
         "remaining_batches": len(sequence_plan) - completed_after,
+        "runtime_feature_source_sha256": runtime_source_sha,
         "total_batches": len(sequence_plan),
+        "v5_compatibility": compatibility.to_dict() if compatibility is not None else None,
     }
 
 
@@ -967,19 +1011,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--verify", action="store_true")
     parser.add_argument("--deep", action="store_true")
+    parser.add_argument(
+        "--v5-compatibility",
+        action="store_true",
+        help="bind only the named V5 ledger to its reviewed frozen source identity",
+    )
     arguments = parser.parse_args(argv)
     plan = load_plan(arguments.plan)
     if arguments.verify:
+        ledger_source_sha, runtime_source_sha, compatibility = _ledger_source_identity(
+            ledger_path=arguments.ledger,
+            plan_sha256=_logical_sha256(plan),
+            v5_compatibility=arguments.v5_compatibility,
+        )
         with QuarterHourFeatureLedger(
             arguments.ledger,
             plan_sha256=_logical_sha256(plan),
-            feature_source_sha256=source_sha256(),
+            feature_source_sha256=ledger_source_sha,
         ) as ledger:
             chain = ledger.verify(require_complete=False, deep=arguments.deep)
             payload = {
                 "batch_chain_sha256": chain,
                 "completed_batches": ledger.completed_batches(),
+                "feature_source_sha256": ledger_source_sha,
+                "runtime_feature_source_sha256": runtime_source_sha,
                 "total_batches": len(expected_sequence()),
+                "v5_compatibility": compatibility.to_dict() if compatibility is not None else None,
             }
     else:
         project_root = Path(__file__).resolve().parents[1]
@@ -990,6 +1047,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             cache_dir=arguments.cache_dir,
             max_new_batches=arguments.max_new_batches,
             workers=arguments.workers,
+            v5_compatibility=arguments.v5_compatibility,
         )
     print(json.dumps(_json_value(payload), separators=(",", ":"), sort_keys=True))
     return 0

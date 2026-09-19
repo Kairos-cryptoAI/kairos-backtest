@@ -8,9 +8,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from kairos_backtest import quarter_hour_lag_replication
 from kairos_backtest.quarter_hour_features import (
     PLAN_FILENAME,
     QuarterHourFeatureIntegrityError,
+    QuarterHourFeatureLedger,
+    _logical_sha256,
     load_plan,
 )
 from kairos_backtest.quarter_hour_lag_model import RollingForecast
@@ -19,6 +22,11 @@ from kairos_backtest.quarter_hour_lag_replication import (
     _slice_forecast,
     _validate_model_plan,
     gate_failures,
+    run_replication,
+)
+from kairos_backtest.quarter_hour_v5_compatibility import (
+    V5_FROZEN_FEATURE_SOURCE_SHA256,
+    V5_LEDGER_FILENAME,
 )
 
 
@@ -135,6 +143,32 @@ def test_replication_result_writer_is_create_only(tmp_path: Path) -> None:
 
     with pytest.raises(FileExistsError, match="refusing to overwrite"):
         _atomic_create(path, payload)
+
+
+def test_v5_replication_binding_opens_the_frozen_ledger_before_completeness_gate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = Path(__file__).resolve().parents[1]
+    plan_path = root / PLAN_FILENAME
+    plan = load_plan(plan_path)
+    ledger_path = tmp_path / V5_LEDGER_FILENAME
+    with QuarterHourFeatureLedger(
+        ledger_path,
+        plan_sha256=_logical_sha256(plan),
+        feature_source_sha256=V5_FROZEN_FEATURE_SOURCE_SHA256,
+    ):
+        pass
+    monkeypatch.setattr(quarter_hour_lag_replication, "_assert_clean", lambda _: "0" * 40)
+
+    with pytest.raises(QuarterHourFeatureIntegrityError, match="feature ledger is incomplete"):
+        run_replication(
+            project_root=tmp_path,
+            plan_path=plan_path,
+            ledger_path=ledger_path,
+            result_path=tmp_path / "must-not-exist.json",
+            v5_compatibility=True,
+        )
 
 
 def test_executable_model_contract_is_bound_to_plan_fields() -> None:

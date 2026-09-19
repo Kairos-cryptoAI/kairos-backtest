@@ -40,6 +40,10 @@ from .quarter_hour_lag_model import (
     forecast_metrics,
     rolling_monthly_forecast,
 )
+from .quarter_hour_v5_compatibility import (
+    V5RuntimeCompatibilityEvidence,
+    require_v5_runtime_compatibility,
+)
 from .scenarios import SYMBOLS
 
 SCHEMA_VERSION = "kairos.quarter-hour-lag-replication-result.v2"
@@ -365,12 +369,24 @@ def run_replication(
     plan_path: Path,
     ledger_path: Path,
     result_path: Path,
+    v5_compatibility: bool = False,
 ) -> dict[str, object]:
+    if not isinstance(v5_compatibility, bool):
+        raise ValueError("V5 compatibility must be a boolean")
     plan = load_plan(plan_path)
     _validate_model_plan(plan)
     plan_sha = _logical_sha256(plan)
     git_head = _assert_clean(project_root)
-    ledger_source = feature_source_sha256()
+    runtime_feature_source = feature_source_sha256()
+    compatibility: V5RuntimeCompatibilityEvidence | None = None
+    ledger_source = runtime_feature_source
+    if v5_compatibility:
+        compatibility = require_v5_runtime_compatibility(
+            ledger_path=ledger_path,
+            plan_sha256=plan_sha,
+            runtime_feature_source_sha256=runtime_feature_source,
+        )
+        ledger_source = compatibility.frozen_feature_source_sha256
     with QuarterHourFeatureLedger(
         ledger_path,
         plan_sha256=plan_sha,
@@ -410,6 +426,8 @@ def run_replication(
             "numpy": np.__version__,
             "platform": platform.platform(),
             "python": sys.version.split()[0],
+            "runtime_feature_source_sha256": runtime_feature_source,
+            "v5_compatibility": compatibility.to_dict() if compatibility is not None else None,
         },
         "result_schema_version": SCHEMA_VERSION,
         "trading_interpretation": (
@@ -426,12 +444,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--plan", type=Path, default=Path(PLAN_FILENAME))
     parser.add_argument("--ledger", type=Path, required=True)
     parser.add_argument("--result", type=Path, default=Path(RESULT_FILENAME))
+    parser.add_argument(
+        "--v5-compatibility",
+        action="store_true",
+        help="bind only the named V5 ledger to its reviewed frozen source identity",
+    )
     arguments = parser.parse_args(argv)
     result = run_replication(
         project_root=Path(__file__).resolve().parents[1],
         plan_path=arguments.plan,
         ledger_path=arguments.ledger,
         result_path=arguments.result,
+        v5_compatibility=arguments.v5_compatibility,
     )
     print(
         json.dumps(

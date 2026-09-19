@@ -325,6 +325,13 @@ form after a human has inspected that run's receipt; a missing prior child is
 durably recorded as `INTERRUPTED`/`ORPHANED`, never silently treated as a
 completed collection. The clone remains bound to V5's frozen source identity,
 plan and schema, rather than to whichever later checkout performs the audit.
+The subsequent V5 collector uses a separately reviewed, fail-closed
+compatibility binding: only the named V5 ledger with that exact frozen
+source/plan/schema may open under the reviewed current feature-code digest.
+The immutable ledger source fingerprint and current runtime digest are recorded
+separately; this is not an arbitrary source-hash bypass. A later feature-code
+change fails before the ledger opens read-write until compatibility is reviewed
+again. Other and new ledgers continue to require their current source digest.
 
 Only after all 335 batches and daily proofs pass deep verification may the
 fixed rolling model run. It evaluates clean-target paper-sample replication,

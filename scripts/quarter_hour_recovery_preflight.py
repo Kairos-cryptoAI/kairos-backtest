@@ -17,7 +17,7 @@ import time
 import uuid
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from kairos_backtest.quarter_hour_features import (
     PLAN_FILENAME,
@@ -25,14 +25,12 @@ from kairos_backtest.quarter_hour_features import (
     _logical_sha256,
     load_plan,
 )
-
-# V5 began at this signed, immutable feature-source identity.  A later repair
-# must verify a sealed clone against this historical identity, rather than the
-# mutable checkout that happens to run the preflight tool today.
-V5_FROZEN_SOURCE_COMMIT = "55b9d20f15dedc5da070b81decdba016467d0ecc"
-V5_FROZEN_FEATURE_SOURCE_SHA256 = "1df69cc8f73264e7fcaf1f9770219c63edba1dfcb64e24b8d6cc216910f15f0b"
-V5_FROZEN_PLAN_SHA256 = "2c5d91f76dcf5fd2f8c5bcc1ccec1032fb56b967e131d6136fb9b437c86f425f"
-V5_FROZEN_LEDGER_SCHEMA_VERSION = "kairos.quarter-hour-feature-ledger.v2"
+from kairos_backtest.quarter_hour_v5_compatibility import (
+    V5_FROZEN_FEATURE_SOURCE_SHA256,
+    V5_FROZEN_LEDGER_SCHEMA_VERSION,
+    V5_FROZEN_PLAN_SHA256,
+    V5_FROZEN_SOURCE_COMMIT,
+)
 
 
 class QuarterHourRecoveryPreflightError(RuntimeError):
@@ -257,12 +255,13 @@ def main(argv: list[str] | None = None) -> int:
         receipt=arguments.receipt,
         plan_path=arguments.plan,
     )
+    clone = cast(dict[str, object], payload["clone"])
     print(
         json.dumps(
             {
-                "batch_chain_sha256": payload["clone"]["batch_chain_sha256"],
-                "clone": payload["clone"]["path"],
-                "completed_batches": payload["clone"]["completed_batches"],
+                "batch_chain_sha256": clone["batch_chain_sha256"],
+                "clone": clone["path"],
+                "completed_batches": clone["completed_batches"],
                 "receipt": str(arguments.receipt.resolve()),
             },
             sort_keys=True,

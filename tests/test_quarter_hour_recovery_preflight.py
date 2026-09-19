@@ -5,13 +5,21 @@ from pathlib import Path
 
 import pytest
 
+from kairos_backtest import quarter_hour_features
 from kairos_backtest.quarter_hour_features import (
     PLAN_FILENAME,
     QuarterHourFeatureIntegrityError,
     QuarterHourFeatureLedger,
     _logical_sha256,
+    collect_features,
     load_plan,
     source_sha256,
+)
+from kairos_backtest.quarter_hour_v5_compatibility import (
+    V5_COMPATIBLE_RUNTIME_SOURCE_SHA256,
+    V5_FROZEN_PLAN_SHA256,
+    V5_LEDGER_FILENAME,
+    QuarterHourV5CompatibilityError,
 )
 from scripts.quarter_hour_recovery_preflight import (
     V5_FROZEN_FEATURE_SOURCE_SHA256,
@@ -200,3 +208,131 @@ def test_preflight_refuses_to_overwrite_an_explicit_clone_or_receipt(tmp_path: P
 
     assert clone_path.read_bytes() == b"preserved"
     assert not receipt_path.exists()
+
+
+class _ReachedExtractionWithoutNetwork(RuntimeError):
+    """Local sentinel proving the collector passed the V5 ledger-open barrier."""
+
+
+def test_v5_runtime_source_digest_is_the_exact_reviewed_allowlist() -> None:
+    assert source_sha256() == V5_COMPATIBLE_RUNTIME_SOURCE_SHA256
+
+
+def _collect_v5_until_local_sentinel(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    ledger_path = tmp_path / V5_LEDGER_FILENAME
+    _create_v5_fixture(ledger_path)
+    reached_extraction = False
+
+    def stop_after_ledger_open(**_: object) -> object:
+        nonlocal reached_extraction
+        reached_extraction = True
+        raise _ReachedExtractionWithoutNetwork
+
+    monkeypatch.setattr(quarter_hour_features, "_extract_one", stop_after_ledger_open)
+    root = Path(__file__).resolve().parents[1]
+    with pytest.raises(_ReachedExtractionWithoutNetwork):
+        collect_features(
+            project_root=tmp_path,
+            plan_path=root / PLAN_FILENAME,
+            ledger_path=ledger_path,
+            cache_dir=tmp_path / "no-network-cache",
+            loader_factory=lambda _: object(),
+            max_new_batches=1,
+            require_clean=False,
+            v5_compatibility=True,
+        )
+    assert reached_extraction
+    return ledger_path
+
+
+def test_v5_collector_opens_frozen_ledger_only_with_reviewed_runtime_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger_path = _collect_v5_until_local_sentinel(tmp_path, monkeypatch)
+
+    with sqlite3.connect(ledger_path) as connection:
+        metadata = dict(connection.execute("SELECT key, value FROM metadata"))
+        assert connection.execute("SELECT COUNT(*) FROM archive_batch").fetchone() == (0,)
+    assert metadata["feature_source_sha256"] == V5_FROZEN_FEATURE_SOURCE_SHA256
+    assert metadata["plan_sha256"] == V5_FROZEN_PLAN_SHA256
+
+
+def test_default_collector_still_rejects_a_historical_v5_fingerprint(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger_path = tmp_path / V5_LEDGER_FILENAME
+    _create_v5_fixture(ledger_path)
+    monkeypatch.setattr(
+        quarter_hour_features,
+        "_extract_one",
+        lambda **_: pytest.fail("default source check must reject before extraction"),
+    )
+    root = Path(__file__).resolve().parents[1]
+
+    with pytest.raises(QuarterHourFeatureIntegrityError, match="feature_source_sha256 mismatch"):
+        collect_features(
+            project_root=tmp_path,
+            plan_path=root / PLAN_FILENAME,
+            ledger_path=ledger_path,
+            cache_dir=tmp_path / "no-network-cache",
+            loader_factory=lambda _: object(),
+            max_new_batches=1,
+            require_clean=False,
+        )
+
+
+def test_v5_compatibility_rejects_an_unreviewed_runtime_digest_before_ledger_open(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger_path = tmp_path / V5_LEDGER_FILENAME
+    _create_v5_fixture(ledger_path)
+    monkeypatch.setattr(quarter_hour_features, "source_sha256", lambda: "f" * 64)
+    monkeypatch.setattr(
+        quarter_hour_features,
+        "_extract_one",
+        lambda **_: pytest.fail("unreviewed runtime must reject before extraction"),
+    )
+    root = Path(__file__).resolve().parents[1]
+
+    with pytest.raises(QuarterHourV5CompatibilityError, match="reviewed V5-compatible runtime digest"):
+        collect_features(
+            project_root=tmp_path,
+            plan_path=root / PLAN_FILENAME,
+            ledger_path=ledger_path,
+            cache_dir=tmp_path / "no-network-cache",
+            loader_factory=lambda _: object(),
+            max_new_batches=1,
+            require_clean=False,
+            v5_compatibility=True,
+        )
+
+
+def test_v5_compatibility_rejects_a_tampered_stored_source_before_extraction(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ledger_path = tmp_path / V5_LEDGER_FILENAME
+    _create_v5_fixture(ledger_path)
+    with sqlite3.connect(ledger_path) as connection:
+        connection.execute("UPDATE metadata SET value = 'tampered' WHERE key = 'feature_source_sha256'")
+    monkeypatch.setattr(
+        quarter_hour_features,
+        "_extract_one",
+        lambda **_: pytest.fail("tampered V5 ledger must reject before extraction"),
+    )
+    root = Path(__file__).resolve().parents[1]
+
+    with pytest.raises(QuarterHourV5CompatibilityError, match="feature_source_sha256"):
+        collect_features(
+            project_root=tmp_path,
+            plan_path=root / PLAN_FILENAME,
+            ledger_path=ledger_path,
+            cache_dir=tmp_path / "no-network-cache",
+            loader_factory=lambda _: object(),
+            max_new_batches=1,
+            require_clean=False,
+            v5_compatibility=True,
+        )

@@ -48,7 +48,15 @@ currently running the supervisor—so a later code repair cannot invalidate a
 valid V5 prefix, while an unknown or altered lineage still stops. The supervisor
 records the clone and receipt paths in status. It does not launch a collector
 unless a human explicitly invokes the separate `-Resume` form after inspecting
-that receipt. Both lineages use the
+that receipt. An explicit V5 resume passes a dedicated compatibility binding
+to the collector, verifier and eventual one-shot replication. That binding is
+not a digest override: it accepts only the named V5 runtime ledger, its frozen
+source/plan/schema metadata, and the one reviewed digest of the running feature
+implementation. Collector receipts retain the immutable ledger fingerprint and
+the reviewed runtime digest separately. Any later feature-source change fails
+before the ledger is opened read-write until a new compatibility review is
+committed. Default and future lineages retain ordinary current-source
+enforcement. Both lineages use the
 same frozen V2 plan, archive checks and one-shot result path; a pre-existing
 result stops either lineage for review and is never overwritten. An external
 failure stops subsequent phases. Inspect the complete result and its parent

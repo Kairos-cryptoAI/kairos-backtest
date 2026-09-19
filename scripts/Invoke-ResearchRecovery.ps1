@@ -278,10 +278,20 @@ try {
             }
         }
         $collectorModule = if ($PrepareArchives) { 'scripts.recover_quarter_hour' } else { 'kairos_backtest.quarter_hour_features' }
-        Invoke-Phase 'collect' @('-u', '-m', $collectorModule, '--ledger', $ledger, '--cache-dir', $cache, '--workers', [string]$Workers)
-        Invoke-Phase 'deep-verify' @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--verify', '--deep')
+        $collectorArguments = @('-u', '-m', $collectorModule, '--ledger', $ledger, '--cache-dir', $cache, '--workers', [string]$Workers)
+        $verifyArguments = @('-u', '-m', 'kairos_backtest.quarter_hour_features', '--ledger', $ledger, '--cache-dir', $cache, '--verify', '--deep')
+        $replicationArguments = @('-u', '-m', 'kairos_backtest.quarter_hour_lag_replication', '--plan', 'reports/quarter-hour-lag-replication-v2/plan.json', '--ledger', $ledger, '--result', $result)
+        if ($QuarterHourLineage -eq 'v5') {
+            # This flag is not an override: the Python gate requires the exact
+            # named V5 ledger, frozen source/plan/schema, and reviewed runtime digest.
+            $collectorArguments += '--v5-compatibility'
+            $verifyArguments += '--v5-compatibility'
+            $replicationArguments += '--v5-compatibility'
+        }
+        Invoke-Phase 'collect' $collectorArguments
+        Invoke-Phase 'deep-verify' $verifyArguments
         if (Test-Path -LiteralPath $result) { throw 'V2 result appeared during collection; refusing another evaluation.' }
-        Invoke-Phase 'replication' @('-u', '-m', 'kairos_backtest.quarter_hour_lag_replication', '--plan', 'reports/quarter-hour-lag-replication-v2/plan.json', '--ledger', $ledger, '--result', $result)
+        Invoke-Phase 'replication' $replicationArguments
         if ($QuarterHourLineage -eq 'v5') {
             $v4HashAfter = Get-Sha256Hex $immutableV4
             if ($v4HashAfter -ne $state.artifacts['immutable_v4_sha256_before']) {

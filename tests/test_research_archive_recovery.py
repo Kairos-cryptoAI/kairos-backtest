@@ -40,6 +40,29 @@ def test_collector_must_advance_exact_prepared_prefix(tmp_path, monkeypatch):
     assert commands[-1][-4:] == ["--workers", "1", "--max-new-batches", "1"]
 
 
+def test_v5_compatibility_flag_is_forwarded_to_the_frozen_verifier(tmp_path, monkeypatch):
+    from scripts import recover_quarter_hour as recovery
+
+    commands = []
+    monkeypatch.setattr(recovery.subprocess, "run", lambda command, **kwargs: commands.append(command))
+    monkeypatch.setattr(recovery, "next_group", lambda _: (335, ()))
+
+    assert (
+        recovery.main(
+            [
+                "--ledger",
+                str(tmp_path / "quarter-hour-lag-features-v5.sqlite3"),
+                "--cache-dir",
+                str(tmp_path / "cache"),
+                "--v5-compatibility",
+            ]
+        )
+        == 0
+    )
+    assert len(commands) == 1
+    assert commands[0][-2:] == ["--v5-compatibility", "--verify"]
+
+
 @pytest.mark.parametrize("error", [TimeoutError(), URLError("read failed")])
 def test_retry_transport_is_bounded(error):
     calls, waits = [], []

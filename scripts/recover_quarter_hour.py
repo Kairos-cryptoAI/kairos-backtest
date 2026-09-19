@@ -65,6 +65,11 @@ def main(argv=None) -> int:
     parser.add_argument("--ledger", type=Path, required=True)
     parser.add_argument("--cache-dir", type=Path, required=True)
     parser.add_argument("--workers", type=int, choices=range(1, 5), default=1)
+    parser.add_argument(
+        "--v5-compatibility",
+        action="store_true",
+        help="pass the reviewed V5 compatibility binding to the frozen collector",
+    )
     args = parser.parse_args(argv)
     command = [
         sys.executable,
@@ -76,6 +81,8 @@ def main(argv=None) -> int:
         "--cache-dir",
         str(args.cache_dir),
     ]
+    if args.v5_compatibility:
+        command.append("--v5-compatibility")
     # The frozen verifier validates evidence and fingerprints before any download.
     subprocess.run([*command, "--verify"], check=True)
     loader = BinanceMonthlyAggTradeArchiveLoader(args.cache_dir, retries=1)
