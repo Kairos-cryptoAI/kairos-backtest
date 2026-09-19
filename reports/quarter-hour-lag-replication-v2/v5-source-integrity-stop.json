@@ -1,0 +1,69 @@
+{
+  "schema_version": "kairos.quarter-hour-lag-replication.v2-source-integrity-stop.v1",
+  "classification": "SOURCE_INTEGRITY_STOP",
+  "lineage": "v5",
+  "recorded_at_utc": "2026-09-19T22:41:38.2901224Z",
+  "run": {
+    "run_id": "20260919T222312Z-5368",
+    "phase": "collect",
+    "first_uncommitted_batch": 101,
+    "committed_batches": 100,
+    "total_batches": 335
+  },
+  "source": {
+    "market": "Binance USD-M perpetual futures",
+    "archive": "BTCUSDT-aggTrades-2022-09.zip",
+    "symbol": "BTCUSDT",
+    "period": "2022-09",
+    "official_sha256": "b39acd27634cdb861fce7196182110f585b6c17fae7baae116f0d72ecd5f891b",
+    "checksum_sidecar": "MATCHED",
+    "zip_crc": "PASS"
+  },
+  "integrity_failure": {
+    "policy": "strict aggregate ID and nondecreasing timestamp",
+    "error": "aggregate trade ids must be strictly increasing",
+    "first_duplicate": {
+      "physical_lines": [
+        9958241,
+        9958242
+      ],
+      "aggregate_trade_id": 1446230265,
+      "raw_trade_id_range": [
+        2815718001,
+        2815718002
+      ],
+      "timestamp_utc": "2022-09-12T00:00:00.166Z",
+      "rows_byte_identical": true
+    },
+    "census": {
+      "non_increasing_ids": 4316651,
+      "equal_duplicate_ids": 4316651,
+      "decreasing_ids": 0,
+      "duplicate_interval_utc": {
+        "start": "2022-09-12T00:00:00.166Z",
+        "end": "2022-09-13T23:59:59.723Z"
+      }
+    },
+    "classification_basis": "The checksum-valid primary CSV contains adjacent byte-identical rows. The frozen strict-order collector therefore rejected the archive correctly; this is neither a transport error nor a parser reordering defect."
+  },
+  "provenance": {
+    "frozen_plan": "reports/quarter-hour-lag-replication-v2/plan.json",
+    "frozen_plan_sha256": "2c5d91f76dcf5fd2f8c5bcc1ccec1032fb56b967e131d6136fb9b437c86f425f",
+    "frozen_feature_source_sha256": "1df69cc8f73264e7fcaf1f9770219c63edba1dfcb64e24b8d6cc216910f15f0b",
+    "immutable_v4_ledger_sha256": "02d3a05772d690a3555cc783256df63c8ee01ce95018caf3cdb7c541e4ed1643"
+  },
+  "disposition": {
+    "v5": "PERMANENTLY_STOPPED",
+    "deduplicate_or_rewrite": "FORBIDDEN",
+    "resume": "FORBIDDEN",
+    "evaluation": "NOT_RUN",
+    "performance_or_pnl": "NOT_COMPUTED_OR_DISCLOSED",
+    "future_work": "A separate preregistered lineage may investigate a deduplication policy only after independent corroboration with official daily archives. It cannot reuse the V5 ledger or claim V5 provenance."
+  },
+  "readiness": {
+    "paper_qualified": false,
+    "alpha_ready": false,
+    "live_ready": false,
+    "strategy_policy": "REJECT_ALL"
+  }
+}
