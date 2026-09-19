@@ -7,17 +7,24 @@ or an independently running command for the same research track.
 ```powershell
 ./scripts/Invoke-ResearchRecovery.ps1 -Track Forward
 ./scripts/Invoke-ResearchRecovery.ps1 -Track QuarterHour
+# V5 defaults to a recovery preflight only; it does not start collection.
 ./scripts/Invoke-ResearchRecovery.ps1 -Track QuarterHour -QuarterHourLineage v5
+# Resume collection only after reviewing that run's verified receipt.
+./scripts/Invoke-ResearchRecovery.ps1 -Track QuarterHour -QuarterHourLineage v5 -Resume
 ```
 
 Launch long sessions with `Start-Process -WindowStyle Hidden`, using the absolute
 script path and `-NoProfile -File`. The default runtime root is
 `D:\Kairos\runtime`. Inspect `research-recovery/forward.status.json` and
 `research-recovery/quarterhour.status.json` there. Each run also retains its own
-status and stdout/stderr files. Status distinguishes `RUNNING`, `FAILED` and
-`COMPLETED`, records the phase and child identity, and separates heartbeat time
-from last log-output time. A stale heartbeat is not completion; reconcile the
-recorded process before resuming. No supervisor performs Git publication.
+status and stdout/stderr files. Status distinguishes `RUNNING`, `INTERRUPTED`,
+`FAILED` and `COMPLETED`, records the phase and child identity, and separates
+heartbeat time from last log-output time. A stale heartbeat is not completion.
+If a later supervisor finds that a recorded child PID has disappeared (or has
+been recycled), it writes an `INTERRUPTED`/`ORPHANED` record to both the prior
+run and `research-recovery/reconciliations/`, including the reason, prior parent
+run ID and reconciling run ID. A live child or an unreadable identity remains a
+hard stop. No supervisor performs Git publication.
 
 The Forward track makes a verified pre-sync backup, resumes official daily
 archives, verifies the ledger, checks performance-blind eligibility, and creates
@@ -30,7 +37,13 @@ ledger and repair any invalid cached archive without modifying accepted batches.
 The default `v4` lineage resumes its existing ledger. `-QuarterHourLineage v5`
 creates and owns `quarter-hour-lag-features-v5.sqlite3` while retaining V4 as an
 immutable provenance artifact. The V5 supervisor records V4's SHA-256 before
-collection and refuses a completed run if it changes. Both lineages use the
+collection and refuses a completed run if it changes. Its default operation is
+instead a non-mutating ledger recovery preflight: SQLite's online backup API
+creates a uniquely named clone that includes committed source WAL frames, then
+the clone receives SQLite integrity/foreign-key checks and full deep feature
+hash-chain verification. The supervisor records the clone and receipt paths in
+status. It does not launch a collector unless a human explicitly invokes the
+separate `-Resume` form after inspecting that receipt. Both lineages use the
 same frozen V2 plan, archive checks and one-shot result path; a pre-existing
 result stops either lineage for review and is never overwritten. An external
 failure stops subsequent phases. Inspect the complete result and its parent
@@ -56,5 +69,6 @@ Per-archive hashes/retry events and monthly progress remain in the run log.
 Run this driver only through the supervisor, which owns the exclusive lock.
 
 `Test-ResearchRecovery.ps1` exercises real harmless child processes, exit-code
-propagation, atomic status replacement and exclusive locking on Windows. It
-does not open market data, launch collection or call a paid service.
+propagation, atomic status replacement, durable missing-child reconciliation
+and exclusive locking on Windows. It does not open market data, launch
+collection or call a paid service.

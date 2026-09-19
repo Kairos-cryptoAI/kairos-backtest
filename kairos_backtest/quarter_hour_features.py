@@ -374,18 +374,58 @@ class QuarterHourFeatureLedger:
             )
             """
         )
-        expected_metadata = {
-            "feature_source_sha256": feature_source_sha256,
-            "plan_sha256": plan_sha256,
-            "schema_version": SCHEMA_VERSION,
-        }
-        for key, value in expected_metadata.items():
+        for key, value in self._expected_metadata(
+            plan_sha256=plan_sha256,
+            feature_source_sha256=feature_source_sha256,
+        ).items():
             existing = self._connection.execute("SELECT value FROM metadata WHERE key = ?", (key,)).fetchone()
             if existing is None:
                 self._connection.execute("INSERT INTO metadata(key, value) VALUES (?, ?)", (key, value))
             elif existing[0] != value:
                 raise QuarterHourFeatureIntegrityError(f"feature ledger {key} mismatch")
         self._connection.commit()
+
+    @staticmethod
+    def _expected_metadata(*, plan_sha256: str, feature_source_sha256: str) -> dict[str, str]:
+        return {
+            "feature_source_sha256": feature_source_sha256,
+            "plan_sha256": plan_sha256,
+            "schema_version": SCHEMA_VERSION,
+        }
+
+    @classmethod
+    def open_read_only(
+        cls,
+        path: Path,
+        *,
+        plan_sha256: str,
+        feature_source_sha256: str,
+    ) -> QuarterHourFeatureLedger:
+        """Open an existing ledger without creating files, schema, or WAL state."""
+        if not path.is_file():
+            raise FileNotFoundError(f"feature ledger does not exist: {path}")
+        instance = cls.__new__(cls)
+        instance.path = path
+        # Recovery verification targets a sealed clone. ``immutable=1`` avoids
+        # SQLite creating lock/WAL sidecars while preserving a strict no-write
+        # open. Live ledgers must first be copied through the online backup API.
+        uri = path.resolve().as_uri() + "?mode=ro&immutable=1"
+        instance._connection = sqlite3.connect(uri, uri=True)
+        try:
+            instance._connection.execute("PRAGMA query_only=ON")
+            for key, expected in cls._expected_metadata(
+                plan_sha256=plan_sha256,
+                feature_source_sha256=feature_source_sha256,
+            ).items():
+                row = instance._connection.execute(
+                    "SELECT value FROM metadata WHERE key = ?", (key,)
+                ).fetchone()
+                if row is None or row[0] != expected:
+                    raise QuarterHourFeatureIntegrityError(f"feature ledger {key} mismatch")
+        except BaseException:
+            instance.close()
+            raise
+        return instance
 
     def __enter__(self) -> QuarterHourFeatureLedger:
         return self

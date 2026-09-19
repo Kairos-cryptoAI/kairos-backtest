@@ -3,7 +3,8 @@ param(
     [string]$RuntimeRoot = 'D:\Kairos\runtime',
     [ValidateRange(1, 4)][int]$Workers = 4,
     [switch]$PrepareArchives,
-    [ValidateSet('v4', 'v5')][string]$QuarterHourLineage = 'v4'
+    [ValidateSet('v4', 'v5')][string]$QuarterHourLineage = 'v4',
+    [switch]$Resume
 )
 
 $ErrorActionPreference = 'Stop'
@@ -28,6 +29,7 @@ $state = [ordered]@{
     quarter_hour_lineage = if ($Track -eq 'QuarterHour') { $QuarterHourLineage } else { $null }
     workers = if ($Track -eq 'QuarterHour') { $Workers } else { $null }
     prepare_archives = [bool]$PrepareArchives
+    resume_requested = [bool]$Resume
     run_id = $runId
     supervisor_pid = $PID
     started_at_utc = [DateTime]::UtcNow.ToString('o')
@@ -45,18 +47,112 @@ $state = [ordered]@{
 $runDir = Join-Path $controlRoot $runId
 $child = $null
 
+function Write-JsonAtomically([object]$Payload, [string]$Destination) {
+    $parent = Split-Path -Parent $Destination
+    if (-not (Test-Path -LiteralPath $parent)) {
+        New-Item -ItemType Directory -Path $parent -Force | Out-Null
+    }
+    $temporary = $Destination + '.tmp-' + $PID + '-' + [Guid]::NewGuid().ToString('N')
+    [IO.File]::WriteAllText(
+        $temporary,
+        ($Payload | ConvertTo-Json -Depth 12),
+        [Text.UTF8Encoding]::new($false)
+    )
+    if (Test-Path -LiteralPath $Destination) {
+        [IO.File]::Replace($temporary, $Destination, ($Destination + '.previous'))
+    } else {
+        [IO.File]::Move($temporary, $Destination)
+    }
+}
+
 function Save-State {
     $state.updated_at_utc = [DateTime]::UtcNow.ToString('o')
-    $json = $state | ConvertTo-Json -Depth 8
     foreach ($destination in @($statusPath, (Join-Path $runDir 'status.json'))) {
-        $temporary = $destination + '.tmp-' + $PID
-        [IO.File]::WriteAllText($temporary, $json, [Text.UTF8Encoding]::new($false))
-        if (Test-Path -LiteralPath $destination) {
-            [IO.File]::Replace($temporary, $destination, ($destination + '.previous'))
-        } else {
-            [IO.File]::Move($temporary, $destination)
-        }
+        Write-JsonAtomically $state $destination
     }
+}
+
+function Set-StateProperty([object]$Target, [string]$Name, [object]$Value) {
+    $property = $Target.PSObject.Properties[$Name]
+    if ($null -eq $property) {
+        $Target | Add-Member -NotePropertyName $Name -NotePropertyValue $Value
+    } else {
+        $property.Value = $Value
+    }
+}
+
+function Get-StateProperty([object]$Target, [string]$Name) {
+    $property = $Target.PSObject.Properties[$Name]
+    if ($null -eq $property) { return $null }
+    return $property.Value
+}
+
+function Reconcile-PreviousSupervisorState([object]$Previous, [string]$PreviousStatusPath) {
+    $priorRunId = [string](Get-StateProperty $Previous 'run_id')
+    if ([string]::IsNullOrWhiteSpace($priorRunId)) {
+        throw 'Prior supervisor status has no run_id; refusing to replace an unverifiable record.'
+    }
+    $previousState = [string](Get-StateProperty $Previous 'state')
+    $childPid = Get-StateProperty $Previous 'child_pid'
+    $childStartedAt = Get-StateProperty $Previous 'child_started_at_utc'
+    $reason = $null
+    if ($childPid) {
+        $expectedStart = $null
+        try {
+            $expectedStart = ([DateTimeOffset]$childStartedAt).UtcDateTime
+        } catch {
+            $reason = 'RECOVERY_SUPERVISOR_CHILD_IDENTITY_INCOMPLETE'
+        }
+        if ($null -eq $reason) {
+            $orphan = Get-Process -Id $childPid -ErrorAction SilentlyContinue
+            if ($orphan) {
+                try {
+                    $actualStart = $orphan.StartTime.ToUniversalTime()
+                } catch {
+                    throw 'Unable to inspect the prior child identity; reconcile it manually before another supervisor.'
+                }
+                if ($actualStart -eq $expectedStart) {
+                    throw 'The prior child is still running. Reconcile it before starting another supervisor.'
+                }
+                $reason = 'RECOVERY_SUPERVISOR_CHILD_PID_IDENTITY_MISMATCH'
+            } else {
+                $reason = 'RECOVERY_SUPERVISOR_CHILD_PID_NOT_FOUND'
+            }
+        }
+    } elseif ($previousState -in @('STARTING', 'RUNNING')) {
+        $reason = 'RECOVERY_SUPERVISOR_RUNNING_WITHOUT_CHILD_IDENTITY'
+    }
+    if ($null -eq $reason) { return $null }
+
+    $reconciledAt = [DateTime]::UtcNow.ToString('o')
+    $reconciliation = [ordered]@{
+        classification = 'ORPHANED_CHILD'
+        parent_run_id = $priorRunId
+        prior_child_pid = $childPid
+        prior_child_started_at_utc = $childStartedAt
+        reason = $reason
+        reconciled_at_utc = $reconciledAt
+        reconciled_by_run_id = $runId
+    }
+    Set-StateProperty $Previous 'state' 'INTERRUPTED'
+    Set-StateProperty $Previous 'child_status' 'ORPHANED'
+    Set-StateProperty $Previous 'child_pid' $null
+    Set-StateProperty $Previous 'child_started_at_utc' $null
+    Set-StateProperty $Previous 'error' $reason
+    Set-StateProperty $Previous 'interrupted_at_utc' $reconciledAt
+    Set-StateProperty $Previous 'orphaned_child_pid' $childPid
+    Set-StateProperty $Previous 'orphaned_child_started_at_utc' $childStartedAt
+    Set-StateProperty $Previous 'orphan_reconciliation' $reconciliation
+
+    $priorRunStatusPath = Join-Path (Join-Path $controlRoot $priorRunId) 'status.json'
+    $reconciliationRoot = Join-Path $controlRoot 'reconciliations'
+    $receiptPath = Join-Path $reconciliationRoot ($priorRunId + '.orphaned-by-' + $runId + '.json')
+    Write-JsonAtomically $Previous $PreviousStatusPath
+    if ((Resolve-Path -LiteralPath $priorRunStatusPath -ErrorAction SilentlyContinue) -ne (Resolve-Path -LiteralPath $PreviousStatusPath -ErrorAction SilentlyContinue)) {
+        Write-JsonAtomically $Previous $priorRunStatusPath
+    }
+    Write-JsonAtomically $reconciliation $receiptPath
+    return $receiptPath
 }
 
 function Get-Sha256Hex([string]$Path) {
@@ -110,13 +206,15 @@ function Invoke-Phase([string]$Name, [string[]]$CommandArguments) {
 }
 
 try {
+    if ($Resume -and ($Track -ne 'QuarterHour' -or $QuarterHourLineage -ne 'v5')) {
+        throw '-Resume is reserved for an explicit V5 quarter-hour collector continuation.'
+    }
+    New-Item -ItemType Directory -Path $runDir | Out-Null
     if (Test-Path -LiteralPath $statusPath) {
         $previous = Get-Content -LiteralPath $statusPath -Raw | ConvertFrom-Json
-        if ($previous.child_pid) {
-            $orphan = Get-Process -Id $previous.child_pid -ErrorAction SilentlyContinue
-            if ($orphan -and $orphan.StartTime.ToUniversalTime() -eq ([DateTimeOffset]$previous.child_started_at_utc).UtcDateTime) {
-                throw 'The prior child is still running. Reconcile it before starting another supervisor.'
-            }
+        $priorReconciliation = Reconcile-PreviousSupervisorState $previous $statusPath
+        if ($priorReconciliation) {
+            $state.artifacts['prior_orphan_reconciliation'] = $priorReconciliation
         }
     }
     $modulePattern = if ($Track -eq 'Forward') {
@@ -128,7 +226,6 @@ try {
         $_.Name -match '^python(w)?\.exe$' -and $_.CommandLine -match $modulePattern
     }
     if ($existingWorkers) { throw 'An unsupervised research command is already running; reconcile it first.' }
-    New-Item -ItemType Directory -Path $runDir | Out-Null
     Save-State
     $dirty = & git -C $projectRoot status --porcelain=v1 --untracked-files=all
     if ($LASTEXITCODE -ne 0 -or $dirty) { throw 'Research recovery requires a clean Git worktree.' }
@@ -161,7 +258,24 @@ try {
             $state.artifacts['immutable_v4_ledger'] = $immutableV4
             $state.artifacts['immutable_v4_sha256_before'] = $v4Hash
             $state.artifacts['v5_ledger'] = $ledger
+            $preflightClone = Join-Path $RuntimeRoot ('backups\quarterhour-v5-before-' + $runId + '.sqlite3')
+            $preflightReceipt = $preflightClone + '.receipt.json'
+            $state.artifacts['v5_recovery_clone'] = $preflightClone
+            $state.artifacts['v5_recovery_receipt'] = $preflightReceipt
             Save-State
+            Invoke-Phase 'v5-recovery-preflight' @(
+                '-u', '-m', 'scripts.quarter_hour_recovery_preflight',
+                '--ledger', $ledger,
+                '--clone', $preflightClone,
+                '--receipt', $preflightReceipt,
+                '--plan', 'reports/quarter-hour-lag-replication-v2/plan.json'
+            )
+            if (-not $Resume) {
+                $state.state = 'COMPLETED'
+                $state.phase = 'v5-recovery-preflight'
+                Save-State
+                return
+            }
         }
         $collectorModule = if ($PrepareArchives) { 'scripts.recover_quarter_hour' } else { 'kairos_backtest.quarter_hour_features' }
         Invoke-Phase 'collect' @('-u', '-m', $collectorModule, '--ledger', $ledger, '--cache-dir', $cache, '--workers', [string]$Workers)

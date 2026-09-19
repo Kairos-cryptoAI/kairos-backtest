@@ -10,6 +10,7 @@ $parameterProbe = [scriptblock]::Create($ast.ParamBlock.Extent.Text + "`nreturn 
 if ((& $parameterProbe -Track QuarterHour) -ne 4) { throw 'Default worker count changed.' }
 if ((& $parameterProbe -Track QuarterHour -Workers 1) -ne 1) { throw 'Serial recovery unavailable.' }
 if ((& $parameterProbe -Track QuarterHour -QuarterHourLineage v5) -ne 4) { throw 'V5 lineage is unavailable.' }
+if ((& $parameterProbe -Track QuarterHour -QuarterHourLineage v5 -Resume) -ne 4) { throw 'Explicit V5 resume is unavailable.' }
 foreach ($invalid in @(0, 5)) {
     $rejected = $false
     try { & $parameterProbe -Track QuarterHour -Workers $invalid | Out-Null } catch { $rejected = $true }
@@ -17,20 +18,26 @@ foreach ($invalid in @(0, 5)) {
 }
 # Exercise the real phase/status functions against a harmless child process.
 # Do not run the collector or open a market database.
-foreach ($name in @('Save-State', 'Get-Sha256Hex', 'Invoke-Phase')) {
+foreach ($name in @(
+    'Write-JsonAtomically', 'Save-State', 'Set-StateProperty', 'Get-StateProperty',
+    'Reconcile-PreviousSupervisorState', 'Get-Sha256Hex', 'Invoke-Phase'
+)) {
     $functionAst = $ast.Find({ param($node) $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name }, $true)
     . ([scriptblock]::Create($functionAst.Extent.Text))
 }
 $projectRoot = Split-Path $PSScriptRoot -Parent
 $python = Join-Path $projectRoot '.venv\Scripts\python.exe'
-$runDir = Join-Path ([IO.Path]::GetTempPath()) ('kairos-supervisor-test-' + [Guid]::NewGuid().ToString('N'))
+$testRoot = Join-Path ([IO.Path]::GetTempPath()) ('kairos-supervisor-test-' + [Guid]::NewGuid().ToString('N'))
+$controlRoot = Join-Path $testRoot 'research-recovery'
+$runId = 'current-run'
+$runDir = Join-Path $controlRoot $runId
 New-Item -ItemType Directory -Path $runDir | Out-Null
 $hashFixture = Join-Path $runDir 'sha256.bin'
 [IO.File]::WriteAllBytes($hashFixture, [byte[]](0, 1, 2, 3))
 if ((Get-Sha256Hex $hashFixture) -ne '054edec1d0211f624fed0cbca9d4f9400b0e491c43742af2c5b0abebf0c990d8') {
     throw 'Portable SHA-256 helper returned an unexpected digest.'
 }
-$statusPath = Join-Path $runDir 'latest.json'
+$statusPath = Join-Path $controlRoot 'latest.json'
 $state = [ordered]@{ updated_at_utc = $null; phase = ''; state = ''; artifacts = @{}; child_pid = $null; child_started_at_utc = $null; last_output_at_utc = $null; exit_code = $null; completed_phases = @() }
 Invoke-Phase 'success' @('-c', 'print(123)')
 if ($state.exit_code -ne 0 -or $state.completed_phases -notcontains 'success') { throw 'Success was not recorded.' }
@@ -39,6 +46,49 @@ if ($stored.child_pid -or $stored.completed_phases -notcontains 'success') { thr
 $failed = $false
 try { Invoke-Phase 'failure' @('-c', 'raise SystemExit(7)') } catch { $failed = $true }
 if (-not $failed -or $state.exit_code -ne 7 -or $state.completed_phases -contains 'failure') { throw 'A failed child was accepted.' }
+$priorRunId = 'prior-run'
+$priorRunDir = Join-Path $controlRoot $priorRunId
+New-Item -ItemType Directory -Path $priorRunDir | Out-Null
+$prior = [ordered]@{
+    schema_version = 'kairos.research-recovery.v1'
+    run_id = $priorRunId
+    state = 'RUNNING'
+    phase = 'collect'
+    child_pid = [int]::MaxValue
+    child_started_at_utc = '2000-01-01T00:00:00.0000000Z'
+    error = $null
+}
+Write-JsonAtomically $prior $statusPath
+Write-JsonAtomically $prior (Join-Path $priorRunDir 'status.json')
+$receiptPath = Reconcile-PreviousSupervisorState (Get-Content -LiteralPath $statusPath -Raw | ConvertFrom-Json) $statusPath
+if (-not (Test-Path -LiteralPath $receiptPath)) { throw 'Missing orphan reconciliation receipt.' }
+$interrupted = Get-Content -LiteralPath (Join-Path $priorRunDir 'status.json') -Raw | ConvertFrom-Json
+if ($interrupted.state -ne 'INTERRUPTED' -or $interrupted.child_status -ne 'ORPHANED') {
+    throw 'Missing child was not durably marked INTERRUPTED/ORPHANED.'
+}
+if ($interrupted.orphaned_child_pid -ne [int]::MaxValue -or $interrupted.orphan_reconciliation.parent_run_id -ne $priorRunId) {
+    throw 'Orphan reconciliation lost child or parent-run lineage.'
+}
+$receipt = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
+if ($receipt.reason -ne 'RECOVERY_SUPERVISOR_CHILD_PID_NOT_FOUND' -or $receipt.parent_run_id -ne $priorRunId) {
+    throw 'Orphan reconciliation receipt is not fail-closed.'
+}
+$childlessRunId = 'prior-childless-run'
+$childlessRunDir = Join-Path $controlRoot $childlessRunId
+New-Item -ItemType Directory -Path $childlessRunDir | Out-Null
+$childless = [ordered]@{
+    schema_version = 'kairos.research-recovery.v1'
+    run_id = $childlessRunId
+    state = 'RUNNING'
+    phase = 'collect'
+}
+Write-JsonAtomically $childless $statusPath
+Write-JsonAtomically $childless (Join-Path $childlessRunDir 'status.json')
+$childlessReceiptPath = Reconcile-PreviousSupervisorState (Get-Content -LiteralPath $statusPath -Raw | ConvertFrom-Json) $statusPath
+$childlessReceipt = Get-Content -LiteralPath $childlessReceiptPath -Raw | ConvertFrom-Json
+if ($childlessReceipt.reason -ne 'RECOVERY_SUPERVISOR_RUNNING_WITHOUT_CHILD_IDENTITY') {
+    throw 'A RUNNING status without a child identity was not fail-closed.'
+}
 $lockPath = Join-Path $runDir 'exclusive.lock'
 $first = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None)
 try {
@@ -46,4 +96,4 @@ try {
     try { $second = [IO.File]::Open($lockPath, [IO.FileMode]::OpenOrCreate, [IO.FileAccess]::ReadWrite, [IO.FileShare]::None); $second.Dispose() } catch { $rejected = $true }
     if (-not $rejected) { throw 'Concurrent lock acquisition was accepted.' }
 } finally { $first.Dispose() }
-Write-Output 'PASS: phase success/failure, atomic status publication and exclusive locking.'
+Write-Output 'PASS: phase success/failure, atomic status publication, orphan reconciliation and exclusive locking.'
