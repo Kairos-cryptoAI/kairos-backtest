@@ -38,3 +38,34 @@ not claim that a Bybit observation is executable on EVEDEX.  Only after the
 entire tape passes its integrity checks may a separate, preregistered
 statistical study be proposed; any resulting candidate remains subject to the
 independent alpha, EVEDEX, PAPER, and LIVE gates.
+
+## Recorder operation
+
+`python -m kairos_backtest.liquidation_absorption_capture` is a public-only recorder.  It refuses
+to start before the plan's UTC boundary, validates the exact plan hash, allows
+only one recent writer lease, and writes immutable gzip segments with a global
+event hash chain.  A malformed source frame, source-time/update regression,
+known update gap, reconnect, non-text frame, transport failure, or
+unclean restart becomes a barrier; an eligible future study must exclude a
+window that crosses one.
+
+The recorder is intentionally bounded by an explicit duration, so a supervisor
+can leave an inspectable receipt and restart safely rather than silently
+claiming indefinite uptime.  Example for an isolated runtime location after
+the UTC start time:
+
+```powershell
+uv run --locked python -m kairos_backtest.liquidation_absorption_capture `
+  --output-directory D:\Kairos\runtime\liquidation-absorption-v1 `
+  --duration-seconds 86400
+```
+
+It prints only coverage/integrity state, never a signal, outcome, PnL, or
+credential.  Verify a fully sealed stopped tape without reopening a network
+connection:
+
+```powershell
+uv run --locked python -m kairos_backtest.liquidation_absorption_capture `
+  --output-directory D:\Kairos\runtime\liquidation-absorption-v1 `
+  --verify
+```
