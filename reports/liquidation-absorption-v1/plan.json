@@ -1,0 +1,67 @@
+{
+  "classification": "PERFORMANCE_BLIND_LIVE_MICROSTRUCTURE_DATA_QUALIFICATION",
+  "data": {
+    "capture_start_not_before_utc": "2026-09-21T00:00:00Z",
+    "collection_duration_days": 90,
+    "market": "Bybit linear perpetual public market data",
+    "purpose": "research-only event-time tape; not execution data",
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT"
+    ],
+    "transport": {
+      "topics": [
+        "orderbook.50.{symbol}",
+        "publicTrade.{symbol}",
+        "tickers.{symbol}",
+        "allLiquidation.{symbol}"
+      ],
+      "websocket_url": "wss://stream.bybit.com/v5/public/linear"
+    }
+  },
+  "data_quality": {
+    "book_continuity": "persist every snapshot/delta sequence and record a barrier on reconnect, gap, sequence regression, malformed frame, or queue overflow",
+    "event_eligibility": "a later observation may use an event only when its complete pre/post window has raw trade, ticker, order-book, and liquidation provenance with no barrier",
+    "liquidation_semantics": "S=Buy is a liquidated long and therefore sell pressure; S=Sell is a liquidated short and therefore buy pressure; bankruptcy price is not execution price",
+    "raw_lineage": "persist original UTF-8 WebSocket text, SHA-256, exchange timestamps, local receipt timestamps, channel sequence, and a global append-only hash chain",
+    "rpi_limitation": "displayed order-book depth excludes RPI orders and is an incomplete liquidity proxy",
+    "time_basis": "all intervals use exchange timestamp and retain local receipt timestamp separately; future-dated or non-monotonic source state is rejected"
+  },
+  "hypothesis": {
+    "economic_mechanism": "after an observed one-sided liquidation burst, subsequent 30-180 second movement depends on forced notional relative to opposite-side depth replenishment and realized impact",
+    "not_a_claim": "the study does not predict a cascade before it is observable and does not assume a displayed book is executable liquidity",
+    "research_question": "does post-shock absorption versus continuation remain measurable after a fixed non-colocated information delay and later conservative execution costs"
+  },
+  "permissions": {
+    "alpha_ready": false,
+    "live_allowed": false,
+    "paper_allowed": false,
+    "promotion_eligible": false
+  },
+  "prohibitions": [
+    "account credentials",
+    "EVEDEX connection",
+    "LLM or paid feed call",
+    "model fitting",
+    "order submission",
+    "PnL or simulated trade",
+    "signal generation",
+    "strategy intent"
+  ],
+  "protocol": {
+    "data_before_model": "only a qualified immutable tape may be used by a later separately preregistered statistical study",
+    "execution_venue_boundary": "EVEDEX basis, depth, latency, and fills remain a separate later qualification",
+    "historical_result_examined": false,
+    "result_may_not_change_this_plan": true,
+    "source_documentation": [
+      "https://bybit-exchange.github.io/docs/v5/websocket/public/all-liquidation",
+      "https://bybit-exchange.github.io/docs/v5/websocket/public/orderbook",
+      "https://bybit-exchange.github.io/docs/v5/websocket/public/ticker",
+      "https://bybit-exchange.github.io/docs/v5/websocket/public/trade"
+    ]
+  },
+  "schema_version": "kairos.liquidation-absorption-data.v1"
+}
