@@ -246,3 +246,43 @@ supervisor ran once, from `2026-09-20T11:43:49.2273981Z` to
 
 The independent 365-day and 500-closed-trade gates remain in force. This receipt
 records coverage/integrity/recovery only, not strategy performance or trading readiness.
+
+## Daily observation receipt: 2026-09-21
+
+The prior receipts remain unchanged. All five official daily archives for
+**2026-09-20** were retrieved on **2026-09-21**. This is retrospective daily-archive
+collection, not continuous online operational uptime. The existing Forward
+supervisor ran once, from `2026-09-21T11:16:37.7015816Z` to
+`2026-09-21T11:21:27.7740402Z`, completing all six phases.
+
+- Run: `20260921T111637Z-16472`; logs and phase status:
+  `D:\Kairos\runtime\research-recovery\20260921T111637Z-16472`.
+- Official resumable `sync-latest`: five daily archives, one complete day per symbol.
+- Appended bars: `7,200`; duplicates: `0`.
+- Common exclusive watermark: `2026-09-21T00:00:00Z`.
+- Bars per symbol: `86,400`; total bars: `432,000`.
+- Transport/row checks: official SHA-256, ZIP CRC and 1,440 contiguous rows per archive.
+- Full ledger verification: `valid`; blocked symbols: none.
+- Evidence SHA-256:
+  `617ed730fec620077aba31f65d09045c05bd716113f7b3b03fb5433c711801da`.
+- The ledger covers 20 complete blind-period days; duration gate remains unsatisfied.
+- Performance-blind eligibility did not evaluate closed-trade counts or disclose PnL.
+- Frozen strategy/configuration, plan, evaluator lock and promotion permissions are unchanged.
+
+### September 21 backup and recovery
+
+- Before-sync backup:
+  `D:\Kairos\runtime\backups\forward-before-20260921T111637Z-16472.sqlite3`.
+- Before-sync SHA-256:
+  `d8df937cc1eeaf5b23c839c4598dd78321e5371e49e5f6c886bc06b2fd6e7e0c`.
+- After-sync backup:
+  `D:\Kairos\runtime\backups\forward-after-20260921T111637Z-16472.sqlite3`.
+- Recovered copy:
+  `D:\Kairos\runtime\recovery\forward-20260921T111637Z-16472.sqlite3`.
+- Identical after-sync/recovered SHA-256:
+  `356bf4cc5969a3f010f047aa68db73e8eb54a88e03b1ca4804e044cb85063064`.
+- Recovered evidence matches the September 21 ledger evidence hash above.
+- Primary unchanged during the recovery drill: `true`.
+
+The independent 365-day and 500-closed-trade gates remain in force. This receipt
+records coverage/integrity/recovery only, not strategy performance or trading readiness.
