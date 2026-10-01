@@ -326,3 +326,47 @@ supervisor ran once, from `2026-09-22T14:21:51.1139445Z` to
 
 The independent 365-day and 500-closed-trade gates remain in force. This receipt
 records coverage/integrity/recovery only, not strategy performance or trading readiness.
+
+## Daily observation receipt: 2026-10-01
+
+The prior receipts remain unchanged. The five official Binance daily archives
+for **2026-09-22 through 2026-09-30 inclusive** were retrieved retrospectively
+on **2026-10-01**. This is archive collection, not continuous online
+operational uptime. The existing Forward supervisor ran once, from
+`2026-10-01T20:08:30Z` to `2026-10-01T20:22:46Z`, and completed all six phases.
+
+- Run: `20261001T200830Z-43184`; logs and phase status:
+  `D:\Kairos\runtime\research-recovery\20261001T200830Z-43184`.
+- Official resumable `sync-latest`: 45 daily archives (9 days × 5 symbols).
+- Appended bars: `64,800`; duplicates: `0`.
+- Common exclusive watermark: `2026-10-01T00:00:00Z`.
+- Bars per symbol: `100,800`; total bars: `504,000`.
+- Transport/row checks: official SHA-256, ZIP CRC and 1,440 contiguous rows per archive.
+- Full ledger verification: `valid`; blocked symbols: none.
+- Evidence SHA-256:
+  `0fc46eea24102e5cc7fa8cf638bf2a84a4ccf13e381b0b14adb9a4e209216f5c`.
+- The ledger covers 30 complete blind-period days; the 365-day duration gate
+  remains unsatisfied. Closed-trade eligibility was not evaluated; no blind
+  performance was disclosed.
+- Frozen strategy/configuration, plan, evaluator lock and promotion permissions
+  are unchanged.
+
+### October 1 backup and recovery
+
+- Before-sync backup:
+  `D:\Kairos\runtime\backups\forward-before-20261001T200830Z-43184.sqlite3`.
+- Before-sync file SHA-256:
+  `e9f5a3d38609b7a141d92cfb2e37078a8678542996e4231d7c48348e986f43cb`.
+- Before-sync evidence SHA-256:
+  `912228750846daf588e926281db052402a0e14b0ad2ba02d10f1355868afd686`.
+- After-sync backup:
+  `D:\Kairos\runtime\backups\forward-after-20261001T200830Z-43184.sqlite3`.
+- Recovered copy:
+  `D:\Kairos\runtime\recovery\forward-20261001T200830Z-43184.sqlite3`.
+- Identical after-sync/recovered file SHA-256:
+  `ac209c4866522fde336e2e6bb6199f32d8ae350c1124551c03972d02b66c8696`.
+- Recovered evidence matches the October 1 ledger evidence hash above.
+- Primary unchanged during the recovery drill: `true`.
+
+The independent 365-day and 500-closed-trade gates remain in force. This receipt
+records coverage/integrity/recovery only, not strategy performance or trading readiness.
